@@ -1,24 +1,21 @@
 <template>
-  <v-container fluid class="fill-height login-container">
+  <v-container fluid class="fill-height page-background">
     <v-row justify="center" align="center">
       <v-col cols="12" sm="8" md="6" lg="4">
         <!-- 系統名稱區塊 -->
-        <v-card class="elevation-8 mb-4 text-center pa-4 system-name">
-          <h1 class="text-h4 font-weight-bold primary--text">AAZ</h1>
-          <p class="text-subtitle-1 grey--text">旅遊分帳系統</p>
-        </v-card>
+        <!-- <v-card class="elevation-8 mb-4 text-center pa-4 system-name">
 
-        <!-- 登入/註冊表單 -->
-        <v-card class="elevation-8 pa-6">
-          <!-- 切換登入/註冊的標籤 -->
-          <div class="d-flex justify-space-between align-center mb-6">
-            <h2 class="text-h5 font-weight-bold">
-              {{ isLogin ? '登入' : '註冊' }}
-            </h2>
-            <v-btn text color="primary" @click="toggleMode" size="small">
-              {{ isLogin ? '註冊' : '登入' }}
-            </v-btn>
-          </div>
+        </v-card> -->
+
+        <!-- 登入表單 -->
+        <v-card class="elevation-8 pa-6" style="background-color: rgba(255, 255, 255, 0.85)">
+          <h1
+            class="text-h4 font-weight-bold primary--text d-flex align-center justify-center mb-6"
+          >
+            欸
+            <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
+            誌
+          </h1>
 
           <v-form ref="formRef" v-model="valid" @submit.prevent="handleSubmit">
             <!-- Email 欄位 -->
@@ -110,6 +107,19 @@
               {{ isLogin ? '登入' : '註冊' }}
             </v-btn>
           </v-form>
+
+          <!-- 切換登入/註冊連結 -->
+          <div class="text-center mt-4">
+            <template v-if="isLogin">
+              <span class="text-body-2">還沒有帳號？</span>
+              <a @click="toggleMode" class="toggle-link text-body-2">註冊</a>
+              <span class="text-body-2">一個吧</span>
+            </template>
+            <template v-else>
+              <span class="text-body-2">已經有帳號了？</span>
+              <a @click="toggleMode" class="toggle-link text-body-2">登入</a>
+            </template>
+          </div>
         </v-card>
       </v-col>
     </v-row>
@@ -224,7 +234,7 @@ const handleSubmit = async () => {
 
 <style scoped>
 .login-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: rgba(255, 255, 255, 0.85);
   min-height: 100vh;
 }
 
@@ -234,5 +244,22 @@ const handleSubmit = async () => {
 
 .primary--text {
   color: #4caf50 !important;
+}
+
+.logo-icon {
+  height: 1.3em;
+  margin: 0 0.15em;
+  vertical-align: middle;
+}
+
+.toggle-link {
+  color: #4caf50;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.toggle-link:hover {
+  text-decoration: underline;
 }
 </style>

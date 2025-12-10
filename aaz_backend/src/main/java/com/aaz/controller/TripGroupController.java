@@ -1,6 +1,7 @@
 package com.aaz.controller;
 
 import com.aaz.dto.*;
+import com.aaz.security.services.UserDetailsImpl;
 import com.aaz.service.TripGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,34 +15,35 @@ import java.util.List;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class TripGroupController {
-    
+
     private final TripGroupService tripGroupService;
-    
+
     @GetMapping
     public ResponseEntity<List<TripGroupResponse>> getMyTrips(Authentication auth) {
-        Long userId = Long.parseLong(auth.getName());
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+        Long userId = userDetails.getId();
         return ResponseEntity.ok(tripGroupService.getUserTripGroups(userId));
     }
-    
+
     @GetMapping("/{tripId}")
     public ResponseEntity<TripGroupResponse> getTripById(@PathVariable Long tripId) {
         return ResponseEntity.ok(tripGroupService.getTripGroupById(tripId));
     }
-    
+
     @PostMapping
     public ResponseEntity<TripGroupResponse> createTrip(
-        @RequestBody TripGroupRequest request,
-        Authentication auth
-    ) {
-        Long userId = Long.parseLong(auth.getName());
+            @RequestBody TripGroupRequest request,
+            Authentication auth) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+        Long userId = userDetails.getId();
         return ResponseEntity.ok(tripGroupService.createTripGroup(request, userId));
     }
-    
+
     @PutMapping("/{tripId}")
     public ResponseEntity<TripGroupResponse> updateTrip(
-        @PathVariable Long tripId,
-        @RequestBody TripGroupRequest request
-    ) {
+            @PathVariable Long tripId,
+            @RequestBody TripGroupRequest request) {
         return ResponseEntity.ok(tripGroupService.updateTripGroup(tripId, request));
     }
 }

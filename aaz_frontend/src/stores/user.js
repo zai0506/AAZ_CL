@@ -4,9 +4,9 @@ import api from '@/api/axios';
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || null);
-  const id = ref(null);
-  const email = ref(null);
-  const nickname = ref(null);
+  const id = ref(localStorage.getItem('userId') || null);
+  const email = ref(localStorage.getItem('userEmail') || null);
+  const nickname = ref(localStorage.getItem('userNickname') || null);
 
   const isLoggedIn = computed(() => !!token.value);
 

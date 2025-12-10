@@ -25,10 +25,16 @@ api.interceptors.request.use(
 // 響應攔截器（處理 401 自動登出）
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
+      // 清除所有用戶相關的 localStorage
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userNickname');
+      // 動態導入 router 以避免循環依賴
+      const { default: router } = await import('@/router');
+      router.push('/login').catch(() => {});
     }
     return Promise.reject(error);
   }

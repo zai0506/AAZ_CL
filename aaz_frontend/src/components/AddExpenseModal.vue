@@ -46,6 +46,7 @@
                 :items="currencies"
                 label="貨幣"
                 :rules="[rules.required]"
+                @update:modelValue="formData.exchangeRate = ''"
                 required
               ></v-select>
             </v-col>
@@ -61,15 +62,28 @@
             </v-col>
           </v-row>
 
-          <!-- 匯率（選填） -->
-          <v-text-field
-            v-model="formData.exchangeRate"
-            label="匯率（選填，系統會自動記錄）"
-            type="number"
-            step="0.0001"
-            prepend-icon="mdi-swap-horizontal"
-            hint="例如：1 USD = 30 TWD，則填 30"
-          ></v-text-field>
+          <!-- 匯率和換算後金額 -->
+          <v-row v-if="showExchangeRate">
+            <v-col cols="4">
+              <v-text-field
+                v-model="formData.exchangeRate"
+                label="匯率"
+                type="number"
+                step="0.0001"
+                :hint="`1 ${formData.currency} / ${baseCurrency}`"
+                :rules="[rules.required, rules.positive]"
+                required
+              ></v-text-field>
+            </v-col>
+            <v-col cols="8">
+              <v-text-field
+                :model-value="convertedAmount"
+                label="換算後金額"
+                prepend-icon="mdi-currency-usd"
+                readonly
+              ></v-text-field>
+            </v-col>
+          </v-row>
 
           <!-- 誰先付錢 -->
           <v-card variant="outlined" class="mb-4">
@@ -167,7 +181,7 @@
           <!-- 備註 -->
           <v-textarea
             v-model="formData.notes"
-            label="備註（選填）"
+            label="備註"
             prepend-icon="mdi-note-text"
             rows="2"
             auto-grow
@@ -237,6 +251,20 @@ const rules = {
   required: (v) => !!v || '此欄位必填',
   positive: (v) => v > 0 || '金額必須大於 0',
 };
+
+const showExchangeRate = computed(() => {
+  return (
+    props.baseCurrency && formData.value.currency && props.baseCurrency !== formData.value.currency
+  );
+});
+
+const convertedAmount = computed(() => {
+  if (formData.value.amount && formData.value.exchangeRate) {
+    const result = parseFloat(formData.value.amount) * parseFloat(formData.value.exchangeRate);
+    return result.toFixed(2);
+  }
+  return '';
+});
 
 // 計算已付總額
 const totalPaid = computed(() => {

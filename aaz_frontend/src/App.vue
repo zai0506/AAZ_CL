@@ -1,10 +1,35 @@
 <template>
   <v-app>
-    <router-view />
+    <router-view v-if="appReady" />
+    <div v-else class="loading-container">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    </div>
   </v-app>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useUserStore } from '@/stores/user';
+import axios from '@/api/axios';
+
+const userStore = useUserStore();
+const appReady = ref(false);
+
+onMounted(async () => {
+  // 如果 localStorage 有 token，先驗證是否有效
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      // 發送一個簡單的請求來驗證 token
+      await axios.get('/trips');
+    } catch (error) {
+      // 如果是 401，axios 攔截器會自動清除 localStorage 並跳轉到登入頁
+      // 其他錯誤（如網絡錯誤）則忽略，讓用戶正常進入應用
+    }
+  }
+  appReady.value = true;
+});
+</script>
 
 <style>
 * {
@@ -15,5 +40,12 @@
 
 body {
   font-family: 'Roboto', sans-serif;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 </style>

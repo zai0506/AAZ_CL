@@ -78,11 +78,40 @@ public class TripGroupService {
     public TripGroupResponse updateTripGroup(Long tripId, TripGroupRequest request) {
         TripGroup tripGroup = tripGroupRepository.findById(tripId)
             .orElseThrow(() -> new RuntimeException("群組不存在"));
-        
+
+        // 更新群組基本資料
         tripGroup.setName(request.getName());
+        tripGroup.setStartDate(request.getStartDate());
+        tripGroup.setEndDate(request.getEndDate());
+        tripGroup.setBaseCurrency(request.getBaseCurrency());
         tripGroup.setAnnouncement(request.getAnnouncement());
-        
+
         TripGroup saved = tripGroupRepository.save(tripGroup);
+
+        // 處理成員更新和新增
+        if (request.getMembers() != null) {
+            for (MemberRequest mr : request.getMembers()) {
+                if (mr.getId() != null) {
+                    // 更新現有成員的 displayName
+                    Member member = memberRepository.findById(mr.getId())
+                        .orElseThrow(() -> new RuntimeException("成員不存在"));
+                    member.setDisplayName(mr.getDisplayName());
+                    memberRepository.save(member);
+                } else {
+                    // 新增成員
+                    Member member = new Member();
+                    member.setTripGroup(saved);
+                    member.setDisplayName(mr.getDisplayName());
+                    member.setIsCreator(false);
+                    if (mr.getUserId() != null) {
+                        User user = userRepository.findById(mr.getUserId()).orElse(null);
+                        member.setUser(user);
+                    }
+                    memberRepository.save(member);
+                }
+            }
+        }
+
         return convertToResponse(saved);
     }
     
