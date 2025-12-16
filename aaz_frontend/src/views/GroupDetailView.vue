@@ -104,7 +104,7 @@
                             <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
                               {{ formatAmount(transaction.amount, transaction.currency) }}
                             </div>
-                            <div v-if="transaction.convertedAmount" class="text-caption grey--text">
+                            <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption grey--text">
                               ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
                             </div>
                           </div>
