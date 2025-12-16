@@ -1,0 +1,54 @@
+/* 最底層背景圖片 */
+.page-background {
+  position: relative;
+  min-height: 100vh;
+  background-image: url('/background/fuji.jpg');
+  background-size: cover;
+  background-position: center 70%;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+.page-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.3); /* 白色透明遮罩 */
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 統一的內容容器 - 無圓角、延伸到底部 */
+/* HomeView 白色區塊 */
+.content-wrapper-home {
+  position: relative;
+  z-index: 1;
+  max-width: 60% !important;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  min-height: calc(100vh);
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper-home .v-container {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    max-width: 90% !important;
+  }
+}
+
+.logo-title {
+  font-family: 'cwTeXYen', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: rgb(85, 214, 194);
+
+}
