@@ -555,6 +555,7 @@ public class TransactionService {
                 response.setCategory(expense.getCategory());
                 response.setAmount(expense.getAmount());
                 response.setCurrency(expense.getCurrency());
+                response.setExchangeRate(expense.getExchangeRate());
                 response.setConvertedAmount(expense.getConvertedAmount());
                 response.setTransactionDate(expense.getExpenseDate());
                 response.setNotes(expense.getNotes());
@@ -587,6 +588,7 @@ public class TransactionService {
                 response.setCategory(income.getCategory());
                 response.setAmount(income.getAmount());
                 response.setCurrency(income.getCurrency());
+                response.setExchangeRate(income.getExchangeRate());
                 response.setConvertedAmount(income.getConvertedAmount());
                 response.setTransactionDate(income.getIncomeDate());
                 response.setNotes(income.getNotes());
@@ -620,6 +622,7 @@ public class TransactionService {
                 response.setCategory("轉帳");
                 response.setAmount(transfer.getAmount());
                 response.setCurrency(transfer.getCurrency());
+                response.setExchangeRate(transfer.getExchangeRate());
                 response.setConvertedAmount(transfer.getConvertedAmount());
                 response.setTransactionDate(transfer.getTransferDate());
                 response.setNotes(transfer.getNotes());

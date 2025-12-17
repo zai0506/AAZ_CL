@@ -13,6 +13,7 @@ public class TransactionResponse {
     private String category;
     private BigDecimal amount;
     private String currency;
+    private BigDecimal exchangeRate;
     private BigDecimal convertedAmount;
     private LocalDate transactionDate;
     private String notes;
