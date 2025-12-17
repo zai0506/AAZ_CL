@@ -706,11 +706,18 @@ watch(
   { immediate: true }
 );
 
-// 監聽 dialog 開啟，如果是新增模式，重置表單
+// 監聽 dialog 開啟，初始化表單
 watch(dialog, (val) => {
-  if (val && !props.transaction) {
-    mode.value = 'add';
-    resetForm();
+  if (val) {
+    if (props.transaction) {
+      // 查看模式：重新初始化表單數據
+      mode.value = 'view';
+      initForm(props.transaction);
+    } else {
+      // 新增模式：重置表單
+      mode.value = 'add';
+      resetForm();
+    }
   }
 });
 </script>
