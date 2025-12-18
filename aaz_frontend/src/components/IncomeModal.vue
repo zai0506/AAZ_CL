@@ -23,9 +23,9 @@
           <!-- 類別 -->
           <v-select
             v-model="formData.category"
-            :items="categories"
+            :items="categorySelectItems"
             label="類別"
-            prepend-icon="mdi-shape"
+            prepend-icon="mdi-tag"
             :rules="[rules.required]"
             :readonly="isViewMode"
             required
@@ -36,9 +36,9 @@
           <v-text-field
             v-model="formData.title"
             label="品項"
-            prepend-icon="mdi-format-title"
+            prepend-icon="mdi-list-box-outline"
             :rules="[rules.required]"
-            placeholder="例如：景點退費、保險理賠"
+            :placeholder="currentPlaceholder"
             :readonly="isViewMode"
             required
             density="comfortable"
@@ -124,7 +124,7 @@
           <!-- 誰先收款 -->
           <v-card variant="outlined" class="mb-4 mt-4">
             <v-card-title class="text-subtitle-1 bg-grey-lighten-4">
-              <v-icon left size="small">mdi-wallet</v-icon>
+              <v-icon left size="small">mdi-account-multiple</v-icon>
               誰先收款
               <v-spacer></v-spacer>
               <v-chip size="small" color="primary">
@@ -173,7 +173,7 @@
           <!-- 如何分攤 -->
           <v-card variant="outlined" class="mb-4">
             <v-card-title class="text-subtitle-1 bg-grey-lighten-4">
-              <v-icon left size="small">mdi-account-multiple</v-icon>
+              <v-icon left size="small">mdi-scale-unbalanced</v-icon>
               如何分攤
               <v-spacer></v-spacer>
               <v-chip size="small" color="primary">
@@ -333,6 +333,34 @@ const loadingRate = ref(false);
 
 const categories = ['退稅退費', '保險理賠', '贊助', '公積金', '意外之財'];
 
+const incomePlaceholders = {
+  '退稅退費': '退稅、退款、取消行程退費',
+  '保險理賠': '班機延誤理賠、行李損毀、海外就醫理賠',
+  '贊助': '長輩親友贊助基金',
+  '公積金': '剩餘公積金分配退回',
+  '意外之財': '買當地彩券中獎、活動抽中現金',
+};
+
+// 收入類別圖示映射
+const incomeCategoryIcons = {
+  '退稅退費': 'mdi-cash-refund',
+  '保險理賠': 'mdi-shield-check-outline',
+  '贊助': 'mdi-hand-heart',
+  '公積金': 'mdi-piggy-bank-outline',
+  '意外之財': 'mdi-bank-plus',
+};
+
+// 計算屬性：將 categories 轉換為 v-select 需要的帶圖示項目
+const categorySelectItems = computed(() => {
+  return categories.map(category => ({
+    title: category,
+    value: category,
+    props: {
+      prependIcon: incomeCategoryIcons[category] || 'mdi-help-circle-outline' // 預設圖示
+    }
+  }));
+});
+
 // 貨幣選項：包含預設貨幣和群組基礎貨幣（如果不在預設列表中）
 const currencies = computed(() => {
   const defaultCurrencies = ['TWD', 'JPY', 'USD', 'EUR', 'CNY', 'GBP', 'KRW', 'THB', 'SGD', 'HKD', 'AUD'];
@@ -350,6 +378,11 @@ const formData = ref({
   currency: props.baseCurrency || 'TWD',
   exchangeRate: '',
   notes: '',
+});
+
+// 計算屬性：根據類別返回對應的 placeholder
+const currentPlaceholder = computed(() => {
+  return incomePlaceholders[formData.value.category] || '例如：景點退費、保險理賠';
 });
 
 const selectedReceivers = ref([]);

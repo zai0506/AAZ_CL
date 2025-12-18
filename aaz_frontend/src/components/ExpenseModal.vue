@@ -23,9 +23,9 @@
           <!-- 類別 -->
           <v-select
             v-model="formData.category"
-            :items="categories"
+            :items="categorySelectItems"
             label="類別"
-            prepend-icon="mdi-shape"
+            prepend-icon="mdi-tag"
             :rules="[rules.required]"
             :readonly="isViewMode"
             required
@@ -36,9 +36,9 @@
           <v-text-field
             v-model="formData.title"
             label="品項"
-            prepend-icon="mdi-format-title"
+            prepend-icon="mdi-list-box-outline"
             :rules="[rules.required]"
-            placeholder="例如：午餐、飯店住宿"
+            :placeholder="currentPlaceholder"
             :readonly="isViewMode"
             required
             density="comfortable"
@@ -124,7 +124,7 @@
           <!-- 誰先付錢 -->
           <v-card variant="outlined" class="mb-4 mt-4">
             <v-card-title class="text-subtitle-1 bg-grey-lighten-4">
-              <v-icon left size="small">mdi-wallet</v-icon>
+              <v-icon left size="small">mdi-account-multiple</v-icon>
               誰先付錢
               <v-spacer></v-spacer>
               <v-chip size="small" color="primary">
@@ -173,7 +173,7 @@
           <!-- 如何分攤 -->
           <v-card variant="outlined" class="mb-4">
             <v-card-title class="text-subtitle-1 bg-grey-lighten-4">
-              <v-icon left size="small">mdi-account-multiple</v-icon>
+              <v-icon left size="small">mdi-scale-unbalanced</v-icon>
               如何分攤
               <v-spacer></v-spacer>
               <v-chip size="small" color="primary">
@@ -334,6 +334,40 @@ const loadingRate = ref(false);
 
 const categories = ['美食', '服飾', '住宿', '藥妝日用', '交通', '景點活動','禮品', '零碎支出'];
 
+const expensePlaceholders = {
+  '美食': '餐廳、街邊小吃',
+  '服飾': '衣服、褲子、鞋子',
+  '住宿': '飯店、民宿',
+  '藥妝日用': '藥妝、防曬、日用品',
+  '交通': '機票、租車、大眾運輸',
+  '景點活動': '門票、潛水、手作體驗、滑雪',
+  '禮品': '伴手禮',
+  '零碎支出': 'sim卡、漫游、夾娃娃',
+};
+
+// 支出類別圖示映射
+const expenseCategoryIcons = {
+  '美食': 'mdi-silverware-fork-knife',
+  '服飾': 'mdi-tshirt-crew-outline',
+  '住宿': 'mdi-bed-outline',
+  '藥妝日用': 'mdi-cart-variant',
+  '交通': 'mdi-plane-train',
+  '景點活動': 'mdi-ski',
+  '禮品': 'mdi-gift-open-outline',
+  '零碎支出': 'mdi-cat',
+};
+
+// 計算屬性：將 categories 轉換為 v-select 需要的帶圖示項目
+const categorySelectItems = computed(() => {
+  return categories.map(category => ({
+    title: category,
+    value: category,
+    props: {
+      prependIcon: expenseCategoryIcons[category] || 'mdi-help-circle-outline' // 預設圖示
+    }
+  }));
+});
+
 // 貨幣選項：包含預設貨幣和群組基礎貨幣（如果不在預設列表中）
 const currencies = computed(() => {
   const defaultCurrencies = ['TWD', 'JPY', 'USD', 'EUR', 'CNY', 'GBP', 'KRW', 'THB', 'SGD', 'HKD', 'AUD'];
@@ -351,6 +385,11 @@ const formData = ref({
   currency: props.baseCurrency || 'TWD',
   exchangeRate: '',
   notes: '',
+});
+
+// 計算屬性：根據類別返回對應的 placeholder
+const currentPlaceholder = computed(() => {
+  return expensePlaceholders[formData.value.category] || '例如：午餐、飯店住宿';
 });
 
 const selectedPayers = ref([]);

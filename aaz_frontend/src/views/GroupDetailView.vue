@@ -52,10 +52,10 @@
       <div class="content-wrapper-with-tabs">
         <!-- 功能標籤頁 -->
         <v-tabs v-model="currentTab" bg-color="transparent" color="primary" grow>
-          <v-tab value="transactions">明細</v-tab>
-          <v-tab value="settlement">結算</v-tab>
-          <v-tab value="stats">統計</v-tab>
-          <v-tab value="info">行程資訊</v-tab>
+          <v-tab value="transactions" prepend-icon="mdi-format-list-text">明細</v-tab>
+          <v-tab value="settlement" prepend-icon="mdi-account-switch-outline">結算</v-tab>
+          <v-tab value="stats" prepend-icon="mdi-chart-pie">統計</v-tab>
+          <v-tab value="info" prepend-icon="mdi-information-variant-circle-outline">行程資訊</v-tab>
         </v-tabs>
 
         <v-container fluid class="pa-6">
@@ -77,7 +77,7 @@
                         <template v-slot:prepend>
                           <v-avatar :color="getTransactionColor(transaction.type)">
                             <v-icon color="white">{{
-                              getTransactionIcon(transaction.type)
+                              getCategoryIcon(transaction)
                             }}</v-icon>
                           </v-avatar>
                         </template>
@@ -431,7 +431,8 @@
                         @click="openCategoryDetail(cat.category, 'expense')"
                         style="cursor: pointer;"
                       >
-                        <div class="d-flex justify-space-between">
+                        <div class="d-flex justify-space-between align-center">
+                          <v-icon size="small" class="mr-2">{{ getCategoryIcon(cat.category) }}</v-icon>
                           <span>{{ getCategoryName(cat.category) }}</span>
                           <span>{{ cat.percentage?.toFixed(1) }}%</span>
                         </div>
@@ -471,7 +472,8 @@
                         @click="openCategoryDetail(cat.category, 'income')"
                         style="cursor: pointer;"
                       >
-                        <div class="d-flex justify-space-between">
+                        <div class="d-flex justify-space-between align-center">
+                          <v-icon size="small" class="mr-2">{{ getCategoryIcon(cat.category) }}</v-icon>
                           <span>{{ getCategoryName(cat.category) }}</span>
                           <span>{{ cat.percentage?.toFixed(1) }}%</span>
                         </div>
@@ -812,14 +814,45 @@ const formatAmount = (amount, currency) => {
   return `${currency} ${Number(amount).toLocaleString()}`;
 };
 
-// 取得交易類型圖示
-const getTransactionIcon = (type) => {
-  const icons = {
-    expense: 'mdi-cart-outline',
-    income: 'mdi-cash-plus',
-    transfer: 'mdi-bank-transfer',
+// 取得類別圖示
+const getCategoryIcon = (transactionOrCategory) => {
+  // 判斷傳入的是完整的 transaction 物件還是單純的 category 字串
+  const category = typeof transactionOrCategory === 'object' ? transactionOrCategory.category : transactionOrCategory;
+  const type = typeof transactionOrCategory === 'object' ? transactionOrCategory.type : ''; // 若只傳入字串，則類型未知，後續用預設處理
+
+  // 轉帳類型有專屬圖示，且不需細分其他類別
+  if (type === 'transfer') {
+    return 'mdi-cash-sync';
+  }
+
+  const categoryIcons = {
+    // 支出類別
+    '美食': 'mdi-silverware-fork-knife',
+    '服飾': 'mdi-tshirt-crew-outline',
+    '住宿': 'mdi-bed-outline',
+    '藥妝日用': 'mdi-cart-variant',
+    '交通': 'mdi-plane-train',
+    '景點活動': 'mdi-ski',
+    '禮品': 'mdi-gift-open-outline',
+    '零碎支出': 'mdi-cat',
+    // 收入類別
+    '退稅退費': 'mdi-cash-refund',
+    '保險理賠': 'mdi-shield-check-outline',
+    '贊助': 'mdi-hand-heart',
+    '公積金': 'mdi-piggy-bank-outline',
+    '意外之財': 'mdi-bank-plus',
   };
-  return icons[type] || 'mdi-help';
+
+  // 根據類別查找圖示
+  if (categoryIcons[category]) {
+    return categoryIcons[category];
+  } else if (type === 'income') {
+    // 如果是收入但沒有找到特定的子類別圖示，給一個通用的收入圖示
+    return 'mdi-cash-plus';
+  } else {
+    // 其他情況或未知的支出類別，給一個通用的支出圖示
+    return 'mdi-cart-outline';
+  }
 };
 
 // 取得交易類型顏色
@@ -856,17 +889,17 @@ const getCategoryName = (category) => {
 const categoryColors = {
   美食: '#FF6384',      // 粉紅色
   服飾: '#36A2EB',      // 藍色
-  住宿: '#FFCE56',      // 黃色
+  住宿: '#C9CBCF',      // 黃色
   藥妝日用: '#4BC0C0',  // 青色
   交通: '#9966FF',    // 紫色
   景點活動: '#FF9F40',    // 橘色
   禮品: '#F8BBD0',    // 
-  零碎支出: '#C9CBCF',    // 灰色
+  零碎支出: '#FFE066',    // 灰色
   // 收入類別
   公積金: '#A2D2FF',  // 嬰兒粉藍 (清新、透亮)
   贊助: '#8D99AE',      // 淡灰藍 (清冷色調，平衡左側暖色)
   意外之財: '#E29578',  // 陶土粉 (暖調但低飽和，像夕陽下的陶土)
-  退稅退費: '#83C5BE',  // 玉石綠 (清透自然，與左邊青色區隔)
+  退稅退費: '#70Eaaa',  // 螢光綠 (清透自然，與左邊青色區隔)
   保險理賠: '#B8C0FF',  // 薰衣草藍 (輕柔的藍紫，舒適且不重)
   };
 
