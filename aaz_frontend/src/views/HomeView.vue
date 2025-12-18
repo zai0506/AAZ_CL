@@ -1,37 +1,59 @@
 <template>
   <v-app>
-    <!-- 頂部導航 -->
-    <v-app-bar elevation="8" class="custom-navbar">
-      <v-toolbar-title class="text-h5 font-weight-bold d-flex align-center">
-        欸
-        <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
-        誌
-      </v-toolbar-title>
-      <div class="center-title">
-        <div class="text-h6 font-weight-bold">我的行程</div>
+    <div class="background-layer page-background"></div>
+    <!-- 左側導覽欄 -->
+    <div class="sidebar">
+      <!-- Logo 和標題 -->
+      <div class="sidebar-header">
+          <h1 class="logo-title d-flex align-center justify-center mb-6">
+            欸
+            <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
+            誌
+          </h1>
+        <div class="sidebar-subtitle text-h6 font-weight-bold mt-4">我的行程</div>
       </div>
-      <v-spacer></v-spacer>
-      <v-menu>
-        <template v-slot:activator="{ props }">
-          <v-btn icon v-bind="props">
-            <v-avatar color="white" size="36">
-              <span class="text-primary">{{ userInitial }}</span>
-            </v-avatar>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item>
-            <v-list-item-title>{{ userStore.nickname }}</v-list-item-title>
-          </v-list-item>
-          <v-divider></v-divider>
-          <v-list-item @click="logout">
-            <v-list-item-title>登出</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-app-bar>
 
-    <v-main class="page-background">
+      <!-- 用戶資訊 -->
+      <div class="sidebar-user">
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <div class="user-profile" v-bind="props">
+              <v-avatar color="white" size="48">
+                <span class="text-primary text-h6">{{ userInitial }}</span>
+              </v-avatar>
+              <div class="ml-3">
+                <div class="font-weight-bold">{{ userStore.nickname }}</div>
+                <div class="text-caption text-grey">點擊查看選單</div>
+              </div>
+            </div>
+          </template>
+          <v-list>
+            <v-list-item @click="logout">
+              <template v-slot:prepend>
+                <v-icon>mdi-logout</v-icon>
+              </template>
+              <v-list-item-title>登出</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
+
+      <!-- 新增群組按鈕 -->
+      <div class="sidebar-actions">
+        <v-btn
+          color="primary"
+          size="large"
+          prepend-icon="mdi-plus"
+          @click="showCreateDialog = true"
+          block
+        >
+          新增群組
+        </v-btn>
+      </div>
+    </div>
+
+    <!-- 右側內容區 -->
+    <v-main class="main-content">
       <!-- 主要內容 -->
       <div class="content-wrapper-home">
         <v-container class="pa-6">
@@ -221,12 +243,6 @@
         </v-card>
       </v-dialog>
     </v-main>
-    <!-- 新增按鈕 - 浮動在導覽列位置 -->
-    <div class="floating-add-btn">
-      <v-btn color="primary" size="large" prepend-icon="mdi-plus" @click="showCreateDialog = true">
-        新增群組
-      </v-btn>
-    </div>
   </v-app>
 </template>
 
@@ -417,6 +433,95 @@ function logout() {
 </script>
 
 <style scoped>
+/* ========== 左側導覽欄樣式 ========== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 20%;
+  height: 100vh;
+  background: rgba(252, 251, 247, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 2; /* 確保側邊欄在最上層 */
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+}
+
+.sidebar-header {
+  text-align: center;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-logo {
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-subtitle {
+  color: #333;
+}
+
+.logo-icon {
+  position: relative;
+  top: -2px;
+  height: 1.3em;
+  margin: 0 0.15em;
+  vertical-align: middle;
+}
+
+.sidebar-user {
+  margin-top: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.user-profile:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.sidebar-actions {
+  margin-top: auto;
+  padding-top: 32px;
+}
+
+/* ========== 右側內容區樣式 ========== */
+.main-content {
+  position: relative; /* 創建堆疊上下文 */
+  z-index: 1; /* 確保內容在背景層之上 */
+  margin-left: 20%;
+  width: 80%;
+  min-height: 100vh;
+  padding: 0;
+}
+
+.content-wrapper-home {
+  position: relative;
+  z-index: 1;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  background-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  padding: 32px 0;
+}
+
+/* ========== 群組卡片樣式 ========== */
 .group-card {
   transition: transform 0.2s;
   cursor: pointer;
@@ -426,73 +531,20 @@ function logout() {
   transform: translateY(-4px);
 }
 
-.logo-icon {
-  position: relative;
-  top: -2px;
-  height: 1.3em;
-  margin: 0 0.15em;
-  vertical-align: middle;
-}
-
-.center-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* 固定導覽列 */
-:deep(.v-app-bar) {
-  max-width: 60% !important;
-  margin: 0 auto !important; /* ← 關鍵：自動置中 */
-  left: 50% !important; /* ← 從螢幕中心開始 */
-  transform: translateX(-50%) !important; /* ← 往左移自己寬度的 50% */
-  right: auto !important; /* ← 取消 right 定位 */
-  position: fixed !important;
-  top: 0 !important;
-  z-index: 1000 !important; /* ← 確保這行存在 */
-}
-
-/* 讓白色區塊的內容不被遮住 */
-.content-wrapper-home,
-.content-wrapper-with-tabs {
-  padding-top: 64px !important; /* 64px 導覽列 + 32px 間距 */
-  margin-top: -64px;
-}
-
-/* 自訂導覽列樣式 */
-.custom-navbar {
-  background-color: rgba(245, 245, 220, 0.9) !important; /* 米白色 + 90% 不透明度 */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important; /* 加深陰影 */
-}
-
-/* 導覽列內的文字改為深色 */
-.custom-navbar :deep(.v-toolbar-title),
-.custom-navbar :deep(.v-btn) {
-  color: #333 !important;
-}
-
-/* Logo 圖片保持原樣 */
-.logo-icon {
-  position: relative;
-  top: -2px;
-  height: 1.3em;
-  margin: 0 0.15em;
-  vertical-align: middle;
-}
-
-/* 新增按鈕浮動到導覽列位置 */
-.floating-add-btn {
-  position: fixed;
-  z-index: 1000; /* 比導覽列更高，確保在最上層 */
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 /* 手機版響應式 */
 @media (max-width: 768px) {
-  .floating-add-btn {
-    right: calc((100vw - 90%) / 2 + 20px);
+  .sidebar {
+    width: 80px;
+  }
+
+  .main-content {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+  }
+
+  .sidebar-subtitle,
+  .user-profile div {
+    display: none;
   }
 }
 </style>

@@ -9,6 +9,16 @@
   background-repeat: no-repeat;
 }
 
+/* 新增的背景層，確保它位於所有內容下方 */
+.background-layer {
+  position: fixed; /* 使用 fixed 以覆蓋整個視口 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0; /* 作為基礎背景層 */
+}
+
 .page-background::before {
   content: '';
   position: absolute;
@@ -16,7 +26,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.3); /* 白色透明遮罩 */
+  background-color: rgba(255, 255, 255, 0.2); /* 白色透明遮罩 */
   z-index: 0;
   pointer-events: none;
 }
@@ -26,9 +36,7 @@
 .content-wrapper-home {
   position: relative;
   z-index: 1;
-  max-width: 60% !important;
-  margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   min-height: calc(100vh);
   display: flex;
@@ -47,7 +55,7 @@
 
 .logo-title {
   font-family: 'cwTeXYen', sans-serif;
-  font-size: 3rem;
+  font-size: 4rem;
   font-weight: 700;
   color: rgb(85, 214, 194);
 
