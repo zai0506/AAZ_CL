@@ -16,7 +16,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0; /* 作為基礎背景層 */
+  z-index: 0; /* 確保它在其他所有內容之下 */
 }
 
 .page-background::before {

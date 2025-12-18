@@ -3,53 +3,59 @@
     <div class="background-layer page-background"></div>
     <!-- 左側導覽欄 -->
     <div class="sidebar">
-      <!-- Logo 和標題 -->
+      <!-- Logo -->
       <div class="sidebar-header">
           <h1 class="logo-title d-flex align-center justify-center mb-6">
             欸
             <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
             誌
           </h1>
-        <div class="sidebar-subtitle text-h6 font-weight-bold mt-4">我的行程</div>
       </div>
 
-      <!-- 用戶資訊 -->
-      <div class="sidebar-user">
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <div class="user-profile" v-bind="props">
-              <v-avatar color="white" size="48">
-                <span class="text-primary text-h6">{{ userInitial }}</span>
+      <!-- 中間導覽區 -->
+      <v-list class="pa-0" bg-color="transparent">
+        <v-list-subheader>我的行程</v-list-subheader>
+        <v-list-item
+            prepend-icon="mdi-plus-circle-outline"
+            title="新增群組"
+            @click="showCreateDialog = true"
+            class="nav-item"
+        ></v-list-item>
+        <!-- 未來可以將群組列表放在這裡 -->
+      </v-list>
+
+      <!-- 彈性空間，將下方內容推至底部 -->
+      <v-spacer></v-spacer>
+
+      <!-- 底部使用者區 -->
+      <v-menu location="top" v-model="menuOpen">
+        <template v-slot:activator="{ props }">
+          <v-list-item
+            class="nav-item"
+            v-bind="props"
+            value="user-menu"
+          >
+            <template v-slot:prepend>
+              <v-avatar color="white" size="40">
+                  <span class="text-primary text-h6">{{ userInitial }}</span>
               </v-avatar>
-              <div class="ml-3">
-                <div class="font-weight-bold">{{ userStore.nickname }}</div>
-                <div class="text-caption text-grey">點擊查看選單</div>
-              </div>
-            </div>
-          </template>
-          <v-list>
-            <v-list-item @click="logout">
-              <template v-slot:prepend>
-                <v-icon>mdi-logout</v-icon>
-              </template>
+            </template>
+            <v-list-item-title class="font-weight-bold">{{ userStore.nickname }}</v-list-item-title>
+            <template v-slot:append>
+                <v-icon :icon="menuOpen ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
+            </template>
+          </v-list-item>
+        </template>
+        
+        <v-list class="submenu-list">
+            <v-list-item value="profile" prepend-icon="mdi-account-circle-outline">
+              <v-list-item-title>個人檔案</v-list-item-title>
+            </v-list-item>
+            <v-list-item value="logout" @click="logout" prepend-icon="mdi-logout">
               <v-list-item-title>登出</v-list-item-title>
             </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
-
-      <!-- 新增群組按鈕 -->
-      <div class="sidebar-actions">
-        <v-btn
-          color="primary"
-          size="large"
-          prepend-icon="mdi-plus"
-          @click="showCreateDialog = true"
-          block
-        >
-          新增群組
-        </v-btn>
-      </div>
+        </v-list>
+      </v-menu>
     </div>
 
     <!-- 右側內容區 -->
@@ -261,6 +267,7 @@ const showCreateDialog = ref(false);
 const showConfirmDialog = ref(false);
 const newGroupForm = ref(null);
 const newGroupFormValid = ref(true);
+const menuOpen = ref(false); // Add this line
 
 const newGroup = ref({
   name: '',
@@ -452,7 +459,8 @@ function logout() {
 
 .sidebar-header {
   text-align: center;
-  padding-bottom: 32px;
+  padding-bottom: 24px; /* 調整間距 */
+  margin-bottom: 8px; /* 新增間距 */
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -475,28 +483,65 @@ function logout() {
   vertical-align: middle;
 }
 
-.sidebar-user {
-  margin-top: 32px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  padding: 12px;
+/* 新增導覽項目樣式 */
+.nav-item {
+  color: #333;
   border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  margin: 4px 0;
 }
 
-.user-profile:hover {
+.nav-item:hover {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-.sidebar-actions {
-  margin-top: auto;
-  padding-top: 32px;
+/* 覆寫 Vuetify 預設樣式，讓 v-list-subheader 和 v-list-item 背景透明 */
+.v-list-subheader {
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: bold;
+  padding-left: 16px;
+  margin-top: 8px;
+  font-size: 1.5em; /* 我的行程字體變大 */
+}
+
+.v-list-item {
+  border-radius: 8px !important;
+  font-size: 1.3em; /* 其他選單字體變大 */
+}
+
+.nav-item:hover {
+  background-color: rgb(85, 214, 194) !important; /* HOVER時框內顏色 */
+  color: white !important; /* HOVER時字體變白色 */
+}
+
+/* 確保 hover 時內部的 icon 和 title 也變色 */
+.nav-item:hover .v-icon,
+.nav-item:hover .v-list-item-title {
+  color: white !important;
+}
+
+/* 讓使用者選單的觸發器有手型游標 */
+.nav-item[value='user-menu'] {
+  cursor: pointer;
+}
+
+/* 彈出式子選單的樣式 */
+.submenu-list {
+  background-color: rgba(240, 240, 240, 0.7) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px !important;
+}
+
+.submenu-list .v-list-item:hover {
+  background-color: rgb(85, 214, 194) !important;
+  color: white !important;
+}
+
+.submenu-list .v-list-item:hover .v-list-item-title,
+.submenu-list .v-list-item:hover .v-icon {
+  color: white !important;
 }
 
 /* ========== 右側內容區樣式 ========== */
