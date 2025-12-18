@@ -64,7 +64,7 @@ public class ExchangeRateService {
 
     public void saveRate(Long tripId, String from, String to, BigDecimal rate) {
         TripGroup trip = tripGroupRepository.findById(tripId)
-                .orElseThrow(() -> new RuntimeException("群組不存在"));
+                .orElseThrow(() -> new RuntimeException("行程不存在"));
 
         // 查詢是否已存在該組合的匯率
         ExchangeRate existingRate = exchangeRateRepository

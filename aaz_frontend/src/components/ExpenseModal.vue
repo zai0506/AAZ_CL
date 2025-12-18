@@ -7,7 +7,7 @@
       </v-card-title>
 
       <v-card-text class="pt-6">
-        <v-form ref="form" v-model="valid" :disabled="isViewMode">
+        <v-form ref="form" v-model="valid">
           <!-- 日期 -->
           <v-text-field
             v-model="formData.expenseDate"
@@ -15,6 +15,7 @@
             type="date"
             prepend-icon="mdi-calendar"
             :rules="[rules.required]"
+            :readonly="isViewMode"
             required
             density="comfortable"
           ></v-text-field>
@@ -26,6 +27,7 @@
             prepend-icon="mdi-format-title"
             :rules="[rules.required]"
             placeholder="例如：午餐、飯店住宿"
+            :readonly="isViewMode"
             required
             density="comfortable"
           ></v-text-field>
@@ -37,6 +39,7 @@
             label="類別"
             prepend-icon="mdi-shape"
             :rules="[rules.required]"
+            :readonly="isViewMode"
             required
             density="comfortable"
           ></v-select>
@@ -50,6 +53,7 @@
                 label="貨幣"
                 :rules="[rules.required]"
                 @update:modelValue="handleCurrencyChange"
+                :readonly="isViewMode"
                 required
                 density="comfortable"
                 prepend-icon="mdi-currency-usd"
@@ -63,6 +67,7 @@
                 prepend-icon="mdi-circle-small"
                 class="invisible-icon"
                 :rules="[rules.required, rules.positive]"
+                :readonly="isViewMode"
                 required
                 density="comfortable"
               ></v-text-field>
@@ -86,6 +91,7 @@
                 "
                 :rules="[rules.required, rules.positive]"
                 :loading="loadingRate"
+                :readonly="isViewMode"
                 required
                 density="comfortable"
                 prepend-icon="mdi-circle-small"
@@ -226,6 +232,7 @@
             prepend-icon="mdi-note-text"
             rows="2"
             auto-grow
+            :readonly="isViewMode"
             density="comfortable"
           ></v-textarea>
         </v-form>

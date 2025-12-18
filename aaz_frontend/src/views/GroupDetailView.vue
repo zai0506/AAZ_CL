@@ -35,7 +35,7 @@
             <template v-slot:prepend>
               <v-icon>mdi-home</v-icon>
             </template>
-            <v-list-item-title>我的群組</v-list-item-title>
+            <v-list-item-title>我的行程</v-list-item-title>
           </v-list-item>
           <v-list-item @click="handleLogout">
             <template v-slot:prepend>
@@ -55,7 +55,7 @@
           <v-tab value="transactions">明細</v-tab>
           <v-tab value="settlement">結算</v-tab>
           <v-tab value="stats">統計</v-tab>
-          <v-tab value="info">群組資訊</v-tab>
+          <v-tab value="info">行程資訊</v-tab>
         </v-tabs>
 
         <v-container fluid class="pa-6">
@@ -123,7 +123,7 @@
               </v-row>
             </v-window-item>
 
-            <!-- 群組資訊頁面 -->
+            <!-- 行程資訊頁面 -->
             <v-window-item value="info">
               <v-card v-if="group">
                 <v-card-title class="d-flex align-center">
@@ -146,12 +146,12 @@
                   <v-form ref="groupInfoForm" v-model="formValid">
                     <v-row>
                       <v-col cols="12">
-                        <h3 class="text-h6 mb-2">群組名稱</h3>
+                        <h3 class="text-h6 mb-2">行程名稱</h3>
                         <p v-if="!isGroupInfoEditing">{{ group.name }}</p>
                         <v-text-field
                           v-else
                           v-model="editingGroup.name"
-                          placeholder="請輸入群組名稱"
+                          placeholder="請輸入行程名稱"
                           hide-details
                         ></v-text-field>
                       </v-col>
@@ -392,10 +392,24 @@
                       <p class="text-h5 mb-4">
                         總計: {{ formatAmount(expenseStats.total || 0, group?.baseCurrency) }}
                       </p>
+
+                      <!-- 圓餅圖 -->
+                      <div v-if="expensePieData" class="mb-6 d-flex justify-center">
+                        <div style="width: 280px; height: 280px;">
+                          <Pie :data="expensePieData" :options="expensePieOptions" />
+                        </div>
+                      </div>
+
+                      <!-- 長條圖 -->
                       <div
                         v-for="cat in expenseStats.categoryStats || []"
                         :key="cat.category"
-                        class="mb-3"
+                        class="mb-3 category-bar"
+                        :class="{ 'hovered': hoveredCategory === cat.category }"
+                        @mouseenter="hoveredCategory = cat.category"
+                        @mouseleave="hoveredCategory = null"
+                        @click="openCategoryDetail(cat.category, 'expense')"
+                        style="cursor: pointer;"
                       >
                         <div class="d-flex justify-space-between">
                           <span>{{ getCategoryName(cat.category) }}</span>
@@ -403,7 +417,7 @@
                         </div>
                         <v-progress-linear
                           :model-value="cat.percentage || 0"
-                          color="primary"
+                          :color="getCategoryColor(cat.category)"
                           height="8"
                         ></v-progress-linear>
                       </div>
@@ -418,10 +432,24 @@
                       <p class="text-h5 mb-4">
                         總計: {{ formatAmount(incomeStats.total || 0, group?.baseCurrency) }}
                       </p>
+
+                      <!-- 圓餅圖 -->
+                      <div v-if="incomePieData" class="mb-6 d-flex justify-center">
+                        <div style="width: 280px; height: 280px;">
+                          <Pie :data="incomePieData" :options="incomePieOptions" />
+                        </div>
+                      </div>
+
+                      <!-- 長條圖 -->
                       <div
                         v-for="cat in incomeStats.categoryStats || []"
                         :key="cat.category"
-                        class="mb-3"
+                        class="mb-3 category-bar"
+                        :class="{ 'hovered': hoveredCategory === cat.category }"
+                        @mouseenter="hoveredCategory = cat.category"
+                        @mouseleave="hoveredCategory = null"
+                        @click="openCategoryDetail(cat.category, 'income')"
+                        style="cursor: pointer;"
                       >
                         <div class="d-flex justify-space-between">
                           <span>{{ getCategoryName(cat.category) }}</span>
@@ -429,7 +457,7 @@
                         </div>
                         <v-progress-linear
                           :model-value="cat.percentage || 0"
-                          color="success"
+                          :color="getCategoryColor(cat.category)"
                           height="8"
                         ></v-progress-linear>
                       </div>
@@ -503,6 +531,53 @@
       :transaction="selectedTransaction"
       @refresh="refreshAllData"
     />
+
+    <!-- 類別明細對話框 -->
+    <v-dialog v-model="showCategoryDetailDialog" max-width="600px">
+      <v-card>
+        <v-card-title class="d-flex align-center bg-primary text-white">
+          <span>{{ getCategoryName(selectedCategory) }} - 明細</span>
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeCategoryDetail"></v-btn>
+        </v-card-title>
+
+        <v-card-text class="pa-0">
+          <v-list v-if="categoryTransactions.length > 0">
+            <v-list-item
+              v-for="transaction in categoryTransactions"
+              :key="transaction.transactionId"
+              class="transaction-item"
+              @click="viewTransaction(transaction)"
+            >
+              <v-list-item-title>{{ transaction.title }}</v-list-item-title>
+              <v-list-item-subtitle>
+                {{ formatDate(transaction.transactionDate) }}
+              </v-list-item-subtitle>
+              <template v-slot:append>
+                <div class="text-right">
+                  <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
+                    {{ formatAmount(transaction.amount, transaction.currency) }}
+                  </div>
+                  <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption grey--text">
+                    ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
+                  </div>
+                </div>
+              </template>
+            </v-list-item>
+          </v-list>
+
+          <div v-else class="text-center pa-8">
+            <v-icon size="64" color="grey-lighten-1">mdi-receipt-text-outline</v-icon>
+            <p class="text-body-1 grey--text mt-4">此類別暫無交易記錄</p>
+          </div>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="grey" variant="text" @click="closeCategoryDetail">關閉</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -511,10 +586,15 @@ import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import axios from '@/api/axios';
+import { Pie } from 'vue-chartjs';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 import ExpenseModal from '@/components/ExpenseModal.vue';
 import IncomeModal from '@/components/IncomeModal.vue';
 import TransferModal from '@/components/TransferModal.vue';
+
+// 註冊 Chart.js 組件
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const route = useRoute();
 const router = useRouter();
@@ -533,6 +613,11 @@ const showExpenseModal = ref(false);
 const showIncomeModal = ref(false);
 const showTransferModal = ref(false);
 const selectedTransaction = ref(null);
+
+// 類別明細對話框
+const showCategoryDetailDialog = ref(false);
+const selectedCategory = ref(null);
+const selectedCategoryType = ref(null); // 'expense' or 'income'
 
 // ========== 群組資訊編輯狀態 ==========
 const isGroupInfoEditing = ref(false);
@@ -680,6 +765,160 @@ const getCategoryName = (category) => {
   };
   return names[category] || category;
 };
+
+// 類別顏色對照表（支出）
+const categoryColors = {
+  食: '#FF6384',      // 粉紅色
+  衣: '#36A2EB',      // 藍色
+  住: '#FFCE56',      // 黃色
+  日用品: '#4BC0C0',  // 青色
+  交通: '#9966FF',    // 紫色
+  娛樂: '#FF9F40',    // 橘色
+  其他: '#C9CBCF',    // 灰色
+  // 收入類別
+  退費: '#66BB6A',    // 綠色
+  保險: '#42A5F5',    // 亮藍色
+  禮金: '#EF5350',    // 紅色
+  獎金: '#FFA726',    // 亮橘色
+};
+
+// 生成隨機但一致的顏色（基於類別名稱的 hash）
+const getRandomColor = (category) => {
+  let hash = 0;
+  for (let i = 0; i < category.length; i++) {
+    hash = category.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash % 360);
+  return `hsl(${hue}, 65%, 55%)`;
+};
+
+const getCategoryColor = (category) => {
+  return categoryColors[category] || getRandomColor(category);
+};
+
+// 打開類別明細對話框
+const openCategoryDetail = (category, type) => {
+  selectedCategory.value = category;
+  selectedCategoryType.value = type;
+  showCategoryDetailDialog.value = true;
+};
+
+// 關閉類別明細對話框
+const closeCategoryDetail = () => {
+  showCategoryDetailDialog.value = false;
+  selectedCategory.value = null;
+  selectedCategoryType.value = null;
+};
+
+// 過濾該類別的交易
+const categoryTransactions = computed(() => {
+  if (!selectedCategory.value || !selectedCategoryType.value) return [];
+
+  return transactions.value.filter(t => {
+    return t.type === selectedCategoryType.value && t.category === selectedCategory.value;
+  }).sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate));
+});
+
+// Hover 狀態
+const hoveredCategory = ref(null);
+
+// 支出圓餅圖數據
+const expensePieData = computed(() => {
+  if (!expenseStats.value.categoryStats || expenseStats.value.categoryStats.length === 0) {
+    return null;
+  }
+
+  const categories = expenseStats.value.categoryStats;
+  return {
+    labels: categories.map(cat => getCategoryName(cat.category)),
+    datasets: [{
+      data: categories.map(cat => cat.amount),
+      backgroundColor: categories.map(cat => getCategoryColor(cat.category)),
+      borderWidth: 2,
+      borderColor: '#ffffff',
+    }]
+  };
+});
+
+// 收入圓餅圖數據
+const incomePieData = computed(() => {
+  if (!incomeStats.value.categoryStats || incomeStats.value.categoryStats.length === 0) {
+    return null;
+  }
+
+  const categories = incomeStats.value.categoryStats;
+  return {
+    labels: categories.map(cat => getCategoryName(cat.category)),
+    datasets: [{
+      data: categories.map(cat => cat.amount),
+      backgroundColor: categories.map(cat => getCategoryColor(cat.category)),
+      borderWidth: 2,
+      borderColor: '#ffffff',
+    }]
+  };
+});
+
+// 支出圓餅圖配置
+const expensePieOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          const label = context.label || '';
+          const value = context.parsed || 0;
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const percentage = ((value / total) * 100).toFixed(1);
+          return `${label}: ${percentage}%`;
+        }
+      }
+    }
+  },
+  onHover: (event, activeElements) => {
+    if (activeElements.length > 0) {
+      const index = activeElements[0].index;
+      const category = expenseStats.value.categoryStats?.[index]?.category;
+      hoveredCategory.value = category;
+    } else {
+      hoveredCategory.value = null;
+    }
+  }
+}));
+
+// 收入圓餅圖配置
+const incomePieOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          const label = context.label || '';
+          const value = context.parsed || 0;
+          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+          const percentage = ((value / total) * 100).toFixed(1);
+          return `${label}: ${percentage}%`;
+        }
+      }
+    }
+  },
+  onHover: (event, activeElements) => {
+    if (activeElements.length > 0) {
+      const index = activeElements[0].index;
+      const category = incomeStats.value.categoryStats?.[index]?.category;
+      hoveredCategory.value = category;
+    } else {
+      hoveredCategory.value = null;
+    }
+  }
+}));
 
 // 登出
 const handleLogout = () => {
@@ -926,5 +1165,25 @@ onMounted(async () => {
 
 .member-name-editable:hover {
   color: rgb(var(--v-theme-primary));
+}
+
+/* 統計頁面長條圖 hover 效果 */
+.category-bar {
+  transition: all 0.3s ease;
+  padding: 8px;
+  margin: 0 -8px;
+  border-radius: 8px;
+}
+
+.category-bar.hovered {
+  background-color: rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.category-bar:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

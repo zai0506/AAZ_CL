@@ -8,7 +8,7 @@
         誌
       </v-toolbar-title>
       <div class="center-title">
-        <div class="text-h6 font-weight-bold">我的群組</div>
+        <div class="text-h6 font-weight-bold">我的行程</div>
       </div>
       <v-spacer></v-spacer>
       <v-menu>
@@ -81,8 +81,8 @@
           <v-row v-if="!loading && groups.length === 0">
             <v-col class="text-center py-16">
               <v-icon size="120" color="grey-lighten-2">mdi-bag-suitcase-outline</v-icon>
-              <p class="text-h5 mt-4 text-grey">還沒有群組？</p>
-              <p class="text-body-1 text-grey">點擊右上方按鈕建立你的第一個旅遊群組！</p>
+              <p class="text-h5 mt-4 text-grey">還沒有安排行程？</p>
+              <p class="text-body-1 text-grey">點擊右上方按鈕建立你的第一個旅遊行程！</p>
             </v-col>
           </v-row>
         </v-container>
@@ -92,14 +92,14 @@
       <!-- 新增群組對話框 -->
       <v-dialog v-model="showCreateDialog" max-width="600">
         <v-card>
-          <v-card-title class="bg-primary text-white"> 新增旅遊群組 </v-card-title>
+          <v-card-title class="bg-primary text-white"> 新增行程 </v-card-title>
           <v-card-text class="pt-4">
             <v-form ref="newGroupForm" v-model="newGroupFormValid">
               <v-text-field
                 v-model="newGroup.name"
-                label="群組名稱"
+                label="行程名稱"
                 prepend-icon="mdi-bag-suitcase"
-                :rules="[(v) => !!v || '請輸入群組名稱']"
+                :rules="[(v) => !!v || '請輸入行程名稱']"
                 required
               ></v-text-field>
 
@@ -209,7 +209,7 @@
         <v-card>
           <v-card-title class="text-h6">確認建立</v-card-title>
           <v-card-text>
-            群組幣別經儲存後無法修改，確定嗎？
+            幣別經儲存後無法修改，確定嗎？
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>

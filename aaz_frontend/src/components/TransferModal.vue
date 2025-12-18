@@ -7,7 +7,7 @@
       </v-card-title>
 
       <v-card-text class="pt-6">
-        <v-form ref="form" v-model="valid" :disabled="isViewMode">
+        <v-form ref="form" v-model="valid">
           <!-- 日期 -->
           <v-text-field
             v-model="formData.transferDate"
@@ -15,6 +15,7 @@
             type="date"
             prepend-icon="mdi-calendar"
             :rules="[rules.required]"
+            :readonly="isViewMode"
             required
             density="comfortable"
           ></v-text-field>
@@ -28,6 +29,7 @@
             label="誰轉帳"
             prepend-icon="mdi-account-arrow-right"
             :rules="[rules.required]"
+            :readonly="isViewMode"
             required
             density="comfortable"
           >
@@ -49,6 +51,7 @@
             label="轉帳給誰"
             prepend-icon="mdi-account-arrow-left"
             :rules="[rules.required, rules.notSamePerson]"
+            :readonly="isViewMode"
             required
             density="comfortable"
           >
@@ -80,6 +83,7 @@
                 label="貨幣"
                 :rules="[rules.required]"
                 @update:modelValue="handleCurrencyChange"
+                :readonly="isViewMode"
                 required
                 density="comfortable"
                 prepend-icon="mdi-currency-usd"
@@ -92,6 +96,7 @@
                 type="number"
                 prepend-icon="mdi-currency-usd"
                 :rules="[rules.required, rules.positive]"
+                :readonly="isViewMode"
                 required
                 density="comfortable"
               ></v-text-field>
@@ -115,6 +120,7 @@
                 "
                 :rules="[rules.required, rules.positive]"
                 :loading="loadingRate"
+                :readonly="isViewMode"
                 required
                 density="comfortable"
                 prepend-icon="mdi-circle-small"
@@ -150,6 +156,7 @@
             prepend-icon="mdi-note-text"
             rows="2"
             auto-grow
+            :readonly="isViewMode"
             density="comfortable"
           ></v-textarea>
 
