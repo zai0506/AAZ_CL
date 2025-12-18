@@ -67,49 +67,57 @@
                   <!-- 交易列表 -->
                   <v-card v-if="transactions.length > 0">
                     <v-list>
-                      <v-list-item
-                        v-for="transaction in transactions"
-                        :key="transaction.transactionId"
-                        @click="viewTransaction(transaction)"
-                        class="transaction-item"
-                      >
-                        <!-- 圖示 -->
-                        <template v-slot:prepend>
-                          <v-avatar :color="getTransactionColor(transaction.type)">
-                            <v-icon color="white">{{
-                              getCategoryIcon(transaction)
-                            }}</v-icon>
-                          </v-avatar>
-                        </template>
+                      <template v-for="(dateGroup, index) in groupedTransactions" :key="index">
+                        <!-- 日期分組標題 -->
+                        <v-list-subheader class="date-group-header">
+                          {{ dateGroup.date }}
+                        </v-list-subheader>
 
-                        <!-- 內容 -->
-                        <v-list-item-title class="font-weight-bold">
-                          {{ transaction.title }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ transaction.category }} · {{ formatDate(transaction.transactionDate) }}
-                          <span
-                            v-if="
-                              transaction.currency !== group?.baseCurrency &&
-                              transaction.exchangeRate
-                            "
-                          >
-                            · 匯率: {{ transaction.exchangeRate }}
-                          </span>
-                        </v-list-item-subtitle>
+                        <!-- 該日期的交易項目 -->
+                        <v-list-item
+                          v-for="transaction in dateGroup.transactions"
+                          :key="transaction.transactionId"
+                          @click="viewTransaction(transaction)"
+                          class="transaction-item"
+                        >
+                          <!-- 圖示 -->
+                          <template v-slot:prepend>
+                            <v-avatar :color="getTransactionColor(transaction.type)">
+                              <v-icon color="white">{{
+                                getCategoryIcon(transaction)
+                              }}</v-icon>
+                            </v-avatar>
+                          </template>
 
-                        <!-- 金額 -->
-                        <template v-slot:append>
-                          <div class="text-right">
-                            <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
-                              {{ formatAmount(transaction.amount, transaction.currency) }}
+                          <!-- 內容 -->
+                          <v-list-item-title class="font-weight-bold">
+                            {{ transaction.title }}
+                          </v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ transaction.category }}
+                            <span
+                              v-if="
+                                transaction.currency !== group?.baseCurrency &&
+                                transaction.exchangeRate
+                              "
+                            >
+                              · 匯率: {{ transaction.exchangeRate }}
+                            </span>
+                          </v-list-item-subtitle>
+
+                          <!-- 金額 -->
+                          <template v-slot:append>
+                            <div class="text-right">
+                              <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
+                                {{ formatAmount(transaction.amount, transaction.currency) }}
+                              </div>
+                              <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption grey--text">
+                                ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
+                              </div>
                             </div>
-                            <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption grey--text">
-                              ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
-                            </div>
-                          </div>
-                        </template>
-                      </v-list-item>
+                          </template>
+                        </v-list-item>
+                      </template>
                     </v-list>
                   </v-card>
 
@@ -565,27 +573,35 @@
 
         <v-card-text class="pa-0">
           <v-list v-if="categoryTransactions.length > 0">
-            <v-list-item
-              v-for="transaction in categoryTransactions"
-              :key="transaction.transactionId"
-              class="transaction-item"
-              @click="viewTransaction(transaction)"
-            >
-              <v-list-item-title>{{ transaction.title }}</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ formatDate(transaction.transactionDate) }}
-              </v-list-item-subtitle>
-              <template v-slot:append>
-                <div class="text-right">
-                  <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
-                    {{ formatAmount(transaction.amount, transaction.currency) }}
+            <template v-for="(dateGroup, index) in groupedCategoryTransactions" :key="index">
+              <!-- 日期分組標題 -->
+              <v-list-subheader class="date-group-header">
+                {{ dateGroup.date }}
+              </v-list-subheader>
+
+              <!-- 該日期的交易項目 -->
+              <v-list-item
+                v-for="transaction in dateGroup.transactions"
+                :key="transaction.transactionId"
+                class="transaction-item"
+                @click="viewTransaction(transaction)"
+              >
+                <v-list-item-title>{{ transaction.title }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ transaction.category }}
+                </v-list-item-subtitle>
+                <template v-slot:append>
+                  <div class="text-right">
+                    <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
+                      {{ formatAmount(transaction.amount, transaction.currency) }}
+                    </div>
+                    <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption grey--text">
+                      ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
+                    </div>
                   </div>
-                  <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption grey--text">
-                    ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
-                  </div>
-                </div>
-              </template>
-            </v-list-item>
+                </template>
+              </v-list-item>
+            </template>
           </v-list>
 
           <div v-else class="text-center pa-8">
@@ -807,6 +823,66 @@ const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('zh-TW');
 };
+
+// 格式化日期為完整格式（YYYY年MM月DD日）
+const formatDateFull = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}年${month}月${day}日`;
+};
+
+// 按日期分組交易（明細頁面）
+const groupedTransactions = computed(() => {
+  if (!transactions.value || transactions.value.length === 0) return [];
+
+  // 按日期排序（新到舊）
+  const sortedTransactions = [...transactions.value].sort((a, b) => {
+    return new Date(b.transactionDate) - new Date(a.transactionDate);
+  });
+
+  // 分組
+  const groups = {};
+  sortedTransactions.forEach(transaction => {
+    const dateKey = transaction.transactionDate.split('T')[0]; // 取得日期部分
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(transaction);
+  });
+
+  // 轉換為陣列格式
+  return Object.keys(groups).map(dateKey => ({
+    date: formatDateFull(dateKey),
+    transactions: groups[dateKey]
+  }));
+});
+
+// 按日期分組類別交易（類別明細對話框）
+const groupedCategoryTransactions = computed(() => {
+  if (!categoryTransactions.value || categoryTransactions.value.length === 0) return [];
+
+  // categoryTransactions 已經在其 computed 中排序過了（新到舊）
+  const sortedTransactions = categoryTransactions.value;
+
+  // 分組
+  const groups = {};
+  sortedTransactions.forEach(transaction => {
+    const dateKey = transaction.transactionDate.split('T')[0]; // 取得日期部分
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(transaction);
+  });
+
+  // 轉換為陣列格式
+  return Object.keys(groups).map(dateKey => ({
+    date: formatDateFull(dateKey),
+    transactions: groups[dateKey]
+  }));
+});
 
 // 格式化金額
 const formatAmount = (amount, currency) => {
@@ -1277,6 +1353,21 @@ onMounted(async () => {
 
 .transaction-item:hover {
   background-color: #f5f5f5;
+}
+
+.date-group-header {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  color: #666;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-top: 0 !important;
+}
+
+.date-group-header:first-child {
+  border-top: none;
 }
 
 .text-red {
