@@ -384,6 +384,26 @@
 
             <!-- 統計頁面 -->
             <v-window-item value="stats">
+              <!-- 統計期間顯示 -->
+              <v-row class="mb-4">
+                <v-col cols="12">
+                  <div class="d-flex align-center">
+                    <span class="text-subtitle-1">
+                      統計期間：{{ formatStatsDateRange() }}
+                    </span>
+                    <v-btn
+                      color="primary"
+                      variant="text"
+                      size="small"
+                      class="ml-4"
+                      @click="openStatsDateDialog"
+                    >
+                      設定期間
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
+
               <v-row>
                 <v-col cols="12" md="6">
                   <v-card>
@@ -578,6 +598,55 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- 統計期間設定對話框 -->
+    <v-dialog v-model="showStatsDateDialog" max-width="500px">
+      <v-card>
+        <v-card-title class="d-flex align-center bg-primary text-white">
+          <span>設定統計期間</span>
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeStatsDateDialog"></v-btn>
+        </v-card-title>
+
+        <v-card-text class="pt-6">
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                v-model="tempStatsStartDate"
+                label="開始日期"
+                type="date"
+                prepend-icon="mdi-calendar"
+                density="comfortable"
+                :error="!!statsDateErrorMessage"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field
+                v-model="tempStatsEndDate"
+                label="結束日期"
+                type="date"
+                prepend-icon="mdi-calendar"
+                density="comfortable"
+                :error="!!statsDateErrorMessage"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
+          <v-alert v-if="statsDateErrorMessage" type="error" class="mt-2">
+            {{ statsDateErrorMessage }}
+          </v-alert>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn variant="text" @click="clearStatsDateFilter">清除篩選</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="closeStatsDateDialog">取消</v-btn>
+          <v-btn color="primary" variant="elevated" @click="applyStatsDateFilter">
+            套用
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -618,6 +687,14 @@ const selectedTransaction = ref(null);
 const showCategoryDetailDialog = ref(false);
 const selectedCategory = ref(null);
 const selectedCategoryType = ref(null); // 'expense' or 'income'
+
+// 統計期間篩選
+const showStatsDateDialog = ref(false);
+const statsStartDate = ref('');
+const statsEndDate = ref('');
+const tempStatsStartDate = ref('');
+const tempStatsEndDate = ref('');
+const statsDateErrorMessage = ref('');
 
 // ========== 群組資訊編輯狀態 ==========
 const isGroupInfoEditing = ref(false);
@@ -696,9 +773,17 @@ const loadBalanceReport = async () => {
 // 載入統計資訊
 const loadStats = async () => {
   try {
+    const params = {};
+    if (statsStartDate.value) {
+      params.startDate = statsStartDate.value;
+    }
+    if (statsEndDate.value) {
+      params.endDate = statsEndDate.value;
+    }
+
     const [expenseRes, incomeRes] = await Promise.all([
-      axios.get(`/trips/${groupId.value}/stats/expenses`),
-      axios.get(`/trips/${groupId.value}/stats/incomes`),
+      axios.get(`/trips/${groupId.value}/stats/expenses`, { params }),
+      axios.get(`/trips/${groupId.value}/stats/incomes`, { params }),
     ]);
     expenseStats.value = expenseRes.data;
     incomeStats.value = incomeRes.data;
@@ -755,32 +840,35 @@ const getAmountColor = (type) => {
 // 取得類別名稱
 const getCategoryName = (category) => {
   const names = {
-    食: '飲食',
-    衣: '服飾',
-    住: '住宿',
-    日用品: '日用品',
+    美食: '美食',
+    服飾: '服飾',
+    住宿: '住宿',
+    藥妝日用: '藥妝日用',
     交通: '交通',
-    娛樂: '娛樂',
-    其他: '其他',
+    景點活動: '景點活動',
+    禮品: '禮品',
+    零碎支出: '零碎支出',
   };
   return names[category] || category;
 };
 
 // 類別顏色對照表（支出）
 const categoryColors = {
-  食: '#FF6384',      // 粉紅色
-  衣: '#36A2EB',      // 藍色
-  住: '#FFCE56',      // 黃色
-  日用品: '#4BC0C0',  // 青色
+  美食: '#FF6384',      // 粉紅色
+  服飾: '#36A2EB',      // 藍色
+  住宿: '#FFCE56',      // 黃色
+  藥妝日用: '#4BC0C0',  // 青色
   交通: '#9966FF',    // 紫色
-  娛樂: '#FF9F40',    // 橘色
-  其他: '#C9CBCF',    // 灰色
+  景點活動: '#FF9F40',    // 橘色
+  禮品: '#F8BBD0',    // 
+  零碎支出: '#C9CBCF',    // 灰色
   // 收入類別
-  退費: '#66BB6A',    // 綠色
-  保險: '#42A5F5',    // 亮藍色
-  禮金: '#EF5350',    // 紅色
-  獎金: '#FFA726',    // 亮橘色
-};
+  公積金: '#A2D2FF',  // 嬰兒粉藍 (清新、透亮)
+  贊助: '#8D99AE',      // 淡灰藍 (清冷色調，平衡左側暖色)
+  意外之財: '#E29578',  // 陶土粉 (暖調但低飽和，像夕陽下的陶土)
+  退稅退費: '#83C5BE',  // 玉石綠 (清透自然，與左邊青色區隔)
+  保險理賠: '#B8C0FF',  // 薰衣草藍 (輕柔的藍紫，舒適且不重)
+  };
 
 // 生成隨機但一致的顏色（基於類別名稱的 hash）
 const getRandomColor = (category) => {
@@ -810,17 +898,104 @@ const closeCategoryDetail = () => {
   selectedCategoryType.value = null;
 };
 
-// 過濾該類別的交易
+// 過濾該類別的交易（含期間篩選）
 const categoryTransactions = computed(() => {
   if (!selectedCategory.value || !selectedCategoryType.value) return [];
 
   return transactions.value.filter(t => {
-    return t.type === selectedCategoryType.value && t.category === selectedCategory.value;
+    // 類別和類型篩選
+    if (t.type !== selectedCategoryType.value || t.category !== selectedCategory.value) {
+      return false;
+    }
+
+    // 期間篩選
+    if (statsStartDate.value || statsEndDate.value) {
+      const transactionDate = new Date(t.transactionDate);
+      if (statsStartDate.value) {
+        const startDate = new Date(statsStartDate.value);
+        if (transactionDate < startDate) return false;
+      }
+      if (statsEndDate.value) {
+        const endDate = new Date(statsEndDate.value);
+        endDate.setHours(23, 59, 59, 999); // 包含結束日當天
+        if (transactionDate > endDate) return false;
+      }
+    }
+
+    return true;
   }).sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate));
 });
 
 // Hover 狀態
 const hoveredCategory = ref(null);
+
+// ========== 統計期間篩選函數 ==========
+
+// 格式化統計期間顯示
+const formatStatsDateRange = () => {
+  if (!statsStartDate.value && !statsEndDate.value) {
+    return '全期間';
+  }
+
+  const formatDateStr = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}/${month}/${day}`;
+  };
+
+  const start = formatDateStr(statsStartDate.value) || '開始';
+  const end = formatDateStr(statsEndDate.value) || '結束';
+  return `${start} ~ ${end}`;
+};
+
+// 打開統計期間設定對話框
+const openStatsDateDialog = () => {
+  tempStatsStartDate.value = statsStartDate.value;
+  tempStatsEndDate.value = statsEndDate.value;
+  statsDateErrorMessage.value = '';
+  showStatsDateDialog.value = true;
+};
+
+// 關閉統計期間設定對話框
+const closeStatsDateDialog = () => {
+  showStatsDateDialog.value = false;
+  statsDateErrorMessage.value = '';
+};
+
+// 套用統計期間篩選
+const applyStatsDateFilter = async () => {
+  // 驗證日期
+  if (tempStatsStartDate.value && tempStatsEndDate.value) {
+    if (tempStatsStartDate.value > tempStatsEndDate.value) {
+      statsDateErrorMessage.value = '開始日期不得晚於結束日期';
+      return;
+    }
+  }
+
+  statsStartDate.value = tempStatsStartDate.value;
+  statsEndDate.value = tempStatsEndDate.value;
+  statsDateErrorMessage.value = '';
+  showStatsDateDialog.value = false;
+
+  // 重新載入統計資料
+  await loadStats();
+};
+
+// 清除統計期間篩選
+const clearStatsDateFilter = async () => {
+  statsStartDate.value = '';
+  statsEndDate.value = '';
+  tempStatsStartDate.value = '';
+  tempStatsEndDate.value = '';
+  statsDateErrorMessage.value = '';
+  showStatsDateDialog.value = false;
+
+  // 重新載入統計資料
+  await loadStats();
+};
 
 // 支出圓餅圖數據
 const expensePieData = computed(() => {

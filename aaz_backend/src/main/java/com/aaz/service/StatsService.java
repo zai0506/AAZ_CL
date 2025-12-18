@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +23,13 @@ public class StatsService {
     private final ExpenseRepository expenseRepository;
     private final IncomeRepository incomeRepository;
 
-    public StatsReport getExpenseStats(Long tripId) {
-        List<Expense> expenses = expenseRepository.findByTripGroupId(tripId);
+    public StatsReport getExpenseStats(Long tripId, LocalDate startDate, LocalDate endDate) {
+        List<Expense> expenses;
+        if (startDate != null || endDate != null) {
+            expenses = expenseRepository.findByTripGroupIdAndDateRange(tripId, startDate, endDate);
+        } else {
+            expenses = expenseRepository.findByTripGroupId(tripId);
+        }
 
         // 計算總金額（使用換算後的金額）
         BigDecimal total = expenses.stream()
@@ -66,8 +72,13 @@ public class StatsService {
         return report;
     }
 
-    public StatsReport getIncomeStats(Long tripId) {
-        List<Income> incomes = incomeRepository.findByTripGroupId(tripId);
+    public StatsReport getIncomeStats(Long tripId, LocalDate startDate, LocalDate endDate) {
+        List<Income> incomes;
+        if (startDate != null || endDate != null) {
+            incomes = incomeRepository.findByTripGroupIdAndDateRange(tripId, startDate, endDate);
+        } else {
+            incomes = incomeRepository.findByTripGroupId(tripId);
+        }
 
         // 計算總金額（使用換算後的金額）
         BigDecimal total = incomes.stream()

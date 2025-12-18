@@ -20,18 +20,6 @@
             density="comfortable"
           ></v-text-field>
 
-          <!-- 品項 -->
-          <v-text-field
-            v-model="formData.title"
-            label="品項"
-            prepend-icon="mdi-format-title"
-            :rules="[rules.required]"
-            placeholder="例如：景點退費、保險理賠"
-            :readonly="isViewMode"
-            required
-            density="comfortable"
-          ></v-text-field>
-
           <!-- 類別 -->
           <v-select
             v-model="formData.category"
@@ -43,6 +31,18 @@
             required
             density="comfortable"
           ></v-select>
+
+          <!-- 品項 -->
+          <v-text-field
+            v-model="formData.title"
+            label="品項"
+            prepend-icon="mdi-format-title"
+            :rules="[rules.required]"
+            placeholder="例如：景點退費、保險理賠"
+            :readonly="isViewMode"
+            required
+            density="comfortable"
+          ></v-text-field>
 
           <!-- 貨幣和金額 -->
           <v-row>
@@ -331,7 +331,7 @@ const showDeleteConfirm = ref(false);
 const rateSource = ref(''); // 'default' | 'group' | 'manual'
 const loadingRate = ref(false);
 
-const categories = ['退費', '保險', '禮金', '獎金', '其他'];
+const categories = ['退稅退費', '保險理賠', '贊助', '公積金', '意外之財'];
 
 // 貨幣選項：包含預設貨幣和群組基礎貨幣（如果不在預設列表中）
 const currencies = computed(() => {
@@ -345,7 +345,7 @@ const currencies = computed(() => {
 const formData = ref({
   incomeDate: new Date().toISOString().split('T')[0],
   title: '',
-  category: '退費',
+  category: '退稅退費',
   amount: '',
   currency: props.baseCurrency || 'TWD',
   exchangeRate: '',
@@ -681,7 +681,7 @@ const resetForm = () => {
   formData.value = {
     incomeDate: new Date().toISOString().split('T')[0],
     title: '',
-    category: '退費',
+    category: '退稅退費',
     amount: '',
     currency: props.baseCurrency || 'TWD',
     exchangeRate: '',

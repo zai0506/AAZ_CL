@@ -20,18 +20,6 @@
             density="comfortable"
           ></v-text-field>
 
-          <!-- 品項 -->
-          <v-text-field
-            v-model="formData.title"
-            label="品項"
-            prepend-icon="mdi-format-title"
-            :rules="[rules.required]"
-            placeholder="例如：午餐、飯店住宿"
-            :readonly="isViewMode"
-            required
-            density="comfortable"
-          ></v-text-field>
-
           <!-- 類別 -->
           <v-select
             v-model="formData.category"
@@ -43,6 +31,18 @@
             required
             density="comfortable"
           ></v-select>
+
+          <!-- 品項 -->
+          <v-text-field
+            v-model="formData.title"
+            label="品項"
+            prepend-icon="mdi-format-title"
+            :rules="[rules.required]"
+            placeholder="例如：午餐、飯店住宿"
+            :readonly="isViewMode"
+            required
+            density="comfortable"
+          ></v-text-field>
 
           <!-- 貨幣和金額 -->
           <v-row>
@@ -332,7 +332,7 @@ const showDeleteConfirm = ref(false);
 const rateSource = ref(''); // 'default' | 'group' | 'manual'
 const loadingRate = ref(false);
 
-const categories = ['食', '衣', '住', '日用品', '交通', '娛樂', '其他'];
+const categories = ['美食', '服飾', '住宿', '藥妝日用', '交通', '景點活動','禮品', '零碎支出'];
 
 // 貨幣選項：包含預設貨幣和群組基礎貨幣（如果不在預設列表中）
 const currencies = computed(() => {
@@ -346,7 +346,7 @@ const currencies = computed(() => {
 const formData = ref({
   expenseDate: new Date().toISOString().split('T')[0],
   title: '',
-  category: '食',
+  category: '美食',
   amount: '',
   currency: props.baseCurrency || 'TWD',
   exchangeRate: '',
@@ -685,7 +685,7 @@ const resetForm = () => {
   formData.value = {
     expenseDate: new Date().toISOString().split('T')[0],
     title: '',
-    category: '食',
+    category: '美食',
     amount: '',
     currency: props.baseCurrency || 'TWD',
     exchangeRate: '',
