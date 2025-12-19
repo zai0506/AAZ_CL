@@ -245,6 +245,10 @@ const handleSubmit = async () => {
   color: #5188d0;
 }
 
+.logo-title {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
 .logo-icon {
   height: 1.15em;
   margin: 0 0.15em;

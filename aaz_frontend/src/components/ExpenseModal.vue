@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" max-width="600px" persistent>
     <v-card class="modal-card">
-      <v-card-title class="sticky-header d-flex align-center justify-space-between bg-primary text-white">
+      <v-card-title class="sticky-header d-flex align-center justify-space-between text-white" :style="{ backgroundColor: headerColor }">
         <span class="text-h6">{{ title }}</span>
         <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeDialog"></v-btn>
       </v-card-title>
@@ -441,6 +441,9 @@ const equalSplitAmount = computed(() => {
   return (parseFloat(formData.value.amount) / selectedSplitters.value.length).toFixed(2);
 });
 
+// 抬頭框顏色：支出類型的顏色
+const headerColor = computed(() => '#E67E66');
+
 // 自動分配已付金額
 const autoDistributePaid = () => {
   if (!formData.value.amount || selectedPayers.value.length === 0) return;
@@ -780,7 +783,6 @@ watch(dialog, (val) => {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: rgb(var(--v-theme-primary)) !important;
 }
 
 .scrollable-content {

@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" max-width="600px" persistent>
     <v-card class="modal-card">
-      <v-card-title class="sticky-header d-flex align-center justify-space-between bg-primary text-white">
+      <v-card-title class="sticky-header d-flex align-center justify-space-between text-white" :style="{ backgroundColor: headerColor }">
         <span class="text-h6">{{ title }}</span>
         <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeDialog"></v-btn>
       </v-card-title>
@@ -333,6 +333,9 @@ const getDisplayName = (memberId) => {
   return member?.displayName || '';
 };
 
+// 抬頭框顏色：轉帳類型的顏色
+const headerColor = computed(() => '#6ed6d5d0');
+
 // 載入匯率（依序：群組紀錄 > 預設匯率 > 無）
 const loadExchangeRate = async (from, to) => {
   // 參數驗證：確保 from 和 to 都是有效的字符串
@@ -594,7 +597,6 @@ watch(dialog, (val) => {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: rgb(var(--v-theme-primary)) !important;
 }
 
 .scrollable-content {

@@ -141,7 +141,7 @@
       <!-- 新增群組對話框 -->
       <v-dialog v-model="showCreateDialog" max-width="600">
         <v-card>
-          <v-card-title class="bg-primary text-white"> 新增行程 </v-card-title>
+          <v-card-title class="text-white" style="background-color: rgb(85, 214, 194);"> 新增行程 </v-card-title>
           <v-card-text class="pt-4">
             <v-form ref="newGroupForm" v-model="newGroupFormValid">
               <v-text-field
@@ -501,6 +501,10 @@ function logout() {
 
 .sidebar-subtitle {
   color: #333;
+}
+
+.logo-title {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .logo-icon {

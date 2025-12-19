@@ -108,8 +108,9 @@
           <v-window v-model="currentTab">
             <!-- 交易明細頁面 -->
             <v-window-item value="transactions">
-              <v-row>
-                <v-col cols="12">
+              <div class="narrow-content">
+                <v-row>
+                  <v-col cols="12">
                   <!-- 交易列表 -->
                   <v-card v-if="transactions.length > 0">
                     <v-list>
@@ -143,14 +144,6 @@
                             <span v-if="transaction.type !== 'transfer'">
                               {{ transaction.category }}
                             </span>
-                            <span
-                              v-if="
-                                transaction.currency !== group?.baseCurrency &&
-                                transaction.exchangeRate
-                              "
-                            >
-                              · 匯率: {{ transaction.exchangeRate }}
-                            </span>
                           </v-list-item-subtitle>
 
                           <!-- 金額 -->
@@ -159,7 +152,7 @@
                               <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
                                 {{ formatAmount(transaction.amount, transaction.currency) }}
                               </div>
-                              <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption grey--text">
+                              <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption" :class="getAmountColor(transaction.type)">
                                 ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
                               </div>
                             </div>
@@ -175,12 +168,14 @@
                     <p class="text-h5 text-grey-darken-1">還沒有交易記錄</p>
                     <p class="text-body-1 text-grey-darken-1">點擊下方「+」按鈕新增第一筆交易</p>
                   </div>
-                </v-col>
-              </v-row>
+                  </v-col>
+                </v-row>
+              </div>
             </v-window-item>
 
             <!-- 行程資訊頁面 -->
             <v-window-item value="info">
+              <div class="narrow-content">
               <v-card v-if="group">
                 <v-card-title class="d-flex align-center">
                   <v-spacer></v-spacer>
@@ -378,10 +373,12 @@
                   </v-form>
                 </v-card-text>
               </v-card>
+              </div>
             </v-window-item>
 
             <!-- 結算頁面 -->
             <v-window-item value="settlement">
+              <div class="narrow-content">
               <!-- 空狀態 -->
               <div v-if="balanceReport && nonZeroBalances.length === 0" class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
                 <v-icon size="120" color="grey-lighten-2">mdi-check-circle-outline</v-icon>
@@ -436,6 +433,7 @@
                   <p v-else class="text-center grey--text py-4">目前沒有需要結算的項目</p>
                 </v-card-text>
               </v-card>
+              </div>
             </v-window-item>
 
             <!-- 統計頁面 -->
@@ -561,26 +559,29 @@
       <template v-slot:activator="{ props }">
         <v-btn
           v-if="currentTab === 'transactions'"
-          icon="mdi-plus"
-          color="primary"
           size="x-large"
-          style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 999"
+          icon style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 999; background-color: rgb(85, 214, 194);"
           elevation="8"
           v-bind="props"
-        ></v-btn>
+        >
+          <v-icon color="white">mdi-plus</v-icon>
+      </v-btn>
       </template>
-      <v-list>
+      <v-list class="add-transaction-menu">
         <v-list-item
+          class="add-expense-item"
           @click="openAddModal('expense')"
           prepend-icon="mdi-cart-outline"
           title="新增支出"
         ></v-list-item>
         <v-list-item
+          class="add-income-item"
           @click="openAddModal('income')"
           prepend-icon="mdi-cash-plus"
           title="新增收入"
         ></v-list-item>
         <v-list-item
+          class="add-transfer-item"
           @click="openAddModal('transfer')"
           prepend-icon="mdi-bank-transfer"
           title="新增轉帳"
@@ -996,8 +997,8 @@ const getCategoryIcon = (transactionOrCategory) => {
 const getTransactionColor = (type) => {
   const colors = {
     expense: '#E67E66',
-    income: '#56AB2F',
-    transfer: '#7BA0BF',
+    income: '#4874299b',
+    transfer: '#6ed6d5d0',
   };
   return colors[type] || 'grey';
 };
@@ -1431,6 +1432,10 @@ onMounted(async () => {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.logo-title {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
 .logo-icon {
   position: relative;
   top: -2px;
@@ -1590,11 +1595,11 @@ onMounted(async () => {
 }
 
 :deep(.text-green) {
-  color: #56AB2F !important;
+  color: #4874299b !important;
 }
 
 :deep(.text-blue) {
-  color: #7BA0BF !important;
+  color: #6ed6d5d0 !important;
 }
 
 /* GroupDetailView 專用：內容容器 */
@@ -1653,4 +1658,73 @@ onMounted(async () => {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+/* 明細、結算、行程資訊區塊寬度限制 */
+.narrow-content {
+  max-width: 60%;
+  margin: 0 auto;
+}
+
+.add-transaction-menu {
+
+  border-radius: 8px !important;
+
+}
+
+
+
+.add-expense-item:hover {
+
+  background-color: #E67E66 !important;
+
+  color: white !important;
+
+}
+
+.add-expense-item:hover .v-icon,
+
+.add-expense-item:hover .v-list-item-title {
+
+  color: white !important;
+
+}
+
+
+
+.add-income-item:hover {
+
+  background-color: #4874299b !important;
+
+  color: white !important;
+
+}
+
+.add-income-item:hover .v-icon,
+
+.add-income-item:hover .v-list-item-title {
+
+  color: white !important;
+
+}
+
+
+
+.add-transfer-item:hover {
+
+  background-color: #6ed6d5d0 !important;
+
+  color: white !important;
+
+}
+
+.add-transfer-item:hover .v-icon,
+
+.add-transfer-item:hover .v-list-item-title {
+
+  color: white !important;
+
+}
+
 </style>
+
+
