@@ -1,63 +1,109 @@
 <template>
   <v-app>
-    <!-- 頂部導航列 -->
-    <v-app-bar elevation="8" class="custom-navbar">
-      <v-btn icon @click="router.push('/home')">
-        <v-icon>mdi-arrow-left</v-icon>
-      </v-btn>
+    <div class="background-layer page-background"></div>
 
-      <v-toolbar-title class="font-weight-bold">
-        {{ group?.name || '載入中...' }}
-      </v-toolbar-title>
+    <!-- 左側導覽欄 -->
+    <div class="sidebar">
+      <!-- Logo -->
+      <div class="sidebar-header">
+        <h1 class="logo-title d-flex align-center justify-center mb-6" @click="router.push('/home')" style="cursor: pointer;">
+          欸
+          <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
+          誌
+        </h1>
+      </div>
 
-      <v-spacer></v-spacer>
+      <!-- 群組名稱標題 -->
+      <div class="nav-header">
+        <v-list class="pa-0" bg-color="transparent">
+          <div class="d-flex align-center">
+            <v-btn icon="mdi-arrow-left-thick" variant="text" size="large" class="text-medium-emphasis" @click="router.push('/home')" ></v-btn>
+            <v-list-subheader class="pa-0">{{ group?.name || '載入中...' }}</v-list-subheader>
+          </div>
+          <v-divider class="my-3"></v-divider>
+        </v-list>
+      </div>
 
-      <!-- 使用者選單 -->
-      <v-menu>
+      <!-- 功能選單區域 -->
+      <div class="nav-content">
+        <v-list class="pa-0" bg-color="transparent">
+          <v-list-item
+            prepend-icon="mdi-format-list-text"
+            title="明細"
+            class="nav-item"
+            :class="{ 'active-nav-item': currentTab === 'transactions' }"
+            @click="currentTab = 'transactions'"
+          ></v-list-item>
+
+          <v-list-item
+            prepend-icon="mdi-account-switch-outline"
+            title="結算"
+            class="nav-item"
+            :class="{ 'active-nav-item': currentTab === 'settlement' }"
+            @click="currentTab = 'settlement'"
+          ></v-list-item>
+
+          <v-list-item
+            prepend-icon="mdi-chart-pie"
+            title="統計"
+            class="nav-item"
+            :class="{ 'active-nav-item': currentTab === 'stats' }"
+            @click="currentTab = 'stats'"
+          ></v-list-item>
+
+          <v-list-item
+            prepend-icon="mdi-magnify"
+            title="搜尋"
+            class="nav-item"
+            :class="{ 'active-nav-item': currentTab === 'search' }"
+            @click="currentTab = 'search'"
+          ></v-list-item>
+
+          <v-list-item
+            prepend-icon="mdi-information-variant-circle-outline"
+            title="行程資訊"
+            class="nav-item"
+            :class="{ 'active-nav-item': currentTab === 'info' }"
+            @click="currentTab = 'info'"
+          ></v-list-item>
+        </v-list>
+      </div>
+
+      <!-- 底部使用者區 -->
+      <v-menu location="top" v-model="menuOpen">
         <template v-slot:activator="{ props }">
-          <v-btn icon v-bind="props">
-            <v-avatar color="white" size="36">
-              <span class="primary--text font-weight-bold">
-                {{ userStore.nickname?.charAt(0) || 'U' }}
-              </span>
-            </v-avatar>
-          </v-btn>
+          <v-list-item
+            class="nav-item"
+            v-bind="props"
+            value="user-menu"
+          >
+            <template v-slot:prepend>
+              <v-avatar color="white" size="40">
+                <span class="text-primary text-h6">{{ userInitial }}</span>
+              </v-avatar>
+            </template>
+            <v-list-item-title class="font-weight-bold">{{ userStore.nickname }}</v-list-item-title>
+            <template v-slot:append>
+              <v-icon :icon="menuOpen ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
+            </template>
+          </v-list-item>
         </template>
 
-        <v-list>
-          <v-list-item>
-            <v-list-item-title class="font-weight-bold">
-              {{ userStore.nickname }}
-            </v-list-item-title>
+        <v-list class="submenu-list">
+          <v-list-item value="profile" prepend-icon="mdi-account-circle-outline">
+            <v-list-item-title>個人檔案</v-list-item-title>
           </v-list-item>
-          <v-divider></v-divider>
-          <v-list-item @click="router.push('/home')">
-            <template v-slot:prepend>
-              <v-icon>mdi-home</v-icon>
-            </template>
-            <v-list-item-title>我的行程</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="handleLogout">
-            <template v-slot:prepend>
-              <v-icon>mdi-logout</v-icon>
-            </template>
+          <v-list-item value="logout" @click="handleLogout" prepend-icon="mdi-logout">
             <v-list-item-title>登出</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
-    </v-app-bar>
+    </div>
 
-    <v-main class="page-background">
-      <!-- 白色內容區塊（包含 tabs 和內容）-->
+    <!-- 右側內容區 -->
+    <v-main class="main-content page-background">
+      <!-- 白色內容區塊 -->
       <div class="content-wrapper-with-tabs">
-        <!-- 功能標籤頁 -->
-        <v-tabs v-model="currentTab" bg-color="transparent" color="primary" grow>
-          <v-tab value="transactions" prepend-icon="mdi-format-list-text">明細</v-tab>
-          <v-tab value="settlement" prepend-icon="mdi-account-switch-outline">結算</v-tab>
-          <v-tab value="stats" prepend-icon="mdi-chart-pie">統計</v-tab>
-          <v-tab value="info" prepend-icon="mdi-information-variant-circle-outline">行程資訊</v-tab>
-        </v-tabs>
-
         <v-container fluid class="pa-6">
           <v-window v-model="currentTab">
             <!-- 交易明細頁面 -->
@@ -94,7 +140,9 @@
                             {{ transaction.title }}
                           </v-list-item-title>
                           <v-list-item-subtitle>
-                            {{ transaction.category }}
+                            <span v-if="transaction.type !== 'transfer'">
+                              {{ transaction.category }}
+                            </span>
                             <span
                               v-if="
                                 transaction.currency !== group?.baseCurrency &&
@@ -122,11 +170,11 @@
                   </v-card>
 
                   <!-- 空狀態 -->
-                  <v-card v-else class="text-center pa-12">
-                    <v-icon size="96" color="grey-lighten-1">mdi-receipt-text-outline</v-icon>
-                    <p class="text-h6 grey--text mt-4">還沒有交易記錄</p>
-                    <p class="text-body-2 grey--text">點擊下方「+」按鈕新增第一筆交易</p>
-                  </v-card>
+                  <div v-else class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
+                    <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-receipt-text-outline</v-icon>
+                    <p class="text-h5 text-grey-darken-1">還沒有交易記錄</p>
+                    <p class="text-body-1 text-grey-darken-1">點擊下方「+」按鈕新增第一筆交易</p>
+                  </div>
                 </v-col>
               </v-row>
             </v-window-item>
@@ -335,10 +383,10 @@
             <!-- 結算頁面 -->
             <v-window-item value="settlement">
               <!-- 空狀態 -->
-              <div v-if="balanceReport && nonZeroBalances.length === 0" class="text-center py-16">
+              <div v-if="balanceReport && nonZeroBalances.length === 0" class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
                 <v-icon size="120" color="grey-lighten-2">mdi-check-circle-outline</v-icon>
-                <p class="text-h5 mt-4 text-grey">目前無結算項目</p>
-                <p class="text-body-1 text-grey">所有成員已結清，沒有需要轉帳的項目</p>
+                <p class="text-h5 mt-4 text-grey-darken-1">目前無結算項目</p>
+                <p class="text-body-1 text-grey-darken-1">所有款項已結清</p>
               </div>
 
               <!-- 有餘額時顯示卡片 -->
@@ -392,109 +440,116 @@
 
             <!-- 統計頁面 -->
             <v-window-item value="stats">
-              <!-- 統計期間顯示 -->
-              <v-row class="mb-4">
-                <v-col cols="12">
-                  <div class="d-flex align-center">
-                    <span class="text-subtitle-1">
-                      統計期間：{{ formatStatsDateRange() }}
-                    </span>
-                    <v-btn
-                      color="primary"
-                      variant="text"
-                      size="small"
-                      class="ml-4"
-                      @click="openStatsDateDialog"
-                    >
-                      設定期間
-                    </v-btn>
-                  </div>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col cols="12" md="6">
-                  <v-card>
-                    <v-card-title>支出統計</v-card-title>
-                    <v-card-text>
-                      <p class="text-h5 mb-4">
-                        總計: {{ formatAmount(expenseStats.total || 0, group?.baseCurrency) }}
-                      </p>
-
-                      <!-- 圓餅圖 -->
-                      <div v-if="expensePieData" class="mb-6 d-flex justify-center">
-                        <div style="width: 280px; height: 280px;">
-                          <Pie :data="expensePieData" :options="expensePieOptions" />
-                        </div>
-                      </div>
-
-                      <!-- 長條圖 -->
-                      <div
-                        v-for="cat in expenseStats.categoryStats || []"
-                        :key="cat.category"
-                        class="mb-3 category-bar"
-                        :class="{ 'hovered': hoveredCategory === cat.category }"
-                        @mouseenter="hoveredCategory = cat.category"
-                        @mouseleave="hoveredCategory = null"
-                        @click="openCategoryDetail(cat.category, 'expense')"
-                        style="cursor: pointer;"
+              <div v-if="expenseStats.total === 0 && incomeStats.total === 0" class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
+                <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-plus-minus-variant</v-icon>
+                <p class="text-h5 text-grey-darken-1">尚無統計數據</p>
+                <p class="text-body-1 text-grey-darken-1">新增交易後即可查看統計圖表</p>
+              </div>
+              <div v-else>
+                <!-- 統計期間顯示 -->
+                <v-row class="mb-4">
+                  <v-col cols="12">
+                    <div class="d-flex align-center">
+                      <span class="text-subtitle-1">
+                        統計期間：{{ formatStatsDateRange() }}
+                      </span>
+                      <v-btn
+                        color="primary"
+                        variant="text"
+                        size="small"
+                        class="ml-4"
+                        @click="openStatsDateDialog"
                       >
-                        <div class="d-flex justify-space-between align-center">
-                          <v-icon size="small" class="mr-2">{{ getCategoryIcon(cat.category) }}</v-icon>
-                          <span>{{ getCategoryName(cat.category) }}</span>
-                          <span>{{ cat.percentage?.toFixed(1) }}%</span>
-                        </div>
-                        <v-progress-linear
-                          :model-value="cat.percentage || 0"
-                          :color="getCategoryColor(cat.category)"
-                          height="8"
-                        ></v-progress-linear>
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
+                        設定期間
+                      </v-btn>
+                    </div>
+                  </v-col>
+                </v-row>
 
-                <v-col cols="12" md="6">
-                  <v-card>
-                    <v-card-title>收入統計</v-card-title>
-                    <v-card-text>
-                      <p class="text-h5 mb-4">
-                        總計: {{ formatAmount(incomeStats.total || 0, group?.baseCurrency) }}
-                      </p>
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <v-card>
+                      <v-card-title>支出統計</v-card-title>
+                      <v-card-text>
+                        <p class="text-h5 mb-4">
+                          總計: {{ formatAmount(expenseStats.total || 0, group?.baseCurrency) }}
+                        </p>
 
-                      <!-- 圓餅圖 -->
-                      <div v-if="incomePieData" class="mb-6 d-flex justify-center">
-                        <div style="width: 280px; height: 280px;">
-                          <Pie :data="incomePieData" :options="incomePieOptions" />
+                        <!-- 圓餅圖 -->
+                        <div v-if="expensePieData" class="mb-6 d-flex justify-center">
+                          <div style="width: 280px; height: 280px;">
+                            <Pie :data="expensePieData" :options="expensePieOptions" />
+                          </div>
                         </div>
-                      </div>
 
-                      <!-- 長條圖 -->
-                      <div
-                        v-for="cat in incomeStats.categoryStats || []"
-                        :key="cat.category"
-                        class="mb-3 category-bar"
-                        :class="{ 'hovered': hoveredCategory === cat.category }"
-                        @mouseenter="hoveredCategory = cat.category"
-                        @mouseleave="hoveredCategory = null"
-                        @click="openCategoryDetail(cat.category, 'income')"
-                        style="cursor: pointer;"
-                      >
-                        <div class="d-flex justify-space-between align-center">
-                          <v-icon size="small" class="mr-2">{{ getCategoryIcon(cat.category) }}</v-icon>
-                          <span>{{ getCategoryName(cat.category) }}</span>
-                          <span>{{ cat.percentage?.toFixed(1) }}%</span>
+                        <!-- 長條圖 -->
+                        <div
+                          v-for="cat in expenseStats.categoryStats || []"
+                          :key="cat.category"
+                          class="mb-3 category-bar"
+                          :class="{ 'hovered': hoveredCategory === cat.category }"
+                          @mouseenter="hoveredCategory = cat.category"
+                          @mouseleave="hoveredCategory = null"
+                          @click="openCategoryDetail(cat.category, 'expense')"
+                          style="cursor: pointer;"
+                        >
+                          <div class="d-flex justify-space-between align-center">
+                            <v-icon size="small" class="mr-2">{{ getCategoryIcon(cat.category) }}</v-icon>
+                            <span>{{ getCategoryName(cat.category) }}</span>
+                            <span>{{ cat.percentage?.toFixed(1) }}%</span>
+                          </div>
+                          <v-progress-linear
+                            :model-value="cat.percentage || 0"
+                            :color="getCategoryColor(cat.category)"
+                            height="8"
+                          ></v-progress-linear>
                         </div>
-                        <v-progress-linear
-                          :model-value="cat.percentage || 0"
-                          :color="getCategoryColor(cat.category)"
-                          height="8"
-                        ></v-progress-linear>
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-card>
+                      <v-card-title>收入統計</v-card-title>
+                      <v-card-text>
+                        <p class="text-h5 mb-4">
+                          總計: {{ formatAmount(incomeStats.total || 0, group?.baseCurrency) }}
+                        </p>
+
+                        <!-- 圓餅圖 -->
+                        <div v-if="incomePieData" class="mb-6 d-flex justify-center">
+                          <div style="width: 280px; height: 280px;">
+                            <Pie :data="incomePieData" :options="incomePieOptions" />
+                          </div>
+                        </div>
+
+                        <!-- 長條圖 -->
+                        <div
+                          v-for="cat in incomeStats.categoryStats || []"
+                          :key="cat.category"
+                          class="mb-3 category-bar"
+                          :class="{ 'hovered': hoveredCategory === cat.category }"
+                          @mouseenter="hoveredCategory = cat.category"
+                          @mouseleave="hoveredCategory = null"
+                          @click="openCategoryDetail(cat.category, 'income')"
+                          style="cursor: pointer;"
+                        >
+                          <div class="d-flex justify-space-between align-center">
+                            <v-icon size="small" class="mr-2">{{ getCategoryIcon(cat.category) }}</v-icon>
+                            <span>{{ getCategoryName(cat.category) }}</span>
+                            <span>{{ cat.percentage?.toFixed(1) }}%</span>
+                          </div>
+                          <v-progress-linear
+                            :model-value="cat.percentage || 0"
+                            :color="getCategoryColor(cat.category)"
+                            height="8"
+                          ></v-progress-linear>
+                        </div>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </div>
             </v-window-item>
           </v-window>
         </v-container>
@@ -713,6 +768,12 @@ const statsEndDate = ref('');
 const tempStatsStartDate = ref('');
 const tempStatsEndDate = ref('');
 const statsDateErrorMessage = ref('');
+
+// 側邊欄狀態
+const menuOpen = ref(false);
+const userInitial = computed(() => {
+  return userStore.nickname ? userStore.nickname.charAt(0).toUpperCase() : 'U';
+});
 
 // ========== 群組資訊編輯狀態 ==========
 const isGroupInfoEditing = ref(false);
@@ -934,9 +995,9 @@ const getCategoryIcon = (transactionOrCategory) => {
 // 取得交易類型顏色
 const getTransactionColor = (type) => {
   const colors = {
-    expense: 'red',
-    income: 'green',
-    transfer: 'blue',
+    expense: '#E67E66',
+    income: '#56AB2F',
+    transfer: '#7BA0BF',
   };
   return colors[type] || 'grey';
 };
@@ -1346,6 +1407,160 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ========== 左側導覽欄樣式 ========== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 20%;
+  height: 100vh;
+  background: rgba(252, 251, 247, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+}
+
+.sidebar-header {
+  text-align: center;
+  padding-bottom: 24px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.logo-icon {
+  position: relative;
+  top: -2px;
+  height: 1.3em;
+  margin: 0 0.15em;
+  vertical-align: middle;
+}
+
+/* 固定的導覽標題區域 */
+.nav-header {
+  flex-shrink: 0;
+}
+
+/* 可滾動的導覽內容區域 */
+.nav-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-right: -8px;
+  padding-right: 8px;
+  min-height: 0;
+}
+
+/* 固定底部使用者區域 */
+.sidebar > .v-menu {
+  flex-shrink: 0;
+}
+
+/* 隱藏滾動條但保持滾動功能 */
+.nav-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nav-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.nav-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 新增導覽項目樣式 */
+.nav-item {
+  color: #333;
+  border-radius: 8px;
+  margin: 4px 0;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 選中狀態的樣式 */
+.active-nav-item {
+  background-color: rgb(85, 214, 194) !important;
+  color: white !important;
+}
+
+.active-nav-item .v-icon,
+.active-nav-item .v-list-item-title {
+  color: white !important;
+}
+
+/* 覆寫 Vuetify 預設樣式 */
+.v-list-subheader {
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: bold;
+  padding-left: 16px;
+  font-size: 1.6em;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: 1.2;
+}
+
+.v-list-item {
+  border-radius: 8px !important;
+  font-size: 1.4em;
+}
+
+.nav-item:hover {
+  background-color: rgb(85, 214, 194) !important;
+  color: white !important;
+}
+
+.nav-item:hover .v-icon,
+.nav-item:hover .v-list-item-title {
+  color: white !important;
+}
+
+.nav-item[value='user-menu'] {
+  cursor: pointer;
+}
+
+/* 彈出式子選單的樣式 */
+.submenu-list {
+  background-color: rgba(240, 240, 240, 0.7) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px !important;
+}
+
+.submenu-list .v-list-item:hover {
+  background-color: rgb(85, 214, 194) !important;
+  color: white !important;
+}
+
+.submenu-list .v-list-item:hover .v-list-item-title,
+.submenu-list .v-list-item:hover .v-icon {
+  color: white !important;
+}
+
+/* ========== 右側內容區樣式 ========== */
+.main-content {
+  position: relative;
+  z-index: 1;
+  margin-left: 20%;
+  width: 80%;
+  min-height: 100vh;
+  padding: 0;
+}
+
+/* ========== 交易列表樣式 ========== */
 .transaction-item {
   border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
@@ -1370,81 +1585,34 @@ onMounted(async () => {
   border-top: none;
 }
 
-.text-red {
-  color: #f44336;
+:deep(.text-red) {
+  color: #E67E66 !important;
 }
 
-.text-green {
-  color: #4caf50;
+:deep(.text-green) {
+  color: #56AB2F !important;
 }
 
-.text-blue {
-  color: #2196f3;
+:deep(.text-blue) {
+  color: #7BA0BF !important;
 }
 
-/* GroupDetailView 專用：包含 tabs 的容器 */
+/* GroupDetailView 專用：內容容器 */
 .content-wrapper-with-tabs {
   position: relative;
   z-index: 1;
-  max-width: 60% !important;
-  margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.9);
+  width: 100% ;
+  max-width: 100% ;
+  margin: 0 !important;
+  background-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  min-height: calc(100vh - 64px);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* tabs 整體樣式 */
-.content-wrapper-with-tabs .v-tabs {
-  flex-shrink: 0;
-}
-
-/* 每個 tab 的底線 */
-.content-wrapper-with-tabs :deep(.v-tab) {
-  position: relative;
-}
-
-.content-wrapper-with-tabs :deep(.v-tab::after) {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 2px;
-  background-color: rgba(0, 0, 0, 0.12);
-}
-
-.content-wrapper-with-tabs :deep(.v-tab--selected::after) {
-  background-color: rgb(var(--v-theme-primary));
-}
-
 .content-wrapper-with-tabs .v-container {
   flex: 1;
-}
-
-/* 自訂導覽列樣式 */
-.custom-navbar {
-  background-color: rgba(245, 245, 220, 0.9) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-  max-width: 60% !important;
-  margin: 0 auto !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  right: auto !important;
-  position: fixed !important;
-  top: 0 !important;
-}
-
-.custom-navbar :deep(.v-toolbar-title),
-.custom-navbar :deep(.v-btn),
-.custom-navbar :deep(.v-icon) {
-  color: #333 !important;
-}
-
-.custom-navbar :deep(.v-avatar) {
-  color: #333 !important;
 }
 
 @media (max-width: 768px) {

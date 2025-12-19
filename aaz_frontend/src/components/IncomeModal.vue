@@ -1,12 +1,12 @@
 <template>
   <v-dialog v-model="dialog" max-width="600px" persistent>
-    <v-card>
-      <v-card-title class="d-flex align-center justify-space-between bg-primary text-white">
+    <v-card class="modal-card">
+      <v-card-title class="sticky-header d-flex align-center justify-space-between bg-primary text-white">
         <span class="text-h6">{{ title }}</span>
         <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeDialog"></v-btn>
       </v-card-title>
 
-      <v-card-text class="pt-6">
+      <v-card-text class="scrollable-content pt-6">
         <v-form ref="form" v-model="valid">
           <!-- 日期 -->
           <v-text-field
@@ -759,6 +759,25 @@ watch(dialog, (val) => {
 </script>
 
 <style scoped>
+/* 固定標題樣式 */
+.modal-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgb(var(--v-theme-primary)) !important;
+}
+
+.scrollable-content {
+  overflow-y: auto;
+  max-height: calc(90vh - 64px - 52px); /* 90vh - header - footer */
+}
+
 .invisible-icon :deep(.v-input__prepend) {
   opacity: 0;
 }

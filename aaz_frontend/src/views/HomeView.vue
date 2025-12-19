@@ -5,27 +5,48 @@
     <div class="sidebar">
       <!-- Logo -->
       <div class="sidebar-header">
-          <h1 class="logo-title d-flex align-center justify-center mb-6">
+          <h1 class="logo-title d-flex align-center justify-center mb-6" @click="handleLogoClick" style="cursor: pointer;">
             欸
             <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
             誌
           </h1>
       </div>
 
-      <!-- 中間導覽區 -->
-      <v-list class="pa-0" bg-color="transparent">
-        <v-list-subheader>我的行程</v-list-subheader>
-        <v-list-item
-            prepend-icon="mdi-plus-circle-outline"
-            title="新增群組"
-            @click="showCreateDialog = true"
-            class="nav-item"
-        ></v-list-item>
-        <!-- 未來可以將群組列表放在這裡 -->
-      </v-list>
+      <!-- 固定的"我的行程"標題 -->
+      <div class="nav-header">
+        <v-list class="pa-0" bg-color="transparent">
+          <v-list-subheader>我的行程</v-list-subheader>
+          <v-divider class="my-3"></v-divider>
+        </v-list>
+      </div>
 
-      <!-- 彈性空間，將下方內容推至底部 -->
-      <v-spacer></v-spacer>
+      <!-- 可滾動的行程列表區域 -->
+      <div class="nav-content">
+        <v-list class="pa-0" bg-color="transparent">
+          <!-- 行程群組列表 -->
+          <v-list-item
+            v-for="group in sortedGroups"
+            :key="group.id"
+            class="nav-item"
+            @click="goToGroup(group.id)"
+            @mouseenter="hoveredGroupId = group.id"
+            @mouseleave="hoveredGroupId = null"
+          >
+            <template v-slot:prepend>
+              <v-icon>mdi-beach</v-icon>
+            </template>
+            <v-list-item-title>{{ group.name }}</v-list-item-title>
+          </v-list-item>
+
+          <!-- 新增群組項目 -->
+          <v-list-item
+              prepend-icon="mdi-plus-circle-outline"
+              title="新增群組"
+              @click="showCreateDialog = true"
+              class="nav-item mt-4"
+          ></v-list-item>
+        </v-list>
+      </div>
 
       <!-- 底部使用者區 -->
       <v-menu location="top" v-model="menuOpen">
@@ -64,9 +85,9 @@
       <div class="content-wrapper-home">
         <v-container class="pa-6">
           <!-- 群組卡片列表 -->
-          <v-row v-if="!loading" class="mt-4">
+          <v-row v-if="!loading">
             <v-col v-for="group in groups" :key="group.id" cols="12" md="6" lg="4">
-              <v-card hover @click="goToGroup(group.id)" class="group-card" elevation="3">
+              <v-card hover @click="goToGroup(group.id)" class="group-card" elevation="3" :class="{'is-hovered': hoveredGroupId === group.id}">
                 <v-img
                   :src="`https://picsum.photos/seed/${group.id}/400/200`"
                   height="200"
@@ -267,7 +288,12 @@ const showCreateDialog = ref(false);
 const showConfirmDialog = ref(false);
 const newGroupForm = ref(null);
 const newGroupFormValid = ref(true);
-const menuOpen = ref(false); // Add this line
+const menuOpen = ref(false);
+const hoveredGroupId = ref(null); // 用於同步 hover 效果
+
+const sortedGroups = computed(() =>
+  [...groups.value].sort((a, b) => a.id - b.id) // 依照 ID 由舊到新排序
+);
 
 const newGroup = ref({
   name: '',
@@ -322,7 +348,9 @@ const isAddMemberDisabled = computed(() => {
   return lastMember.name.trim() === ''; // 如果最後一個欄位是空的，則禁用
 });
 
-// 處理新成員輸入框失焦事件
+function handleLogoClick() {
+  window.location.reload();
+}
 const handleNewMemberBlur = (member) => {
   if (member.name.trim() === '') {
     newMembers.value = newMembers.value.filter((m) => m.tempId !== member.tempId);
@@ -460,7 +488,7 @@ function logout() {
 .sidebar-header {
   text-align: center;
   padding-bottom: 24px; /* 調整間距 */
-  margin-bottom: 8px; /* 新增間距 */
+  margin-bottom: 12px; /* 調整間距以匹配下方 */
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -483,6 +511,44 @@ function logout() {
   vertical-align: middle;
 }
 
+/* 固定的導覽標題區域 */
+.nav-header {
+  flex-shrink: 0;
+}
+
+/* 可滾動的導覽內容區域 */
+.nav-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-right: -8px;
+  padding-right: 8px;
+  min-height: 0;
+}
+
+/* 固定底部使用者區域 */
+.sidebar > .v-menu {
+  flex-shrink: 0;
+}
+
+/* 隱藏滾動條但保持滾動功能 */
+.nav-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nav-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.nav-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
 /* 新增導覽項目樣式 */
 .nav-item {
   color: #333;
@@ -499,13 +565,15 @@ function logout() {
   color: rgba(0, 0, 0, 0.6);
   font-weight: bold;
   padding-left: 16px;
-  margin-top: 8px;
-  font-size: 1.5em; /* 我的行程字體變大 */
+  font-size: 1.6em; /* 我的行程字體再放大 */
+  padding-top: 8px;    /* 增加頂部內邊距 */
+  padding-bottom: 8px; /* 增加底部內邊距 */
+  line-height: 1.2;    /* 調整行高以確保垂直居中 */
 }
 
 .v-list-item {
   border-radius: 8px !important;
-  font-size: 1.3em; /* 其他選單字體變大 */
+  font-size: 1.4em; /* 其他選單字體再放大 */
 }
 
 .nav-item:hover {
@@ -572,7 +640,8 @@ function logout() {
   cursor: pointer;
 }
 
-.group-card:hover {
+.group-card:hover,
+.group-card.is-hovered { /* 新增 is-hovered 樣式 */
   transform: translateY(-4px);
 }
 
