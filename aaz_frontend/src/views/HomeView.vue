@@ -69,7 +69,7 @@
         </template>
         
         <v-list class="submenu-list">
-            <v-list-item value="profile" prepend-icon="mdi-account-circle-outline">
+            <v-list-item value="profile" prepend-icon="mdi-account-circle-outline" @click="profileDialogStore.openDialog()">
               <v-list-item-title>個人檔案</v-list-item-title>
             </v-list-item>
             <v-list-item value="logout" @click="logout" prepend-icon="mdi-logout">
@@ -277,10 +277,12 @@
 import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useProfileDialogStore } from '@/stores/profileDialog';
 import axios from '@/api/axios';
 
 const router = useRouter();
 const userStore = useUserStore();
+const profileDialogStore = useProfileDialogStore();
 
 const loading = ref(true);
 const groups = ref([]);

@@ -64,7 +64,7 @@
         </template>
 
         <v-list class="submenu-list">
-          <v-list-item value="profile" prepend-icon="mdi-account-circle-outline">
+          <v-list-item value="profile" prepend-icon="mdi-account-circle-outline" @click="handleProfileClick">
             <v-list-item-title>個人檔案</v-list-item-title>
           </v-list-item>
           <v-list-item value="logout" @click="handleLogout" prepend-icon="mdi-logout">
@@ -95,7 +95,7 @@
             <transition name="announcement-fade">
               <div v-if="showAnnouncement" class="floating-announcement">
                 <!-- 小飛機 icon -->
-                <v-icon class="airplane-icon" size="20" color="#56AB2F">mdi-airplane</v-icon>
+                <v-icon class="airplane-icon" size="20" color="#555555">mdi-airplane</v-icon>
 
                 <v-img :src="`https://picsum.photos/seed/${group?.id}/400/200`" height="120" cover
                   style="width: 100%; border-radius: 2px;"></v-img>
@@ -141,7 +141,7 @@
                                 <v-avatar :color="getTransactionColor(transaction.type)">
                                   <v-icon color="white">{{
                                     getCategoryIcon(transaction)
-                                  }}</v-icon>
+                                    }}</v-icon>
                                 </v-avatar>
                               </template>
 
@@ -268,7 +268,7 @@
                             <h3 class="text-h6">旅遊日期</h3>
                             <span v-if="dateErrorMessage" class="text-red text-caption ml-2">{{
                               dateErrorMessage
-                            }}</span>
+                              }}</span>
                           </div>
                           <p v-if="!isGroupInfoEditing">
                             {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
@@ -666,13 +666,15 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
   </v-app>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
+import { useProfileDialogStore } from '@/stores/profileDialog';
 import axios from '@/api/axios';
 import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -687,6 +689,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const profileDialogStore = useProfileDialogStore();
 
 // 狀態
 const currentTab = ref('transactions');
@@ -1406,6 +1409,12 @@ const incomePieOptions = computed(() => ({
 const handleLogout = () => {
   userStore.logout();
   router.push('/login');
+};
+
+// 打開個人檔案
+const handleProfileClick = () => {
+  menuOpen.value = false;
+  profileDialogStore.openDialog();
 };
 
 // ========== 群組資訊編輯邏輯 (保留) ==========

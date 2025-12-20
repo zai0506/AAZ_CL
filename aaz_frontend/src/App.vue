@@ -4,15 +4,21 @@
     <div v-else class="loading-container">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
     </div>
+
+    <!-- 全局個人檔案對話框 -->
+    <ProfileDialog v-model="profileDialogStore.showDialog" />
   </v-app>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useProfileDialogStore } from '@/stores/profileDialog';
 import axios from '@/api/axios';
+import ProfileDialog from '@/components/ProfileDialog.vue';
 
 const userStore = useUserStore();
+const profileDialogStore = useProfileDialogStore();
 const appReady = ref(false);
 
 onMounted(async () => {
