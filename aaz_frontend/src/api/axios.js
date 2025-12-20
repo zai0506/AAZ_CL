@@ -27,12 +27,17 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
+      // 如果請求配置中有 skipAutoLogout 標記，則不自動登出
+      if (error.config?.skipAutoLogout) {
+        return Promise.reject(error);
+      }
+
       // 清除所有用戶相關的 localStorage
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
       localStorage.removeItem('userEmail');
       localStorage.removeItem('userNickname');
-      
+
       // 更新 Pinia store 狀態
       const { useUserStore } = await import('@/stores/user');
       const userStore = useUserStore();

@@ -112,7 +112,8 @@
                 <v-row>
                   <v-col cols="12">
                   <!-- 交易列表 -->
-                  <v-card v-if="transactions.length > 0">
+                  <div v-if="transactions.length > 0" class="d-flex align-start gap-2">
+                    <v-card class="flex-grow-1">
                     <v-list>
                       <template v-for="(dateGroup, index) in groupedTransactions" :key="index">
                         <!-- 日期分組標題 -->
@@ -161,6 +162,57 @@
                       </template>
                     </v-list>
                   </v-card>
+
+                  <!-- 篩選按鈕 -->
+                  <v-menu location="bottom end">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        icon="mdi-filter-variant"
+                        variant="text"
+                        color="white"
+                        v-bind="props"
+                      ></v-btn>
+                    </template>
+                    <v-list class="filter-menu">
+                      <v-list-item
+                        @click="sortTransactions('date-desc')"
+                        :class="{ 'active-filter': transactionSort === 'date-desc' }"
+                      >
+                        <template v-slot:prepend>
+                          <v-icon>mdi-sort-calendar-descending</v-icon>
+                        </template>
+                        <v-list-item-title>日期新到舊</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="sortTransactions('date-asc')"
+                        :class="{ 'active-filter': transactionSort === 'date-asc' }"
+                      >
+                        <template v-slot:prepend>
+                          <v-icon>mdi-sort-calendar-ascending</v-icon>
+                        </template>
+                        <v-list-item-title>日期舊到新</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="sortTransactions('amount-desc')"
+                        :class="{ 'active-filter': transactionSort === 'amount-desc' }"
+                      >
+                        <template v-slot:prepend>
+                          <v-icon>mdi-sort-numeric-descending</v-icon>
+                        </template>
+                        <v-list-item-title>金額高到低</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="sortTransactions('amount-asc')"
+                        :class="{ 'active-filter': transactionSort === 'amount-asc' }"
+                      >
+                        <template v-slot:prepend>
+                          <v-icon>mdi-sort-numeric-ascending</v-icon>
+                        </template>
+                        <v-list-item-title>金額低到高</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                  </div>
 
                   <!-- 空狀態 -->
                   <div v-else class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
@@ -371,6 +423,19 @@
                       </v-col>
                     </v-row>
                   </v-form>
+
+                  <!-- 刪除行程按鈕 -->
+                  <div v-if="!isGroupInfoEditing" class="d-flex justify-center mt-6">
+                    <v-btn
+                      color="red"
+                      variant="elevated"
+                      prepend-icon="mdi-delete"
+                      @click="showDeleteGroupConfirm = true"
+                      style="width: 90%;"
+                    >
+                      刪除行程
+                    </v-btn>
+                  </div>
                 </v-card-text>
               </v-card>
               </div>
@@ -721,6 +786,26 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- 刪除行程確認對話框 -->
+    <v-dialog v-model="showDeleteGroupConfirm" max-width="400px">
+      <v-card>
+        <v-alert type="warning" variant="tonal" class="mb-3">
+          此操作無法復原！
+        </v-alert>
+        <v-card-title class="text-h6" style="padding-left: 40px;" >確定要刪除 {{ group?.name }} 嗎？</v-card-title>
+        <v-card-text>
+          <p class="text-body-1 text-grey-darken-1 pl-4" >提醒您：<br>刪除後將永久移除行程的所有資料及紀錄。</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red" variant="elevated" @click="deleteGroup" :loading="deletingGroup">
+            確定
+          </v-btn>
+          <v-btn variant="text" @click="showDeleteGroupConfirm = false">取消</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -770,6 +855,13 @@ const tempStatsStartDate = ref('');
 const tempStatsEndDate = ref('');
 const statsDateErrorMessage = ref('');
 
+// 交易排序
+const transactionSort = ref('date-desc'); // 'date-desc', 'date-asc', 'amount-desc', 'amount-asc'
+
+// 刪除行程
+const showDeleteGroupConfirm = ref(false);
+const deletingGroup = ref(false);
+
 // 側邊欄狀態
 const menuOpen = ref(false);
 const userInitial = computed(() => {
@@ -818,6 +910,11 @@ const viewTransaction = (transaction) => {
   if (transaction.type === 'expense') showExpenseModal.value = true;
   if (transaction.type === 'income') showIncomeModal.value = true;
   if (transaction.type === 'transfer') showTransferModal.value = true;
+};
+
+// 設定交易排序方式
+const sortTransactions = (sortType) => {
+  transactionSort.value = sortType;
 };
 
 // 載入群組資訊
@@ -900,14 +997,9 @@ const formatDateFull = (dateString) => {
 const groupedTransactions = computed(() => {
   if (!transactions.value || transactions.value.length === 0) return [];
 
-  // 按日期排序（新到舊）
-  const sortedTransactions = [...transactions.value].sort((a, b) => {
-    return new Date(b.transactionDate) - new Date(a.transactionDate);
-  });
-
-  // 分組
+  // 先按日期分組
   const groups = {};
-  sortedTransactions.forEach(transaction => {
+  transactions.value.forEach(transaction => {
     const dateKey = transaction.transactionDate.split('T')[0]; // 取得日期部分
     if (!groups[dateKey]) {
       groups[dateKey] = [];
@@ -915,8 +1007,34 @@ const groupedTransactions = computed(() => {
     groups[dateKey].push(transaction);
   });
 
+  // 根據排序類型決定排序方式
+  let sortedGroups;
+
+  if (transactionSort.value === 'date-desc') {
+    // 日期新到舊：日期降序，組內保持原順序
+    sortedGroups = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+  } else if (transactionSort.value === 'date-asc') {
+    // 日期舊到新：日期升序，組內保持原順序
+    sortedGroups = Object.keys(groups).sort((a, b) => new Date(a) - new Date(b));
+  } else if (transactionSort.value === 'amount-desc') {
+    // 金額高到低：日期降序，組內按金額降序
+    sortedGroups = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+    sortedGroups.forEach(dateKey => {
+      groups[dateKey].sort((a, b) => b.amount - a.amount);
+    });
+  } else if (transactionSort.value === 'amount-asc') {
+    // 金額低到高：日期降序，組內按金額升序
+    sortedGroups = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+    sortedGroups.forEach(dateKey => {
+      groups[dateKey].sort((a, b) => a.amount - b.amount);
+    });
+  } else {
+    // 預設：日期降序
+    sortedGroups = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+  }
+
   // 轉換為陣列格式
-  return Object.keys(groups).map(dateKey => ({
+  return sortedGroups.map(dateKey => ({
     date: formatDateFull(dateKey),
     transactions: groups[dateKey]
   }));
@@ -1387,6 +1505,41 @@ const sortedMembers = computed(() => {
   });
 });
 
+// 判斷當前用戶是否為建立者
+const isCurrentUserCreator = computed(() => {
+  if (!group.value?.members || !userStore.id) return false;
+  const currentUserMember = group.value.members.find(
+    (m) => m.userId === parseInt(userStore.id)
+  );
+  return currentUserMember?.isCreator || false;
+});
+
+// 刪除行程
+const deleteGroup = async () => {
+  deletingGroup.value = true;
+
+  try {
+    const response = await axios.delete(`/trips/${groupId.value}`, {
+      skipAutoLogout: true, // 避免 401 時自動登出
+    });
+    console.log('刪除成功:', response);
+    showDeleteGroupConfirm.value = false;
+    // 刪除成功後導航回首頁
+    router.push('/home');
+  } catch (error) {
+    console.error('刪除行程失敗:', error);
+    console.error('錯誤詳情:', error.response?.data);
+
+    if (error.response?.status === 401) {
+      alert('刪除失敗：此功能的後端 API 尚未實現或您沒有權限。\n請確認後端是否已實現 DELETE /trips/{id} 端點。');
+    } else {
+      alert('刪除失敗：' + (error.response?.data?.message || error.message));
+    }
+  } finally {
+    deletingGroup.value = false;
+  }
+};
+
 // 過濾掉餘額為 0 的成員
 const nonZeroBalances = computed(() => {
   if (!balanceReport.value?.balances) return [];
@@ -1666,9 +1819,31 @@ onMounted(async () => {
 }
 
 .add-transaction-menu {
-
   border-radius: 8px !important;
+}
 
+/* 篩選選單樣式 */
+.filter-menu {
+  border-radius: 8px !important;
+  min-width: 180px;
+}
+
+.filter-menu .v-list-item {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-menu .v-list-item:hover {
+  background-color: rgba(85, 214, 194, 0.1);
+}
+
+.filter-menu .v-list-item.active-filter {
+  background-color: rgba(85, 214, 194, 0.2);
+  color: rgb(85, 214, 194);
+}
+
+.filter-menu .v-list-item.active-filter .v-icon {
+  color: rgb(85, 214, 194);
 }
 
 

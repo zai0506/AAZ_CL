@@ -115,6 +115,20 @@ public class TripGroupService {
         return convertToResponse(saved);
     }
 
+    @Transactional
+    public void deleteTripGroup(Long tripId, Long userId) {
+        TripGroup tripGroup = tripGroupRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("行程不存在"));
+
+        // 驗證是否為建立者
+        if (!tripGroup.getCreatorId().equals(userId)) {
+            throw new RuntimeException("只有建立者才能刪除行程");
+        }
+
+        // 刪除行程（關聯的成員、交易等會透過級聯刪除）
+        tripGroupRepository.delete(tripGroup);
+    }
+
     private String generateTripCode() {
         return "AAZ" + String.format("%06d", new Random().nextInt(999999));
     }

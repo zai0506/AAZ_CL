@@ -46,4 +46,14 @@ public class TripGroupController {
             @RequestBody TripGroupRequest request) {
         return ResponseEntity.ok(tripGroupService.updateTripGroup(tripId, request));
     }
+
+    @DeleteMapping("/{tripId}")
+    public ResponseEntity<Void> deleteTrip(
+            @PathVariable Long tripId,
+            Authentication auth) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+        Long userId = userDetails.getId();
+        tripGroupService.deleteTripGroup(tripId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }
