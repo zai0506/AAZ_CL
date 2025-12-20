@@ -51,13 +51,7 @@
             @click="currentTab = 'stats'"
           ></v-list-item>
 
-          <v-list-item
-            prepend-icon="mdi-magnify"
-            title="搜尋"
-            class="nav-item"
-            :class="{ 'active-nav-item': currentTab === 'search' }"
-            @click="currentTab = 'search'"
-          ></v-list-item>
+
 
           <v-list-item
             prepend-icon="mdi-information-variant-circle-outline"
@@ -111,8 +105,26 @@
               <div class="narrow-content">
                 <v-row>
                   <v-col cols="12">
+                  <!-- 搜尋輸入框 -->
+                  <div class="d-flex align-start gap-2 mb-4">
+                    <div class="flex-grow-1">
+                      <v-text-field
+                        v-model="searchKeyword"
+                        placeholder="輸入品項名、金額或原始交易貨幣"
+                        prepend-inner-icon="mdi-magnify"
+                        variant="outlined"
+                        density="compact"
+                        clearable
+                        @click:clear="searchKeyword = ''"
+                        hide-details
+                        class="search-input"
+                      ></v-text-field>
+                    </div>
+                    <div style="width: 48px;"></div>
+                  </div>
+
                   <!-- 交易列表 -->
-                  <div v-if="transactions.length > 0" class="d-flex align-start gap-2">
+                  <div v-if="filteredTransactions.length > 0" class="d-flex align-start gap-2">
                     <v-card class="flex-grow-1">
                     <v-list>
                       <template v-for="(dateGroup, index) in groupedTransactions" :key="index">
@@ -210,15 +222,31 @@
                         </template>
                         <v-list-item-title>金額低到高</v-list-item-title>
                       </v-list-item>
+                      <v-list-item
+                        @click="sortTransactions('currency')"
+                        :class="{ 'active-filter': transactionSort === 'currency' }"
+                      >
+                        <template v-slot:prepend>
+                          <v-icon>mdi-currency-usd</v-icon>
+                        </template>
+                        <v-list-item-title>按幣別排序</v-list-item-title>
+                      </v-list-item>
                     </v-list>
                   </v-menu>
                   </div>
 
                   <!-- 空狀態 -->
-                  <div v-else class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
+                  <div v-else-if="transactions.length === 0" class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
                     <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-receipt-text-outline</v-icon>
                     <p class="text-h5 text-grey-darken-1">還沒有交易記錄</p>
                     <p class="text-body-1 text-grey-darken-1">點擊下方「+」按鈕新增第一筆交易</p>
+                  </div>
+
+                  <!-- 搜尋無結果 -->
+                  <div v-else class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
+                    <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-magnify-close</v-icon>
+                    <p class="text-h5 text-grey-darken-1">找不到符合的交易記錄</p>
+                    <p class="text-body-1 text-grey-darken-1">請嘗試其他關鍵字</p>
                   </div>
                   </v-col>
                 </v-row>
@@ -858,6 +886,9 @@ const statsDateErrorMessage = ref('');
 // 交易排序
 const transactionSort = ref('date-desc'); // 'date-desc', 'date-asc', 'amount-desc', 'amount-asc'
 
+// 搜尋關鍵字
+const searchKeyword = ref('');
+
 // 刪除行程
 const showDeleteGroupConfirm = ref(false);
 const deletingGroup = ref(false);
@@ -993,51 +1024,130 @@ const formatDateFull = (dateString) => {
   return `${year}年${month}月${day}日`;
 };
 
+// 根據搜尋關鍵字篩選交易
+const filteredTransactions = computed(() => {
+  if (!transactions.value || transactions.value.length === 0) return [];
+  if (!searchKeyword.value.trim()) return transactions.value;
+
+  const keyword = searchKeyword.value.trim().toLowerCase();
+
+  return transactions.value.filter(transaction => {
+    // 搜尋品項名稱（title）
+    if (transaction.title && transaction.title.toLowerCase().includes(keyword)) {
+      return true;
+    }
+
+    // 搜尋金額（轉為字串後搜尋）
+    if (transaction.amount && transaction.amount.toString().includes(keyword)) {
+      return true;
+    }
+
+    // 搜尋原始交易貨幣
+    if (transaction.currency && transaction.currency.toLowerCase().includes(keyword)) {
+      return true;
+    }
+
+    return false;
+  });
+});
+
 // 按日期分組交易（明細頁面）
 const groupedTransactions = computed(() => {
-  if (!transactions.value || transactions.value.length === 0) return [];
+  if (!filteredTransactions.value || filteredTransactions.value.length === 0) return [];
 
-  // 先按日期分組
-  const groups = {};
-  transactions.value.forEach(transaction => {
-    const dateKey = transaction.transactionDate.split('T')[0]; // 取得日期部分
-    if (!groups[dateKey]) {
-      groups[dateKey] = [];
-    }
-    groups[dateKey].push(transaction);
-  });
+  let sortedTransactions = [...filteredTransactions.value];
 
   // 根據排序類型決定排序方式
-  let sortedGroups;
-
   if (transactionSort.value === 'date-desc') {
-    // 日期新到舊：日期降序，組內保持原順序
-    sortedGroups = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+    // 日期新到舊
+    sortedTransactions.sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate));
   } else if (transactionSort.value === 'date-asc') {
-    // 日期舊到新：日期升序，組內保持原順序
-    sortedGroups = Object.keys(groups).sort((a, b) => new Date(a) - new Date(b));
+    // 日期舊到新
+    sortedTransactions.sort((a, b) => new Date(a.transactionDate) - new Date(b.transactionDate));
   } else if (transactionSort.value === 'amount-desc') {
-    // 金額高到低：日期降序，組內按金額降序
-    sortedGroups = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
-    sortedGroups.forEach(dateKey => {
-      groups[dateKey].sort((a, b) => b.amount - a.amount);
-    });
+    // 金額高到低
+    sortedTransactions.sort((a, b) => b.amount - a.amount);
+    console.log('金額高到低排序結果:', sortedTransactions.map(t => `${t.title}: ${t.amount}`));
   } else if (transactionSort.value === 'amount-asc') {
-    // 金額低到高：日期降序，組內按金額升序
-    sortedGroups = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
-    sortedGroups.forEach(dateKey => {
-      groups[dateKey].sort((a, b) => a.amount - b.amount);
+    // 金額低到高
+    sortedTransactions.sort((a, b) => a.amount - b.amount);
+    console.log('金額低到高排序結果:', sortedTransactions.map(t => `${t.title}: ${t.amount}`));
+  } else if (transactionSort.value === 'currency') {
+    // 按幣別排序：主要貨幣優先，其他按A-Z
+    const baseCurrency = group.value?.baseCurrency || '';
+
+    sortedTransactions.sort((transA, transB) => {
+      const currencyA = transA.currency || '';
+      const currencyB = transB.currency || '';
+
+      // 如果 A 是主要貨幣，A 排前面
+      if (currencyA === baseCurrency && currencyB !== baseCurrency) return -1;
+      // 如果 B 是主要貨幣，B 排前面
+      if (currencyB === baseCurrency && currencyA !== baseCurrency) return 1;
+      // 兩者都是或都不是主要貨幣，按字母順序排序
+      return currencyA.localeCompare(currencyB);
     });
   } else {
     // 預設：日期降序
-    sortedGroups = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+    sortedTransactions.sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate));
   }
 
-  // 轉換為陣列格式
-  return sortedGroups.map(dateKey => ({
-    date: formatDateFull(dateKey),
-    transactions: groups[dateKey]
-  }));
+  // 根據排序類型決定分組方式
+  if (transactionSort.value === 'date-desc' || transactionSort.value === 'date-asc') {
+    // 日期排序：傳統的日期分組方式
+    const groups = {};
+    sortedTransactions.forEach(transaction => {
+      const dateKey = transaction.transactionDate.split('T')[0];
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(transaction);
+    });
+
+    const dateOrder = [];
+    sortedTransactions.forEach(transaction => {
+      const dateKey = transaction.transactionDate.split('T')[0];
+      if (!dateOrder.includes(dateKey)) {
+        dateOrder.push(dateKey);
+      }
+    });
+
+    return dateOrder.map(dateKey => ({
+      date: formatDateFull(dateKey),
+      transactions: groups[dateKey]
+    }));
+  } else {
+    // 金額或貨幣排序：按排序順序分組，只在日期改變時顯示日期標題
+    const result = [];
+    let currentDateKey = null;
+    let currentGroup = null;
+
+    sortedTransactions.forEach(transaction => {
+      const dateKey = transaction.transactionDate.split('T')[0];
+
+      if (dateKey !== currentDateKey) {
+        // 日期改變，創建新的日期組
+        if (currentGroup) {
+          result.push(currentGroup);
+        }
+        currentDateKey = dateKey;
+        currentGroup = {
+          date: formatDateFull(dateKey),
+          transactions: [transaction]
+        };
+      } else {
+        // 同一日期，加入現有組
+        currentGroup.transactions.push(transaction);
+      }
+    });
+
+    // 加入最後一個組
+    if (currentGroup) {
+      result.push(currentGroup);
+    }
+
+    return result;
+  }
 });
 
 // 按日期分組類別交易（類別明細對話框）
@@ -1898,6 +2008,15 @@ onMounted(async () => {
 
   color: white !important;
 
+}
+
+/* 搜尋框樣式 */
+.search-input :deep(.v-field) {
+  background-color: rgba(250, 250, 250, 0.4) !important;
+}
+
+.search-input :deep(.v-field--focused) {
+  background-color: rgba(250, 250, 250, 0.4) !important;
 }
 
 </style>
