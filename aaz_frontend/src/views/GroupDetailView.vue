@@ -80,38 +80,34 @@
       <div class="content-wrapper-with-tabs">
         <v-container fluid class="pa-6">
           <v-window v-model="currentTab">
-            <!-- 浮貼布告欄 -->
-            <v-card class="announceboard">
-              <div style="
-                    position: fixed; 
-                    top:50px; 
-                    right: 30px; 
-                    width: 240px; 
-                    z-index: 9999 !important;
-                    background: #fff; 
-                    padding: 12px 12px 30px 12px; 
-                    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-                    transform: rotate(2deg); /* 稍微歪一點更有靈魂 */
-                    border: 1px solid #eee; 
-                    transform: rotate(3deg) scale(1.05);
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
-                    ">
-                <v-icon
-                  style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); color: #777;">mdi-paperclip</v-icon>
+            <!-- Paperclip 控制按鈕 (永遠顯示) -->
+            <v-tooltip location="bottom">
+              <template v-slot:activator="{ props }">
+                <v-icon v-bind="props" @click="showAnnouncement = !showAnnouncement" class="paperclip-icon"
+                  style="position: fixed; top: 35px; right: 142px; color: #777; cursor: pointer; z-index: 10001;transform: rotate(2deg);">
+                  mdi-paperclip
+                </v-icon>
+              </template>
+              <span>{{ showAnnouncement ? '隱藏布告欄' : '顯示布告欄' }}</span>
+            </v-tooltip>
 
-                <div
-                  style="width: 100%; height: 120px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; border-radius: 2px;">
-                  <v-icon size="48" color="#ddd">mdi-camera-outline</v-icon>
-                </div>
+            <!-- 浮貼布告欄 -->
+            <transition name="announcement-fade">
+              <div v-if="showAnnouncement" class="floating-announcement">
+                <!-- 小飛機 icon -->
+                <v-icon class="airplane-icon" size="20" color="#56AB2F">mdi-airplane</v-icon>
+
+                <v-img :src="`https://picsum.photos/seed/${group?.id}/400/200`" height="120" cover
+                  style="width: 100%; border-radius: 2px;"></v-img>
 
                 <div style="margin-top: 15px; font-family: 'cursive', 'Noto Sans TC'; color: #333; text-align: center;">
                   <div
                     style="font-weight: bold; border-bottom: 1px solid #56AB2F; display: inline-block; margin-bottom: 5px;">
-                    旅程提醒</div>
-                  <div style="font-size: 13px;">大家照片記得傳到雲端！</div>
+                    大會報告📸</div>
+                  <div style="font-size: 13px;">{{ group?.announcement || '暫無公告' }}</div>
                 </div>
               </div>
-            </v-card>
+            </transition>
             <!-- 交易明細頁面 -->
             <v-window-item value="transactions">
               <div class="narrow-content">
@@ -724,6 +720,9 @@ const transactionSort = ref('date-desc'); // 'date-desc', 'date-asc', 'amount-de
 
 // 搜尋關鍵字
 const searchKeyword = ref('');
+
+// 布告欄顯示狀態
+const showAnnouncement = ref(true);
 
 // 刪除行程
 const showDeleteGroupConfirm = ref(false);
@@ -1927,5 +1926,83 @@ onMounted(async () => {
 
 .search-input :deep(.v-field--focused) {
   background-color: rgba(250, 250, 250, 0.4) !important;
+}
+
+/* 浮貼布告欄樣式 */
+.floating-announcement {
+  position: fixed;
+  top: 50px;
+  right: 30px;
+  width: 240px;
+  z-index: 10000 !important;
+  background: #fff;
+  padding: 12px 12px 30px 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  transform: rotate(2deg);
+  outline: 3px dashed #FFB800;
+  outline-offset: 0.1px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+/* .floating-announcement:hover {
+  transform: rotate(3deg) scale(1.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+} */
+
+.paperclip-icon {
+  transition: transform 0.2s ease;
+}
+
+.paperclip-icon:hover {
+  transform: rotate(15deg) scale(1.2) !important;
+}
+
+.airplane-icon {
+  position: absolute;
+  top: 25px;
+  left: -12px;
+  transform: rotate(-15deg);
+}
+
+/* 布告欄顯示/隱藏動畫 */
+.announcement-fade-enter-active {
+  animation: announcement-in 0.5s ease-out;
+}
+
+.announcement-fade-leave-active {
+  animation: announcement-out 0.4s ease-in;
+}
+
+@keyframes announcement-in {
+  0% {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.5) translateY(-30px);
+  }
+
+  50% {
+    transform: rotate(4deg) scale(1.05);
+  }
+
+  100% {
+    opacity: 1;
+    transform: rotate(2deg) scale(1);
+  }
+}
+
+@keyframes announcement-out {
+  0% {
+    opacity: 1;
+    transform: rotate(2deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(-5deg) scale(0.9);
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotate(-15deg) scale(0.3) translateY(-50px);
+  }
 }
 </style>
