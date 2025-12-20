@@ -6,7 +6,8 @@
     <div class="sidebar">
       <!-- Logo -->
       <div class="sidebar-header">
-        <h1 class="logo-title d-flex align-center justify-center mb-6" @click="router.push('/home')" style="cursor: pointer;">
+        <h1 class="logo-title d-flex align-center justify-center mb-6" @click="router.push('/home')"
+          style="cursor: pointer;">
           欸
           <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
           誌
@@ -17,7 +18,8 @@
       <div class="nav-header">
         <v-list class="pa-0" bg-color="transparent">
           <div class="d-flex align-center">
-            <v-btn icon="mdi-arrow-left-thick" variant="text" size="large" class="text-medium-emphasis" @click="router.push('/home')" ></v-btn>
+            <v-btn icon="mdi-arrow-left-thick" variant="text" size="large" class="text-medium-emphasis"
+              @click="router.push('/home')"></v-btn>
             <v-list-subheader class="pa-0">{{ group?.name || '載入中...' }}</v-list-subheader>
           </div>
           <v-divider class="my-3"></v-divider>
@@ -27,50 +29,28 @@
       <!-- 功能選單區域 -->
       <div class="nav-content">
         <v-list class="pa-0" bg-color="transparent">
-          <v-list-item
-            prepend-icon="mdi-format-list-text"
-            title="明細"
-            class="nav-item"
+          <v-list-item prepend-icon="mdi-format-list-text" title="明細" class="nav-item"
             :class="{ 'active-nav-item': currentTab === 'transactions' }"
-            @click="currentTab = 'transactions'"
-          ></v-list-item>
+            @click="currentTab = 'transactions'"></v-list-item>
 
-          <v-list-item
-            prepend-icon="mdi-account-switch-outline"
-            title="結算"
-            class="nav-item"
+          <v-list-item prepend-icon="mdi-account-switch-outline" title="結算" class="nav-item"
             :class="{ 'active-nav-item': currentTab === 'settlement' }"
-            @click="currentTab = 'settlement'"
-          ></v-list-item>
+            @click="currentTab = 'settlement'"></v-list-item>
 
-          <v-list-item
-            prepend-icon="mdi-chart-pie"
-            title="統計"
-            class="nav-item"
-            :class="{ 'active-nav-item': currentTab === 'stats' }"
-            @click="currentTab = 'stats'"
-          ></v-list-item>
+          <v-list-item prepend-icon="mdi-chart-pie" title="統計" class="nav-item"
+            :class="{ 'active-nav-item': currentTab === 'stats' }" @click="currentTab = 'stats'"></v-list-item>
 
 
 
-          <v-list-item
-            prepend-icon="mdi-information-variant-circle-outline"
-            title="行程資訊"
-            class="nav-item"
-            :class="{ 'active-nav-item': currentTab === 'info' }"
-            @click="currentTab = 'info'"
-          ></v-list-item>
+          <v-list-item prepend-icon="mdi-information-variant-circle-outline" title="行程資訊" class="nav-item"
+            :class="{ 'active-nav-item': currentTab === 'info' }" @click="currentTab = 'info'"></v-list-item>
         </v-list>
       </div>
 
       <!-- 底部使用者區 -->
       <v-menu location="top" v-model="menuOpen">
         <template v-slot:activator="{ props }">
-          <v-list-item
-            class="nav-item"
-            v-bind="props"
-            value="user-menu"
-          >
+          <v-list-item class="nav-item" v-bind="props" value="user-menu">
             <template v-slot:prepend>
               <v-avatar color="white" size="40">
                 <span class="text-primary text-h6">{{ userInitial }}</span>
@@ -100,154 +80,163 @@
       <div class="content-wrapper-with-tabs">
         <v-container fluid class="pa-6">
           <v-window v-model="currentTab">
+            <!-- 浮貼布告欄 -->
+            <v-card class="announceboard">
+              <div style="
+                    position: fixed; 
+                    top:50px; 
+                    right: 30px; 
+                    width: 240px; 
+                    z-index: 9999 !important;
+                    background: #fff; 
+                    padding: 12px 12px 30px 12px; 
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+                    transform: rotate(2deg); /* 稍微歪一點更有靈魂 */
+                    border: 1px solid #eee; 
+                    transform: rotate(3deg) scale(1.05);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+                    ">
+                <v-icon
+                  style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); color: #777;">mdi-paperclip</v-icon>
+
+                <div
+                  style="width: 100%; height: 120px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; border-radius: 2px;">
+                  <v-icon size="48" color="#ddd">mdi-camera-outline</v-icon>
+                </div>
+
+                <div style="margin-top: 15px; font-family: 'cursive', 'Noto Sans TC'; color: #333; text-align: center;">
+                  <div
+                    style="font-weight: bold; border-bottom: 1px solid #56AB2F; display: inline-block; margin-bottom: 5px;">
+                    旅程提醒</div>
+                  <div style="font-size: 13px;">大家照片記得傳到雲端！</div>
+                </div>
+              </div>
+            </v-card>
             <!-- 交易明細頁面 -->
             <v-window-item value="transactions">
               <div class="narrow-content">
                 <v-row>
                   <v-col cols="12">
-                  <!-- 搜尋輸入框 -->
-                  <div class="d-flex align-start gap-2 mb-4">
-                    <div class="flex-grow-1">
-                      <v-text-field
-                        v-model="searchKeyword"
-                        placeholder="輸入品項名、金額或原始交易貨幣"
-                        prepend-inner-icon="mdi-magnify"
-                        variant="outlined"
-                        density="compact"
-                        clearable
-                        @click:clear="searchKeyword = ''"
-                        hide-details
-                        class="search-input"
-                      ></v-text-field>
+                    <!-- 搜尋輸入框 -->
+                    <div class="d-flex align-start gap-2 mb-4">
+                      <div class="flex-grow-1">
+                        <v-text-field v-model="searchKeyword" placeholder="搜尋交易內容（日期、品項、金額、貨幣、類別、成員、備註等）"
+                          prepend-inner-icon="mdi-magnify" variant="outlined" density="compact" clearable
+                          @click:clear="searchKeyword = ''" hide-details class="search-input"></v-text-field>
+                      </div>
+                      <div style="width: 48px;"></div>
                     </div>
-                    <div style="width: 48px;"></div>
-                  </div>
 
-                  <!-- 交易列表 -->
-                  <div v-if="filteredTransactions.length > 0" class="d-flex align-start gap-2">
-                    <v-card class="flex-grow-1">
-                    <v-list>
-                      <template v-for="(dateGroup, index) in groupedTransactions" :key="index">
-                        <!-- 日期分組標題 -->
-                        <v-list-subheader class="date-group-header">
-                          {{ dateGroup.date }}
-                        </v-list-subheader>
+                    <!-- 交易列表 -->
+                    <div v-if="filteredTransactions.length > 0" class="d-flex align-start gap-2">
+                      <v-card class="flex-grow-1">
+                        <v-list>
+                          <template v-for="(dateGroup, index) in groupedTransactions" :key="index">
+                            <!-- 日期分組標題 -->
+                            <v-list-subheader class="date-group-header">
+                              {{ dateGroup.date }}
+                            </v-list-subheader>
 
-                        <!-- 該日期的交易項目 -->
-                        <v-list-item
-                          v-for="transaction in dateGroup.transactions"
-                          :key="transaction.transactionId"
-                          @click="viewTransaction(transaction)"
-                          class="transaction-item"
-                        >
-                          <!-- 圖示 -->
-                          <template v-slot:prepend>
-                            <v-avatar :color="getTransactionColor(transaction.type)">
-                              <v-icon color="white">{{
-                                getCategoryIcon(transaction)
-                              }}</v-icon>
-                            </v-avatar>
+                            <!-- 該日期的交易項目 -->
+                            <v-list-item v-for="transaction in dateGroup.transactions" :key="transaction.transactionId"
+                              @click="viewTransaction(transaction)" class="transaction-item">
+                              <!-- 圖示 -->
+                              <template v-slot:prepend>
+                                <v-avatar :color="getTransactionColor(transaction.type)">
+                                  <v-icon color="white">{{
+                                    getCategoryIcon(transaction)
+                                  }}</v-icon>
+                                </v-avatar>
+                              </template>
+
+                              <!-- 內容 -->
+                              <v-list-item-title class="font-weight-bold">
+                                {{ transaction.title }}
+                              </v-list-item-title>
+                              <v-list-item-subtitle>
+                                <span v-if="transaction.type !== 'transfer'">
+                                  {{ transaction.category }}
+                                </span>
+                              </v-list-item-subtitle>
+
+                              <!-- 金額 -->
+                              <template v-slot:append>
+                                <div class="text-right">
+                                  <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
+                                    {{ formatAmount(transaction.amount, transaction.currency) }}
+                                  </div>
+                                  <div
+                                    v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency"
+                                    class="text-caption" :class="getAmountColor(transaction.type)">
+                                    ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
+                                  </div>
+                                </div>
+                              </template>
+                            </v-list-item>
                           </template>
+                        </v-list>
+                      </v-card>
 
-                          <!-- 內容 -->
-                          <v-list-item-title class="font-weight-bold">
-                            {{ transaction.title }}
-                          </v-list-item-title>
-                          <v-list-item-subtitle>
-                            <span v-if="transaction.type !== 'transfer'">
-                              {{ transaction.category }}
-                            </span>
-                          </v-list-item-subtitle>
+                      <!-- 篩選按鈕 -->
+                      <v-menu location="bottom end">
+                        <template v-slot:activator="{ props }">
+                          <v-btn icon="mdi-filter-variant" variant="text" color="white" v-bind="props"></v-btn>
+                        </template>
+                        <v-list class="filter-menu">
+                          <v-list-item @click="sortTransactions('date-desc')"
+                            :class="{ 'active-filter': transactionSort === 'date-desc' }">
+                            <template v-slot:prepend>
+                              <v-icon>mdi-sort-calendar-descending</v-icon>
+                            </template>
+                            <v-list-item-title>日期新到舊</v-list-item-title>
+                          </v-list-item>
+                          <v-list-item @click="sortTransactions('date-asc')"
+                            :class="{ 'active-filter': transactionSort === 'date-asc' }">
+                            <template v-slot:prepend>
+                              <v-icon>mdi-sort-calendar-ascending</v-icon>
+                            </template>
+                            <v-list-item-title>日期舊到新</v-list-item-title>
+                          </v-list-item>
+                          <v-list-item @click="sortTransactions('amount-desc')"
+                            :class="{ 'active-filter': transactionSort === 'amount-desc' }">
+                            <template v-slot:prepend>
+                              <v-icon>mdi-sort-numeric-descending</v-icon>
+                            </template>
+                            <v-list-item-title>金額高到低</v-list-item-title>
+                          </v-list-item>
+                          <v-list-item @click="sortTransactions('amount-asc')"
+                            :class="{ 'active-filter': transactionSort === 'amount-asc' }">
+                            <template v-slot:prepend>
+                              <v-icon>mdi-sort-numeric-ascending</v-icon>
+                            </template>
+                            <v-list-item-title>金額低到高</v-list-item-title>
+                          </v-list-item>
+                          <v-list-item @click="sortTransactions('currency')"
+                            :class="{ 'active-filter': transactionSort === 'currency' }">
+                            <template v-slot:prepend>
+                              <v-icon>mdi-currency-usd</v-icon>
+                            </template>
+                            <v-list-item-title>按幣別排序</v-list-item-title>
+                          </v-list-item>
+                        </v-list>
+                      </v-menu>
+                    </div>
 
-                          <!-- 金額 -->
-                          <template v-slot:append>
-                            <div class="text-right">
-                              <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
-                                {{ formatAmount(transaction.amount, transaction.currency) }}
-                              </div>
-                              <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption" :class="getAmountColor(transaction.type)">
-                                ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
-                              </div>
-                            </div>
-                          </template>
-                        </v-list-item>
-                      </template>
-                    </v-list>
-                  </v-card>
+                    <!-- 空狀態 -->
+                    <div v-else-if="transactions.length === 0"
+                      class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
+                      <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-receipt-text-outline</v-icon>
+                      <p class="text-h5 text-grey-darken-1">還沒有交易記錄</p>
+                      <p class="text-body-1 text-grey-darken-1">點擊下方「+」按鈕新增第一筆交易</p>
+                    </div>
 
-                  <!-- 篩選按鈕 -->
-                  <v-menu location="bottom end">
-                    <template v-slot:activator="{ props }">
-                      <v-btn
-                        icon="mdi-filter-variant"
-                        variant="text"
-                        color="white"
-                        v-bind="props"
-                      ></v-btn>
-                    </template>
-                    <v-list class="filter-menu">
-                      <v-list-item
-                        @click="sortTransactions('date-desc')"
-                        :class="{ 'active-filter': transactionSort === 'date-desc' }"
-                      >
-                        <template v-slot:prepend>
-                          <v-icon>mdi-sort-calendar-descending</v-icon>
-                        </template>
-                        <v-list-item-title>日期新到舊</v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        @click="sortTransactions('date-asc')"
-                        :class="{ 'active-filter': transactionSort === 'date-asc' }"
-                      >
-                        <template v-slot:prepend>
-                          <v-icon>mdi-sort-calendar-ascending</v-icon>
-                        </template>
-                        <v-list-item-title>日期舊到新</v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        @click="sortTransactions('amount-desc')"
-                        :class="{ 'active-filter': transactionSort === 'amount-desc' }"
-                      >
-                        <template v-slot:prepend>
-                          <v-icon>mdi-sort-numeric-descending</v-icon>
-                        </template>
-                        <v-list-item-title>金額高到低</v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        @click="sortTransactions('amount-asc')"
-                        :class="{ 'active-filter': transactionSort === 'amount-asc' }"
-                      >
-                        <template v-slot:prepend>
-                          <v-icon>mdi-sort-numeric-ascending</v-icon>
-                        </template>
-                        <v-list-item-title>金額低到高</v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        @click="sortTransactions('currency')"
-                        :class="{ 'active-filter': transactionSort === 'currency' }"
-                      >
-                        <template v-slot:prepend>
-                          <v-icon>mdi-currency-usd</v-icon>
-                        </template>
-                        <v-list-item-title>按幣別排序</v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                  </div>
-
-                  <!-- 空狀態 -->
-                  <div v-else-if="transactions.length === 0" class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
-                    <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-receipt-text-outline</v-icon>
-                    <p class="text-h5 text-grey-darken-1">還沒有交易記錄</p>
-                    <p class="text-body-1 text-grey-darken-1">點擊下方「+」按鈕新增第一筆交易</p>
-                  </div>
-
-                  <!-- 搜尋無結果 -->
-                  <div v-else class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
-                    <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-magnify-close</v-icon>
-                    <p class="text-h5 text-grey-darken-1">找不到符合的交易記錄</p>
-                    <p class="text-body-1 text-grey-darken-1">請嘗試其他關鍵字</p>
-                  </div>
+                    <!-- 搜尋無結果 -->
+                    <div v-else class="d-flex flex-column align-center justify-center text-center"
+                      style="min-height: 70vh;">
+                      <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-magnify-close</v-icon>
+                      <p class="text-h5 text-grey-darken-1">找不到符合的交易記錄</p>
+                      <p class="text-body-1 text-grey-darken-1">請嘗試其他關鍵字</p>
+                    </div>
                   </v-col>
                 </v-row>
               </div>
@@ -256,282 +245,202 @@
             <!-- 行程資訊頁面 -->
             <v-window-item value="info">
               <div class="narrow-content">
-              <v-card v-if="group">
-                <v-card-title class="d-flex align-center">
-                  <v-spacer></v-spacer>
-                  <template v-if="!isGroupInfoEditing">
-                    <v-btn icon="mdi-pencil" variant="text" @click="startGroupInfoEdit"></v-btn>
-                  </template>
-                  <template v-else>
-                    <v-btn variant="text" @click="cancelGroupInfoEdit">取消</v-btn>
-                    <v-btn
-                      color="primary"
-                      variant="elevated"
-                      @click="saveGroupInfoChanges"
-                      :disabled="!formValid || !!dateErrorMessage"
-                      >儲存</v-btn
-                    >
-                  </template>
-                </v-card-title>
-                <v-card-text>
-                  <v-form ref="groupInfoForm" v-model="formValid">
-                    <v-row>
-                      <v-col cols="12">
-                        <h3 class="text-h6 mb-2">行程名稱</h3>
-                        <p v-if="!isGroupInfoEditing">{{ group.name }}</p>
-                        <v-text-field
-                          v-else
-                          v-model="editingGroup.name"
-                          placeholder="請輸入行程名稱"
-                          hide-details
-                        ></v-text-field>
-                      </v-col>
+                <v-card v-if="group">
+                  <v-card-title class="d-flex align-center">
+                    <v-spacer></v-spacer>
+                    <template v-if="!isGroupInfoEditing">
+                      <v-btn icon="mdi-pencil" variant="text" @click="startGroupInfoEdit"></v-btn>
+                    </template>
+                    <template v-else>
+                      <v-btn variant="text" @click="cancelGroupInfoEdit">取消</v-btn>
+                      <v-btn color="primary" variant="elevated" @click="saveGroupInfoChanges"
+                        :disabled="!formValid || !!dateErrorMessage">儲存</v-btn>
+                    </template>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-form ref="groupInfoForm" v-model="formValid">
+                      <v-row>
+                        <v-col cols="12">
+                          <h3 class="text-h6 mb-2">行程名稱</h3>
+                          <p v-if="!isGroupInfoEditing">{{ group.name }}</p>
+                          <v-text-field v-else v-model="editingGroup.name" placeholder="請輸入行程名稱"
+                            hide-details></v-text-field>
+                        </v-col>
 
-                      <v-col cols="12">
-                        <div class="d-flex align-center mb-2">
-                          <h3 class="text-h6">旅遊日期</h3>
-                          <span v-if="dateErrorMessage" class="text-red text-caption ml-2">{{
-                            dateErrorMessage
-                          }}</span>
-                        </div>
-                        <p v-if="!isGroupInfoEditing">
-                          {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
-                        </p>
-                        <div v-else class="d-flex align-center">
-                          <v-text-field
-                            v-model="editingGroup.startDate"
-                            type="date"
-                            density="compact"
-                            hide-details
-                            :error="!!dateErrorMessage"
-                          ></v-text-field>
-                          <span class="mx-2">-</span>
-                          <v-text-field
-                            v-model="editingGroup.endDate"
-                            type="date"
-                            density="compact"
-                            hide-details
-                            :error="!!dateErrorMessage"
-                          ></v-text-field>
-                        </div>
-                      </v-col>
+                        <v-col cols="12">
+                          <div class="d-flex align-center mb-2">
+                            <h3 class="text-h6">旅遊日期</h3>
+                            <span v-if="dateErrorMessage" class="text-red text-caption ml-2">{{
+                              dateErrorMessage
+                            }}</span>
+                          </div>
+                          <p v-if="!isGroupInfoEditing">
+                            {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
+                          </p>
+                          <div v-else class="d-flex align-center">
+                            <v-text-field v-model="editingGroup.startDate" type="date" density="compact" hide-details
+                              :error="!!dateErrorMessage"></v-text-field>
+                            <span class="mx-2">-</span>
+                            <v-text-field v-model="editingGroup.endDate" type="date" density="compact" hide-details
+                              :error="!!dateErrorMessage"></v-text-field>
+                          </div>
+                        </v-col>
 
-                      <v-col cols="12">
-                        <h3 class="text-h6 mb-2">主要貨幣</h3>
-                        <p v-if="!isGroupInfoEditing">{{ group.baseCurrency }}</p>
-                        <v-select
-                          v-else
-                          v-model="editingGroup.baseCurrency"
-                          :items="currencies"
-                          density="compact"
-                          hide-details
-                          readonly
-                        ></v-select>
-                      </v-col>
+                        <v-col cols="12">
+                          <h3 class="text-h6 mb-2">主要貨幣</h3>
+                          <p v-if="!isGroupInfoEditing">{{ group.baseCurrency }}</p>
+                          <v-select v-else v-model="editingGroup.baseCurrency" :items="currencies" density="compact"
+                            hide-details readonly></v-select>
+                        </v-col>
 
-                      <v-col cols="12">
-                        <div class="d-flex align-center justify-space-between mb-2">
-                          <h3 class="text-h6">成員列表</h3>
-                          <!-- 編輯模式時，新增成員按鈕放在右邊 -->
-                          <v-btn
-                            v-if="isGroupInfoEditing"
-                            prepend-icon="mdi-account-plus"
-                            color="secondary"
-                            variant="tonal"
-                            size="small"
-                            @click="addNewMemberField"
-                            :disabled="isAddMemberDisabled"
-                          >
-                            新增成員
-                          </v-btn>
-                        </div>
+                        <v-col cols="12">
+                          <div class="d-flex align-center justify-space-between mb-2">
+                            <h3 class="text-h6">成員列表</h3>
+                            <!-- 編輯模式時，新增成員按鈕放在右邊 -->
+                            <v-btn v-if="isGroupInfoEditing" prepend-icon="mdi-account-plus" color="secondary"
+                              variant="tonal" size="small" @click="addNewMemberField" :disabled="isAddMemberDisabled">
+                              新增成員
+                            </v-btn>
+                          </div>
 
-                        <!-- 非編輯模式：垂直列表顯示 -->
-                        <v-list v-if="!isGroupInfoEditing" density="compact">
-                          <v-list-item
-                            v-for="member in sortedMembers"
-                            :key="member.id"
-                            :prepend-icon="member.isCreator ? 'mdi-crown' : 'mdi-account'"
-                          >
-                            <v-list-item-title>{{ member.displayName }}</v-list-item-title>
-                            <template v-slot:append v-if="member.isCreator">
-                              <v-chip color="primary" size="small">建立者</v-chip>
-                            </template>
-                          </v-list-item>
-                        </v-list>
+                          <!-- 非編輯模式：垂直列表顯示 -->
+                          <v-list v-if="!isGroupInfoEditing" density="compact">
+                            <v-list-item v-for="member in sortedMembers" :key="member.id"
+                              :prepend-icon="member.isCreator ? 'mdi-crown' : 'mdi-account'">
+                              <v-list-item-title>{{ member.displayName }}</v-list-item-title>
+                              <template v-slot:append v-if="member.isCreator">
+                                <v-chip color="primary" size="small">建立者</v-chip>
+                              </template>
+                            </v-list-item>
+                          </v-list>
 
-                        <!-- 編輯模式：可編輯的垂直列表 -->
-                        <v-list v-else density="compact">
-                          <v-list-item
-                            v-for="member in sortedMembers"
-                            :key="member.id"
-                            :prepend-icon="member.isCreator ? 'mdi-crown' : 'mdi-account'"
-                          >
-                            <!-- Creator 不可編輯 -->
-                            <v-list-item-title v-if="member.isCreator">
-                              {{ member.displayName }}
-                            </v-list-item-title>
+                          <!-- 編輯模式：可編輯的垂直列表 -->
+                          <v-list v-else density="compact">
+                            <v-list-item v-for="member in sortedMembers" :key="member.id"
+                              :prepend-icon="member.isCreator ? 'mdi-crown' : 'mdi-account'">
+                              <!-- Creator 不可編輯 -->
+                              <v-list-item-title v-if="member.isCreator">
+                                {{ member.displayName }}
+                              </v-list-item-title>
 
-                            <!-- 正在編輯的成員：顯示輸入框 -->
-                            <v-text-field
-                              v-else-if="editingMembers[member.id]?.isEditing"
-                              v-model="editingMembers[member.id].newName"
-                              @blur="finishEditMember(member.id)"
-                              @keyup.enter="finishEditMember(member.id)"
-                              density="compact"
-                              hide-details
-                              autofocus
-                            ></v-text-field>
+                              <!-- 正在編輯的成員：顯示輸入框 -->
+                              <v-text-field v-else-if="editingMembers[member.id]?.isEditing"
+                                v-model="editingMembers[member.id].newName" @blur="finishEditMember(member.id)"
+                                @keyup.enter="finishEditMember(member.id)" density="compact" hide-details
+                                autofocus></v-text-field>
 
-                            <!-- 未編輯或編輯完成的成員：可點擊 -->
-                            <v-list-item-title
-                              v-else
-                              class="member-name-editable"
-                              @click="startEditMember(member)"
-                            >
-                              {{ editingMembers[member.id]?.newName || member.displayName }}
-                            </v-list-item-title>
+                              <!-- 未編輯或編輯完成的成員：可點擊 -->
+                              <v-list-item-title v-else class="member-name-editable" @click="startEditMember(member)">
+                                {{ editingMembers[member.id]?.newName || member.displayName }}
+                              </v-list-item-title>
 
-                            <template v-slot:append>
-                              <!-- Creator 標籤 -->
-                              <v-chip v-if="member.isCreator" color="primary" size="small"
-                                >建立者</v-chip
-                              >
-                              <!-- 已編輯標記 -->
-                              <v-icon
-                                v-else-if="
+                              <template v-slot:append>
+                                <!-- Creator 標籤 -->
+                                <v-chip v-if="member.isCreator" color="primary" size="small">建立者</v-chip>
+                                <!-- 已編輯標記 -->
+                                <v-icon v-else-if="
                                   editingMembers[member.id] && !editingMembers[member.id].isEditing
-                                "
-                                color="success"
-                                >mdi-check-circle</v-icon
-                              >
-                              <!-- 可編輯提示 -->
-                              <v-icon
-                                v-else-if="!editingMembers[member.id]?.isEditing"
-                                size="small"
-                                color="grey-lighten-1"
-                                >mdi-pencil</v-icon
-                              >
-                            </template>
-                          </v-list-item>
+                                " color="success">mdi-check-circle</v-icon>
+                                <!-- 可編輯提示 -->
+                                <v-icon v-else-if="!editingMembers[member.id]?.isEditing" size="small"
+                                  color="grey-lighten-1">mdi-pencil</v-icon>
+                              </template>
+                            </v-list-item>
 
-                          <!-- 動態新增的成員輸入框 -->
-                          <v-list-item
-                            v-for="(member, index) in newMembers"
-                            :key="member.tempId"
-                            prepend-icon="mdi-account-plus"
-                          >
-                            <v-text-field
-                              v-model="member.name"
-                              placeholder="輸入成員名稱"
-                              density="compact"
-                              hide-details
-                              @blur="handleNewMemberBlur(member)"
-                              :ref="
-                                (el) => {
+                            <!-- 動態新增的成員輸入框 -->
+                            <v-list-item v-for="(member, index) in newMembers" :key="member.tempId"
+                              prepend-icon="mdi-account-plus">
+                              <v-text-field v-model="member.name" placeholder="輸入成員名稱" density="compact" hide-details
+                                @blur="handleNewMemberBlur(member)" :ref="(el) => {
                                   if (index === newMembers.length - 1) latestMemberInput = el;
                                 }
-                              "
-                            ></v-text-field>
-                          </v-list-item>
-                        </v-list>
-                      </v-col>
+                                  "></v-text-field>
+                            </v-list-item>
+                          </v-list>
+                        </v-col>
 
-                      <v-col cols="12">
-                        <h3 class="text-h6 mb-2">公告欄</h3>
-                        <p v-if="!isGroupInfoEditing">{{ group.announcement || '無' }}</p>
-                        <v-textarea
-                          v-else
-                          v-model="editingGroup.announcement"
-                          placeholder="請輸入公告內容"
-                          rows="3"
-                          density="compact"
-                          hide-details
-                        ></v-textarea>
-                      </v-col>
-                    </v-row>
-                  </v-form>
+                        <v-col cols="12">
+                          <h3 class="text-h6 mb-2">公告欄</h3>
+                          <p v-if="!isGroupInfoEditing">{{ group.announcement || '無' }}</p>
+                          <v-textarea v-else v-model="editingGroup.announcement" placeholder="請輸入公告內容" rows="3"
+                            density="compact" hide-details></v-textarea>
+                        </v-col>
+                      </v-row>
+                    </v-form>
 
-                  <!-- 刪除行程按鈕 -->
-                  <div v-if="!isGroupInfoEditing" class="d-flex justify-center mt-6">
-                    <v-btn
-                      color="red"
-                      variant="elevated"
-                      prepend-icon="mdi-delete"
-                      @click="showDeleteGroupConfirm = true"
-                      style="width: 90%;"
-                    >
-                      刪除行程
-                    </v-btn>
-                  </div>
-                </v-card-text>
-              </v-card>
+                    <!-- 刪除行程按鈕 -->
+                    <div v-if="!isGroupInfoEditing" class="d-flex justify-center mt-6">
+                      <v-btn color="red" variant="elevated" prepend-icon="mdi-delete"
+                        @click="showDeleteGroupConfirm = true" style="width: 90%;">
+                        刪除行程
+                      </v-btn>
+                    </div>
+                  </v-card-text>
+                </v-card>
               </div>
             </v-window-item>
 
             <!-- 結算頁面 -->
             <v-window-item value="settlement">
               <div class="narrow-content">
-              <!-- 空狀態 -->
-              <div v-if="balanceReport && nonZeroBalances.length === 0" class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
-                <v-icon size="120" color="grey-lighten-2">mdi-check-circle-outline</v-icon>
-                <p class="text-h5 mt-4 text-grey-darken-1">目前無結算項目</p>
-                <p class="text-body-1 text-grey-darken-1">所有款項已結清</p>
-              </div>
-
-              <!-- 有餘額時顯示卡片 -->
-              <v-card v-else-if="balanceReport && nonZeroBalances.length > 0">
-                <!-- 餘額長條圖 -->
-                <v-card-title>成員餘額</v-card-title>
-                <v-card-text>
-                  <div
-                    v-for="balance in nonZeroBalances"
-                    :key="balance.memberId"
-                    class="mb-4"
-                  >
-                    <div class="d-flex justify-space-between mb-1">
-                      <span>{{ balance.memberName }}</span>
-                      <span :class="balance.balance >= 0 ? 'text-green' : 'text-red'">
-                        {{ formatAmount(Math.abs(balance.balance), group?.baseCurrency) }}
-                      </span>
+                <v-row>
+                  <v-col cols="12">
+                    <!-- 空狀態 -->
+                    <div v-if="balanceReport && nonZeroBalances.length === 0"
+                      class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
+                      <v-icon size="120" color="grey-lighten-2">mdi-check-circle-outline</v-icon>
+                      <p class="text-h5 mt-4 text-grey-darken-1">目前無結算項目</p>
+                      <p class="text-body-1 text-grey-darken-1">所有款項已結清</p>
                     </div>
-                    <v-progress-linear
-                      :model-value="Math.abs(balance.balance)"
-                      :max="maxBalance"
-                      :color="balance.balance >= 0 ? 'green' : 'red'"
-                      height="20"
-                    ></v-progress-linear>
-                  </div>
-                </v-card-text>
 
-                <v-divider></v-divider>
+                    <!-- 有餘額時顯示卡片 -->
+                    <v-card v-else-if="balanceReport && nonZeroBalances.length > 0">
+                      <!-- 餘額長條圖 -->
+                      <v-card-title>成員餘額</v-card-title>
+                      <v-card-text>
+                        <div v-for="balance in nonZeroBalances" :key="balance.memberId" class="mb-4">
+                          <div class="d-flex justify-space-between mb-1">
+                            <span>{{ balance.memberName }}</span>
+                            <span :class="balance.balance >= 0 ? 'text-green' : 'text-red'">
+                              {{ formatAmount(Math.abs(balance.balance), group?.baseCurrency) }}
+                            </span>
+                          </div>
+                          <v-progress-linear :model-value="Math.abs(balance.balance)" :max="maxBalance"
+                            :color="balance.balance >= 0 ? 'green' : 'red'" height="20"></v-progress-linear>
+                        </div>
+                      </v-card-text>
 
-                <!-- 結算建議 -->
-                <v-card-title>結算方案（最少轉帳次數）</v-card-title>
-                <v-card-text>
-                  <v-list v-if="balanceReport.debts && balanceReport.debts.length > 0">
-                    <v-list-item v-for="(debt, index) in balanceReport.debts" :key="index">
-                      <v-list-item-title>
-                        <v-icon color="primary">mdi-arrow-right-bold</v-icon>
-                        <strong>{{ debt.fromMemberName }}</strong> 付給
-                        <strong>{{ debt.toMemberName }}</strong>
-                      </v-list-item-title>
-                      <template v-slot:append>
-                        <v-chip color="primary">
-                          {{ formatAmount(debt.amount, group?.baseCurrency) }}
-                        </v-chip>
-                      </template>
-                    </v-list-item>
-                  </v-list>
-                  <p v-else class="text-center grey--text py-4">目前沒有需要結算的項目</p>
-                </v-card-text>
-              </v-card>
+                      <v-divider></v-divider>
+
+                      <!-- 結算建議 -->
+                      <v-card-title>結算方案（最少轉帳次數）</v-card-title>
+                      <v-card-text>
+                        <v-list v-if="balanceReport.debts && balanceReport.debts.length > 0">
+                          <v-list-item v-for="(debt, index) in balanceReport.debts" :key="index">
+                            <v-list-item-title>
+                              <v-icon color="primary">mdi-arrow-right-bold</v-icon>
+                              <strong>{{ debt.fromMemberName }}</strong> 付給
+                              <strong>{{ debt.toMemberName }}</strong>
+                            </v-list-item-title>
+                            <template v-slot:append>
+                              <v-chip color="primary">
+                                {{ formatAmount(debt.amount, group?.baseCurrency) }}
+                              </v-chip>
+                            </template>
+                          </v-list-item>
+                        </v-list>
+                        <p v-else class="text-center grey--text py-4">目前沒有需要結算的項目</p>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
               </div>
             </v-window-item>
 
             <!-- 統計頁面 -->
             <v-window-item value="stats">
-              <div v-if="expenseStats.total === 0 && incomeStats.total === 0" class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
+              <div v-if="expenseStats.total === 0 && incomeStats.total === 0"
+                class="d-flex flex-column align-center justify-center text-center" style="min-height: 70vh;">
                 <v-icon size="128" color="grey-lighten-2" class="mb-4">mdi-plus-minus-variant</v-icon>
                 <p class="text-h5 text-grey-darken-1">尚無統計數據</p>
                 <p class="text-body-1 text-grey-darken-1">新增交易後即可查看統計圖表</p>
@@ -544,13 +453,7 @@
                       <span class="text-subtitle-1">
                         統計期間：{{ formatStatsDateRange() }}
                       </span>
-                      <v-btn
-                        color="primary"
-                        variant="text"
-                        size="small"
-                        class="ml-4"
-                        @click="openStatsDateDialog"
-                      >
+                      <v-btn color="primary" variant="text" size="small" class="ml-4" @click="openStatsDateDialog">
                         設定期間
                       </v-btn>
                     </div>
@@ -574,26 +477,17 @@
                         </div>
 
                         <!-- 長條圖 -->
-                        <div
-                          v-for="cat in expenseStats.categoryStats || []"
-                          :key="cat.category"
-                          class="mb-3 category-bar"
-                          :class="{ 'hovered': hoveredCategory === cat.category }"
-                          @mouseenter="hoveredCategory = cat.category"
-                          @mouseleave="hoveredCategory = null"
-                          @click="openCategoryDetail(cat.category, 'expense')"
-                          style="cursor: pointer;"
-                        >
+                        <div v-for="cat in expenseStats.categoryStats || []" :key="cat.category"
+                          class="mb-3 category-bar" :class="{ 'hovered': hoveredCategory === cat.category }"
+                          @mouseenter="hoveredCategory = cat.category" @mouseleave="hoveredCategory = null"
+                          @click="openCategoryDetail(cat.category, 'expense')" style="cursor: pointer;">
                           <div class="d-flex justify-space-between align-center">
                             <v-icon size="small" class="mr-2">{{ getCategoryIcon(cat.category) }}</v-icon>
                             <span>{{ getCategoryName(cat.category) }}</span>
                             <span>{{ cat.percentage?.toFixed(1) }}%</span>
                           </div>
-                          <v-progress-linear
-                            :model-value="cat.percentage || 0"
-                            :color="getCategoryColor(cat.category)"
-                            height="8"
-                          ></v-progress-linear>
+                          <v-progress-linear :model-value="cat.percentage || 0" :color="getCategoryColor(cat.category)"
+                            height="8"></v-progress-linear>
                         </div>
                       </v-card-text>
                     </v-card>
@@ -615,26 +509,17 @@
                         </div>
 
                         <!-- 長條圖 -->
-                        <div
-                          v-for="cat in incomeStats.categoryStats || []"
-                          :key="cat.category"
-                          class="mb-3 category-bar"
-                          :class="{ 'hovered': hoveredCategory === cat.category }"
-                          @mouseenter="hoveredCategory = cat.category"
-                          @mouseleave="hoveredCategory = null"
-                          @click="openCategoryDetail(cat.category, 'income')"
-                          style="cursor: pointer;"
-                        >
+                        <div v-for="cat in incomeStats.categoryStats || []" :key="cat.category"
+                          class="mb-3 category-bar" :class="{ 'hovered': hoveredCategory === cat.category }"
+                          @mouseenter="hoveredCategory = cat.category" @mouseleave="hoveredCategory = null"
+                          @click="openCategoryDetail(cat.category, 'income')" style="cursor: pointer;">
                           <div class="d-flex justify-space-between align-center">
                             <v-icon size="small" class="mr-2">{{ getCategoryIcon(cat.category) }}</v-icon>
                             <span>{{ getCategoryName(cat.category) }}</span>
                             <span>{{ cat.percentage?.toFixed(1) }}%</span>
                           </div>
-                          <v-progress-linear
-                            :model-value="cat.percentage || 0"
-                            :color="getCategoryColor(cat.category)"
-                            height="8"
-                          ></v-progress-linear>
+                          <v-progress-linear :model-value="cat.percentage || 0" :color="getCategoryColor(cat.category)"
+                            height="8"></v-progress-linear>
                         </div>
                       </v-card-text>
                     </v-card>
@@ -650,66 +535,32 @@
     <!-- ========== 浮動新增按鈕 (選單) ========== -->
     <v-menu location="top center">
       <template v-slot:activator="{ props }">
-        <v-btn
-          v-if="currentTab === 'transactions'"
-          size="x-large"
-          icon style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 999; background-color: rgb(85, 214, 194);"
-          elevation="8"
-          v-bind="props"
-        >
+        <v-btn v-if="currentTab === 'transactions'" size="x-large" icon
+          style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 999; background-color: rgb(85, 214, 194);"
+          elevation="8" v-bind="props">
           <v-icon color="white">mdi-plus</v-icon>
-      </v-btn>
+        </v-btn>
       </template>
       <v-list class="add-transaction-menu">
-        <v-list-item
-          class="add-expense-item"
-          @click="openAddModal('expense')"
-          prepend-icon="mdi-cart-outline"
-          title="新增支出"
-        ></v-list-item>
-        <v-list-item
-          class="add-income-item"
-          @click="openAddModal('income')"
-          prepend-icon="mdi-cash-plus"
-          title="新增收入"
-        ></v-list-item>
-        <v-list-item
-          class="add-transfer-item"
-          @click="openAddModal('transfer')"
-          prepend-icon="mdi-bank-transfer"
-          title="新增轉帳"
-        ></v-list-item>
+        <v-list-item class="add-expense-item" @click="openAddModal('expense')" prepend-icon="mdi-cart-outline"
+          title="新增支出"></v-list-item>
+        <v-list-item class="add-income-item" @click="openAddModal('income')" prepend-icon="mdi-cash-plus"
+          title="新增收入"></v-list-item>
+        <v-list-item class="add-transfer-item" @click="openAddModal('transfer')" prepend-icon="mdi-bank-transfer"
+          title="新增轉帳"></v-list-item>
       </v-list>
     </v-menu>
 
     <!-- ========== 交易 Modal ========== -->
     <!-- ========== 交易 Modals ========== -->
-    <ExpenseModal
-      v-model="showExpenseModal"
-      :trip-id="groupId"
-      :members="group?.members"
-      :base-currency="group?.baseCurrency"
-      :transaction="selectedTransaction"
-      @refresh="refreshAllData"
-    />
+    <ExpenseModal v-model="showExpenseModal" :trip-id="groupId" :members="group?.members"
+      :base-currency="group?.baseCurrency" :transaction="selectedTransaction" @refresh="refreshAllData" />
 
-    <IncomeModal
-      v-model="showIncomeModal"
-      :trip-id="groupId"
-      :members="group?.members"
-      :base-currency="group?.baseCurrency"
-      :transaction="selectedTransaction"
-      @refresh="refreshAllData"
-    />
+    <IncomeModal v-model="showIncomeModal" :trip-id="groupId" :members="group?.members"
+      :base-currency="group?.baseCurrency" :transaction="selectedTransaction" @refresh="refreshAllData" />
 
-    <TransferModal
-      v-model="showTransferModal"
-      :trip-id="groupId"
-      :members="group?.members"
-      :base-currency="group?.baseCurrency"
-      :transaction="selectedTransaction"
-      @refresh="refreshAllData"
-    />
+    <TransferModal v-model="showTransferModal" :trip-id="groupId" :members="group?.members"
+      :base-currency="group?.baseCurrency" :transaction="selectedTransaction" @refresh="refreshAllData" />
 
     <!-- 類別明細對話框 -->
     <v-dialog v-model="showCategoryDetailDialog" max-width="600px">
@@ -729,12 +580,8 @@
               </v-list-subheader>
 
               <!-- 該日期的交易項目 -->
-              <v-list-item
-                v-for="transaction in dateGroup.transactions"
-                :key="transaction.transactionId"
-                class="transaction-item"
-                @click="viewTransaction(transaction)"
-              >
+              <v-list-item v-for="transaction in dateGroup.transactions" :key="transaction.transactionId"
+                class="transaction-item" @click="viewTransaction(transaction)">
                 <v-list-item-title>{{ transaction.title }}</v-list-item-title>
                 <v-list-item-subtitle>
                   {{ transaction.category }}
@@ -744,7 +591,8 @@
                     <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
                       {{ formatAmount(transaction.amount, transaction.currency) }}
                     </div>
-                    <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency" class="text-caption grey--text">
+                    <div v-if="transaction.convertedAmount && transaction.currency !== group?.baseCurrency"
+                      class="text-caption grey--text">
                       ≈ {{ formatAmount(transaction.convertedAmount, group?.baseCurrency) }}
                     </div>
                   </div>
@@ -778,24 +626,12 @@
         <v-card-text class="pt-6">
           <v-row>
             <v-col cols="12">
-              <v-text-field
-                v-model="tempStatsStartDate"
-                label="開始日期"
-                type="date"
-                prepend-icon="mdi-calendar"
-                density="comfortable"
-                :error="!!statsDateErrorMessage"
-              ></v-text-field>
+              <v-text-field v-model="tempStatsStartDate" label="開始日期" type="date" prepend-icon="mdi-calendar"
+                density="comfortable" :error="!!statsDateErrorMessage"></v-text-field>
             </v-col>
             <v-col cols="12">
-              <v-text-field
-                v-model="tempStatsEndDate"
-                label="結束日期"
-                type="date"
-                prepend-icon="mdi-calendar"
-                density="comfortable"
-                :error="!!statsDateErrorMessage"
-              ></v-text-field>
+              <v-text-field v-model="tempStatsEndDate" label="結束日期" type="date" prepend-icon="mdi-calendar"
+                density="comfortable" :error="!!statsDateErrorMessage"></v-text-field>
             </v-col>
           </v-row>
 
@@ -821,9 +657,9 @@
         <v-alert type="warning" variant="tonal" class="mb-3">
           此操作無法復原！
         </v-alert>
-        <v-card-title class="text-h6" style="padding-left: 40px;" >確定要刪除 {{ group?.name }} 嗎？</v-card-title>
+        <v-card-title class="text-h6" style="padding-left: 40px;">確定要刪除 {{ group?.name }} 嗎？</v-card-title>
         <v-card-text>
-          <p class="text-body-1 text-grey-darken-1 pl-4" >提醒您：<br>刪除後將永久移除行程的所有資料及紀錄。</p>
+          <p class="text-body-1 text-grey-darken-1 pl-4">提醒您：<br>刪除後將永久移除行程的所有資料及紀錄。</p>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -1032,19 +868,94 @@ const filteredTransactions = computed(() => {
   const keyword = searchKeyword.value.trim().toLowerCase();
 
   return transactions.value.filter(transaction => {
-    // 搜尋品項名稱（title）
+    // 1. 搜尋日期（支援 / 分隔格式，例如 12/20 或 2024/12/20）
+    if (transaction.transactionDate) {
+      const date = new Date(transaction.transactionDate);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      // 格式化為多種格式供搜尋
+      const dateFormats = [
+        `${year}/${month}/${day}`,  // 2024/12/20
+        `${month}/${day}`,           // 12/20
+        `${year}${month}${day}`,     // 20241220
+        transaction.transactionDate.toLowerCase() // 原始格式
+      ];
+
+      if (dateFormats.some(format => format.includes(keyword))) {
+        return true;
+      }
+    }
+
+    // 2. 搜尋品項名稱（title）
     if (transaction.title && transaction.title.toLowerCase().includes(keyword)) {
       return true;
     }
 
-    // 搜尋金額（轉為字串後搜尋）
+    // 3. 搜尋金額（轉為字串後搜尋）
     if (transaction.amount && transaction.amount.toString().includes(keyword)) {
       return true;
     }
 
-    // 搜尋原始交易貨幣
+    // 4. 搜尋轉換後金額
+    if (transaction.convertedAmount && transaction.convertedAmount.toString().includes(keyword)) {
+      return true;
+    }
+
+    // 5. 搜尋原始交易貨幣
     if (transaction.currency && transaction.currency.toLowerCase().includes(keyword)) {
       return true;
+    }
+
+    // 6. 搜尋類別
+    if (transaction.category && transaction.category.toLowerCase().includes(keyword)) {
+      return true;
+    }
+
+    // 7. 搜尋備註
+    if (transaction.notes && transaction.notes.toLowerCase().includes(keyword)) {
+      return true;
+    }
+
+    // 8. 搜尋付款人（payments）
+    if (transaction.payments && Array.isArray(transaction.payments)) {
+      const payerNames = transaction.payments.map(p => {
+        const member = group.value?.members?.find(m => m.id === p.memberId);
+        return member?.displayName || '';
+      }).join(' ').toLowerCase();
+
+      if (payerNames.includes(keyword)) {
+        return true;
+      }
+    }
+
+    // 9. 搜尋分攤者（splits）
+    if (transaction.splits && Array.isArray(transaction.splits)) {
+      const splitterNames = transaction.splits.map(s => {
+        const member = group.value?.members?.find(m => m.id === s.memberId);
+        return member?.displayName || '';
+      }).join(' ').toLowerCase();
+
+      if (splitterNames.includes(keyword)) {
+        return true;
+      }
+    }
+
+    // 10. 搜尋轉帳相關成員（fromMemberId, toMemberId）
+    if (transaction.type === 'transfer') {
+      if (transaction.fromMemberId) {
+        const fromMember = group.value?.members?.find(m => m.id === transaction.fromMemberId);
+        if (fromMember?.displayName && fromMember.displayName.toLowerCase().includes(keyword)) {
+          return true;
+        }
+      }
+      if (transaction.toMemberId) {
+        const toMember = group.value?.members?.find(m => m.id === transaction.toMemberId);
+        if (toMember?.displayName && toMember.displayName.toLowerCase().includes(keyword)) {
+          return true;
+        }
+      }
     }
 
     return false;
@@ -1067,11 +978,9 @@ const groupedTransactions = computed(() => {
   } else if (transactionSort.value === 'amount-desc') {
     // 金額高到低
     sortedTransactions.sort((a, b) => b.amount - a.amount);
-    console.log('金額高到低排序結果:', sortedTransactions.map(t => `${t.title}: ${t.amount}`));
   } else if (transactionSort.value === 'amount-asc') {
     // 金額低到高
     sortedTransactions.sort((a, b) => a.amount - b.amount);
-    console.log('金額低到高排序結果:', sortedTransactions.map(t => `${t.title}: ${t.amount}`));
   } else if (transactionSort.value === 'currency') {
     // 按幣別排序：主要貨幣優先，其他按A-Z
     const baseCurrency = group.value?.baseCurrency || '';
@@ -1267,7 +1176,7 @@ const categoryColors = {
   意外之財: '#E29578',  // 陶土粉 (暖調但低飽和，像夕陽下的陶土)
   退稅退費: '#70Eaaa',  // 螢光綠 (清透自然，與左邊青色區隔)
   保險理賠: '#B8C0FF',  // 薰衣草藍 (輕柔的藍紫，舒適且不重)
-  };
+};
 
 // 生成隨機但一致的顏色（基於類別名稱的 hash）
 const getRandomColor = (category) => {
@@ -1442,7 +1351,7 @@ const expensePieOptions = computed(() => ({
     },
     tooltip: {
       callbacks: {
-        label: function(context) {
+        label: function (context) {
           const label = context.label || '';
           const value = context.parsed || 0;
           const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -1473,7 +1382,7 @@ const incomePieOptions = computed(() => ({
     },
     tooltip: {
       callbacks: {
-        label: function(context) {
+        label: function (context) {
           const label = context.label || '';
           const value = context.parsed || 0;
           const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -1723,7 +1632,7 @@ onMounted(async () => {
 }
 
 /* 固定底部使用者區域 */
-.sidebar > .v-menu {
+.sidebar>.v-menu {
   flex-shrink: 0;
 }
 
@@ -1869,8 +1778,8 @@ onMounted(async () => {
 .content-wrapper-with-tabs {
   position: relative;
   z-index: 1;
-  width: 100% ;
-  max-width: 100% ;
+  width: 100%;
+  max-width: 100%;
   margin: 0 !important;
   background-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -1925,7 +1834,8 @@ onMounted(async () => {
 /* 明細、結算、行程資訊區塊寬度限制 */
 .narrow-content {
   max-width: 60%;
-  margin: 0 auto;
+  margin: 0 auto 0 10%;
+  /* 左邊 10%，右邊自動 */
 }
 
 .add-transaction-menu {
@@ -2018,7 +1928,4 @@ onMounted(async () => {
 .search-input :deep(.v-field--focused) {
   background-color: rgba(250, 250, 250, 0.4) !important;
 }
-
 </style>
-
-
