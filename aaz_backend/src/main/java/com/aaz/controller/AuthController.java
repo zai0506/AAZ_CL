@@ -23,6 +23,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final com.aaz.repository.MemberRepository memberRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
@@ -114,6 +115,15 @@ public class AuthController {
         }
 
         userRepository.save(user);
+
+        // 如果暱稱有變更，同步更新所有群組中的成員名稱
+        if (request.getNickname() != null && !request.getNickname().isEmpty()) {
+            java.util.List<com.aaz.entity.Member> userMembers = memberRepository.findByUserId(user.getId());
+            for (com.aaz.entity.Member member : userMembers) {
+                member.setDisplayName(user.getNickname());
+            }
+            memberRepository.saveAll(userMembers);
+        }
 
         return ResponseEntity.ok(new UpdateProfileResponse(user.getNickname(), user.getEmail()));
     }

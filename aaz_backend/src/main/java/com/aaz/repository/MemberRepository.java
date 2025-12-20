@@ -9,8 +9,10 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByTripGroupId(Long tripGroupId);
-    
+
     Optional<Member> findByTripGroupIdAndUserId(Long tripGroupId, Long userId);
-    
+
     Boolean existsByTripGroupIdAndUserId(Long tripGroupId, Long userId);
+
+    List<Member> findByUserId(Long userId);
 }

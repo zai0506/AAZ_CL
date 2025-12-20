@@ -5,11 +5,12 @@
     <div class="sidebar">
       <!-- Logo -->
       <div class="sidebar-header">
-          <h1 class="logo-title d-flex align-center justify-center mb-6" @click="handleLogoClick" style="cursor: pointer;">
-            欸
-            <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
-            誌
-          </h1>
+        <h1 class="logo-title d-flex align-center justify-center mb-6" @click="handleLogoClick"
+          style="cursor: pointer;">
+          欸
+          <img src="/AAZ_icon.png" alt="A" class="logo-icon" />
+          誌
+        </h1>
       </div>
 
       <!-- 固定的"我的行程"標題 -->
@@ -24,14 +25,8 @@
       <div class="nav-content">
         <v-list class="pa-0" bg-color="transparent">
           <!-- 行程群組列表 -->
-          <v-list-item
-            v-for="group in sortedGroups"
-            :key="group.id"
-            class="nav-item"
-            @click="goToGroup(group.id)"
-            @mouseenter="hoveredGroupId = group.id"
-            @mouseleave="hoveredGroupId = null"
-          >
+          <v-list-item v-for="group in sortedGroups" :key="group.id" class="nav-item" @click="goToGroup(group.id)"
+            @mouseenter="hoveredGroupId = group.id" @mouseleave="hoveredGroupId = null">
             <template v-slot:prepend>
               <v-icon>mdi-beach</v-icon>
             </template>
@@ -39,42 +34,35 @@
           </v-list-item>
 
           <!-- 新增群組項目 -->
-          <v-list-item
-              prepend-icon="mdi-plus-circle-outline"
-              title="新增群組"
-              @click="showCreateDialog = true"
-              class="nav-item mt-4"
-          ></v-list-item>
+          <v-list-item prepend-icon="mdi-plus-circle-outline" title="新增行程" @click="showCreateDialog = true"
+            class="nav-item nav-item-add mt-4"></v-list-item>
         </v-list>
       </div>
 
       <!-- 底部使用者區 -->
       <v-menu location="top" v-model="menuOpen">
         <template v-slot:activator="{ props }">
-          <v-list-item
-            class="nav-item"
-            v-bind="props"
-            value="user-menu"
-          >
+          <v-list-item class="nav-item" v-bind="props" value="user-menu">
             <template v-slot:prepend>
               <v-avatar color="white" size="40">
-                  <span class="text-primary text-h6">{{ userInitial }}</span>
+                <span class="text-primary text-h6">{{ userInitial }}</span>
               </v-avatar>
             </template>
             <v-list-item-title class="font-weight-bold">{{ userStore.nickname }}</v-list-item-title>
             <template v-slot:append>
-                <v-icon :icon="menuOpen ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
+              <v-icon :icon="menuOpen ? 'mdi-chevron-down' : 'mdi-chevron-up'"></v-icon>
             </template>
           </v-list-item>
         </template>
-        
+
         <v-list class="submenu-list">
-            <v-list-item value="profile" prepend-icon="mdi-account-circle-outline" @click="profileDialogStore.openDialog()">
-              <v-list-item-title>個人檔案</v-list-item-title>
-            </v-list-item>
-            <v-list-item value="logout" @click="logout" prepend-icon="mdi-logout">
-              <v-list-item-title>登出</v-list-item-title>
-            </v-list-item>
+          <v-list-item value="profile" prepend-icon="mdi-account-circle-outline"
+            @click="profileDialogStore.openDialog()">
+            <v-list-item-title>個人檔案</v-list-item-title>
+          </v-list-item>
+          <v-list-item value="logout" @click="logout" prepend-icon="mdi-logout">
+            <v-list-item-title>登出</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-menu>
     </div>
@@ -87,13 +75,10 @@
           <!-- 群組卡片列表 -->
           <v-row v-if="!loading">
             <v-col v-for="group in groups" :key="group.id" cols="12" md="6" lg="4">
-              <v-card hover @click="goToGroup(group.id)" class="group-card" elevation="3" :class="{'is-hovered': hoveredGroupId === group.id}">
-                <v-img
-                  :src="`https://picsum.photos/seed/${group.id}/400/200`"
-                  height="200"
-                  cover
-                  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                >
+              <v-card hover @click="goToGroup(group.id)" class="group-card" elevation="3"
+                :class="{ 'is-hovered': hoveredGroupId === group.id }">
+                <v-img :src="`https://picsum.photos/seed/${group.id}/400/200`" height="200" cover
+                  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)">
                   <v-card-title class="text-white text-h5 font-weight-bold">
                     {{ group.name }}
                   </v-card-title>
@@ -144,56 +129,27 @@
           <v-card-title class="text-white" style="background-color: rgb(85, 214, 194);"> 新增行程 </v-card-title>
           <v-card-text class="pt-4">
             <v-form ref="newGroupForm" v-model="newGroupFormValid">
-              <v-text-field
-                v-model="newGroup.name"
-                label="行程名稱"
-                prepend-icon="mdi-bag-suitcase"
-                :rules="[(v) => !!v || '請輸入行程名稱']"
-                required
-              ></v-text-field>
+              <v-text-field v-model="newGroup.name" label="行程名稱" prepend-icon="mdi-bag-suitcase"
+                :rules="[(v) => !!v || '請輸入行程名稱']" required></v-text-field>
 
               <div class="d-flex align-center mt-4">
                 <span v-if="newGroupDateError" class="text-red text-caption ml-2">{{
                   newGroupDateError
-                }}</span>
+                  }}</span>
               </div>
-              <v-text-field
-                v-model="newGroup.startDate"
-                label="開始日期"
-                type="date"
-                prepend-icon="mdi-calendar-start"
-                :error="!!newGroupDateError"
-                required
-              ></v-text-field>
+              <v-text-field v-model="newGroup.startDate" label="開始日期" type="date" prepend-icon="mdi-calendar-start"
+                :error="!!newGroupDateError" required></v-text-field>
 
-              <v-text-field
-                v-model="newGroup.endDate"
-                label="結束日期"
-                type="date"
-                prepend-icon="mdi-calendar-end"
-                :error="!!newGroupDateError"
-                required
-              ></v-text-field>
+              <v-text-field v-model="newGroup.endDate" label="結束日期" type="date" prepend-icon="mdi-calendar-end"
+                :error="!!newGroupDateError" required></v-text-field>
 
-              <v-select
-                v-model="newGroup.baseCurrency"
-                label="主要使用貨幣"
-                prepend-icon="mdi-currency-usd"
-                :items="currencies"
-                required
-              ></v-select>
+              <v-select v-model="newGroup.baseCurrency" label="主要使用貨幣" prepend-icon="mdi-currency-usd"
+                :items="currencies" required></v-select>
 
               <!-- 自訂貨幣輸入框（當選擇"其他"時顯示） -->
-              <v-text-field
-                v-if="newGroup.baseCurrency === '其他'"
-                v-model="newGroup.customCurrency"
-                label="請輸入貨幣代碼"
-                prepend-icon="mdi-currency-usd"
-                placeholder="例如：VND, PHP, MYR"
-                :rules="[(v) => !!v || '請輸入貨幣代碼']"
-                required
-                class="mt-3"
-              ></v-text-field>
+              <v-text-field v-if="newGroup.baseCurrency === '其他'" v-model="newGroup.customCurrency" label="請輸入貨幣代碼"
+                prepend-icon="mdi-currency-usd" placeholder="例如：VND, PHP, MYR" :rules="[(v) => !!v || '請輸入貨幣代碼']"
+                required class="mt-3"></v-text-field>
 
               <!-- 新增成員區塊 -->
               <div class="mt-4">
@@ -202,53 +158,30 @@
                     <v-icon class="mr-2">mdi-account-multiple</v-icon>
                     <span class="text-subtitle-1 font-weight-medium">成員列表</span>
                   </div>
-                  <v-btn
-                    prepend-icon="mdi-account-plus"
-                    color="secondary"
-                    variant="tonal"
-                    size="small"
-                    @click="addNewMemberField"
-                    :disabled="isAddMemberDisabled"
-                  >
+                  <v-btn prepend-icon="mdi-account-plus" color="secondary" variant="tonal" size="small"
+                    @click="addNewMemberField" :disabled="isAddMemberDisabled">
                     新增成員
                   </v-btn>
                 </div>
                 <!-- 動態新增的成員輸入框 -->
                 <div v-for="(member, index) in newMembers" :key="member.tempId" class="mt-3">
-                  <v-text-field
-                    v-model="member.name"
-                    placeholder="輸入成員名稱"
-                    prepend-icon="mdi-account"
-                    density="compact"
-                    hide-details
-                    @blur="handleNewMemberBlur(member)"
-                    :ref="
-                      (el) => {
-                        if (index === newMembers.length - 1) latestMemberInput = el;
-                      }
-                    "
-                  ></v-text-field>
+                  <v-text-field v-model="member.name" placeholder="輸入成員名稱" prepend-icon="mdi-account" density="compact"
+                    hide-details @blur="handleNewMemberBlur(member)" :ref="(el) => {
+                      if (index === newMembers.length - 1) latestMemberInput = el;
+                    }
+                      "></v-text-field>
                 </div>
               </div>
 
-              <v-textarea
-                v-model="newGroup.announcement"
-                label="公告欄"
-                prepend-icon="mdi-bullhorn"
-                rows="3"
-                class="mt-4"
-              ></v-textarea>
+              <v-textarea v-model="newGroup.announcement" label="公告欄" prepend-icon="mdi-bullhorn" rows="3"
+                class="mt-4"></v-textarea>
             </v-form>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn @click="showCreateDialog = false">取消</v-btn>
-            <v-btn
-              color="primary"
-              @click="showConfirmCreateDialog"
-              :disabled="!newGroupFormValid || !!newGroupDateError"
-              >建立</v-btn
-            >
+            <v-btn color="primary" @click="showConfirmCreateDialog"
+              :disabled="!newGroupFormValid || !!newGroupDateError">建立</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -481,7 +414,8 @@ function logout() {
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 2; /* 確保側邊欄在最上層 */
+  z-index: 2;
+  /* 確保側邊欄在最上層 */
   display: flex;
   flex-direction: column;
   padding: 32px 24px;
@@ -489,8 +423,10 @@ function logout() {
 
 .sidebar-header {
   text-align: center;
-  padding-bottom: 24px; /* 調整間距 */
-  margin-bottom: 12px; /* 調整間距以匹配下方 */
+  padding-bottom: 24px;
+  /* 調整間距 */
+  margin-bottom: 12px;
+  /* 調整間距以匹配下方 */
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -533,7 +469,7 @@ function logout() {
 }
 
 /* 固定底部使用者區域 */
-.sidebar > .v-menu {
+.sidebar>.v-menu {
   flex-shrink: 0;
 }
 
@@ -571,26 +507,69 @@ function logout() {
   color: rgba(0, 0, 0, 0.6);
   font-weight: bold;
   padding-left: 16px;
-  font-size: 1.6em; /* 我的行程字體再放大 */
-  padding-top: 8px;    /* 增加頂部內邊距 */
-  padding-bottom: 8px; /* 增加底部內邊距 */
-  line-height: 1.2;    /* 調整行高以確保垂直居中 */
+  font-size: 1.6em;
+  /* 我的行程字體再放大 */
+  padding-top: 8px;
+  /* 增加頂部內邊距 */
+  padding-bottom: 8px;
+  /* 增加底部內邊距 */
+  line-height: 1.2;
+  /* 調整行高以確保垂直居中 */
 }
 
 .v-list-item {
   border-radius: 8px !important;
-  font-size: 1.4em; /* 其他選單字體再放大 */
+  font-size: 1.4em;
+  /* 其他選單字體再放大 */
 }
 
 .nav-item:hover {
-  background-color: rgb(85, 214, 194) !important; /* HOVER時框內顏色 */
-  color: white !important; /* HOVER時字體變白色 */
+  background-color: rgb(85, 214, 194) !important;
+  /* HOVER時框內顏色 */
+  color: white !important;
+  /* HOVER時字體變白色 */
 }
 
 /* 確保 hover 時內部的 icon 和 title 也變色 */
 .nav-item:hover .v-icon,
 .nav-item:hover .v-list-item-title {
   color: white !important;
+}
+
+/* hover 時確保新增群組項目也變白 */
+.nav-item-add:hover .v-icon,
+.nav-item-add:hover .v-list-item-title,
+.nav-item-add:hover :deep(.v-list-item__prepend .v-icon),
+.nav-item-add:hover :deep(.v-list-item__content) {
+  color: white !important;
+}
+
+/* 新增群組項目的預設顏色 - 使用 Vuetify primary 顏色 */
+.nav-item.nav-item-add .v-icon {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+.nav-item.nav-item-add .v-list-item-title {
+  color: rgb(var(--v-theme-primary)) !important;
+  font-weight: 700 !important;
+}
+
+.nav-item.nav-item-add {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+/* 確保更深層的元素也變色和加粗 */
+.nav-item-add :deep(.v-list-item__prepend .v-icon) {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+.nav-item-add :deep(.v-list-item__content) {
+  color: rgb(var(--v-theme-primary)) !important;
+  font-weight: 700 !important;
+}
+
+.nav-item-add :deep(.v-list-item__content .v-list-item-title) {
+  font-weight: 700 !important;
 }
 
 /* 讓使用者選單的觸發器有手型游標 */
@@ -620,8 +599,10 @@ function logout() {
 
 /* ========== 右側內容區樣式 ========== */
 .main-content {
-  position: relative; /* 創建堆疊上下文 */
-  z-index: 1; /* 確保內容在背景層之上 */
+  position: relative;
+  /* 創建堆疊上下文 */
+  z-index: 1;
+  /* 確保內容在背景層之上 */
   margin-left: 20%;
   width: 80%;
   min-height: 100vh;
@@ -647,7 +628,8 @@ function logout() {
 }
 
 .group-card:hover,
-.group-card.is-hovered { /* 新增 is-hovered 樣式 */
+.group-card.is-hovered {
+  /* 新增 is-hovered 樣式 */
   transform: translateY(-4px);
 }
 
