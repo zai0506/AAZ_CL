@@ -125,7 +125,7 @@
 
                     <!-- 交易列表 -->
                     <div v-if="filteredTransactions.length > 0" class="d-flex align-start gap-2">
-                      <v-card class="flex-grow-1">
+                      <v-card class="flex-grow-1 dashed-border-card">
                         <v-list>
                           <template v-for="(dateGroup, index) in groupedTransactions" :key="index">
                             <!-- 日期分組標題 -->
@@ -141,7 +141,7 @@
                                 <v-avatar :color="getTransactionColor(transaction.type)">
                                   <v-icon color="white">{{
                                     getCategoryIcon(transaction)
-                                    }}</v-icon>
+                                  }}</v-icon>
                                 </v-avatar>
                               </template>
 
@@ -241,7 +241,7 @@
             <!-- 行程資訊頁面 -->
             <v-window-item value="info">
               <div class="narrow-content">
-                <v-card v-if="group">
+                <v-card v-if="group" class="dashed-border-card">
                   <v-card-title class="d-flex align-center">
                     <v-spacer></v-spacer>
                     <template v-if="!isGroupInfoEditing">
@@ -268,7 +268,7 @@
                             <h3 class="text-h6">旅遊日期</h3>
                             <span v-if="dateErrorMessage" class="text-red text-caption ml-2">{{
                               dateErrorMessage
-                              }}</span>
+                            }}</span>
                           </div>
                           <p v-if="!isGroupInfoEditing">
                             {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
@@ -390,7 +390,7 @@
                     </div>
 
                     <!-- 有餘額時顯示卡片 -->
-                    <v-card v-else-if="balanceReport && nonZeroBalances.length > 0">
+                    <v-card v-else-if="balanceReport && nonZeroBalances.length > 0" class="dashed-border-card">
                       <!-- 餘額長條圖 -->
                       <v-card-title>成員餘額</v-card-title>
                       <v-card-text>
@@ -458,7 +458,7 @@
 
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-card>
+                    <v-card class="dashed-border-card">
                       <v-card-title>支出統計</v-card-title>
                       <v-card-text>
                         <p class="text-h5 mb-4">
@@ -490,7 +490,7 @@
                   </v-col>
 
                   <v-col cols="12" md="6">
-                    <v-card>
+                    <v-card class="dashed-border-card">
                       <v-card-title>收入統計</v-card-title>
                       <v-card-text>
                         <p class="text-h5 mb-4">
@@ -1950,7 +1950,7 @@ onMounted(async () => {
   transform: rotate(2deg);
   outline: 3px dashed #FFB800;
   outline-offset: 0.1px;
-  border-radius: 4px;
+  border-radius: 3px;
   transition: all 0.3s ease;
 }
 

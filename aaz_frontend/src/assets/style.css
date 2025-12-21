@@ -71,3 +71,12 @@ html {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* 黃色虛線邊框卡片 */
+.dashed-border-card {
+  position: relative;
+  z-index: 10;
+  border: 3px dashed #FFB800 !important;
+  border-radius: 4px;
+  padding: 4px;
+}
