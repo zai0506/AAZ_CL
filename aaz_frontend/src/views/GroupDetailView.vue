@@ -141,19 +141,21 @@
                                 <v-avatar :color="getTransactionColor(transaction.type)">
                                   <v-icon color="white">{{
                                     getCategoryIcon(transaction)
-                                  }}</v-icon>
+                                    }}</v-icon>
                                 </v-avatar>
                               </template>
 
                               <!-- 內容 -->
-                              <v-list-item-title class="font-weight-bold">
-                                {{ transaction.title }}
-                              </v-list-item-title>
-                              <v-list-item-subtitle>
-                                <span v-if="transaction.type !== 'transfer'">
-                                  {{ transaction.category }}
-                                </span>
-                              </v-list-item-subtitle>
+                              <div style="flex: 1;">
+                                <v-list-item-title class="font-weight-bold">
+                                  {{ transaction.title }}
+                                </v-list-item-title>
+                                <v-list-item-subtitle>
+                                  <div v-if="transaction.type !== 'transfer'">
+                                    {{ getPayersOrReceiversText(transaction) }}
+                                  </div>
+                                </v-list-item-subtitle>
+                              </div>
 
                               <!-- 金額 -->
                               <template v-slot:append>
@@ -268,7 +270,7 @@
                             <h3 class="text-h6">旅遊日期</h3>
                             <span v-if="dateErrorMessage" class="text-red text-caption ml-2">{{
                               dateErrorMessage
-                            }}</span>
+                              }}</span>
                           </div>
                           <p v-if="!isGroupInfoEditing">
                             {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
@@ -409,13 +411,13 @@
                       <v-divider></v-divider>
 
                       <!-- 結算建議 -->
-                      <v-card-title>結算方案（最少轉帳次數）</v-card-title>
+                      <v-card-title>結算方案</v-card-title>
                       <v-card-text>
                         <v-list v-if="balanceReport.debts && balanceReport.debts.length > 0">
                           <v-list-item v-for="(debt, index) in balanceReport.debts" :key="index">
                             <v-list-item-title>
-                              <v-icon color="primary">mdi-arrow-right-bold</v-icon>
-                              <strong>{{ debt.fromMemberName }}</strong> 付給
+                              <v-icon color="#FF0000">mdi-arrow-right-bold</v-icon>
+                              <strong>{{ debt.fromMemberName }}</strong> 尚欠
                               <strong>{{ debt.toMemberName }}</strong>
                             </v-list-item-title>
                             <template v-slot:append>
@@ -578,10 +580,14 @@
               <!-- 該日期的交易項目 -->
               <v-list-item v-for="transaction in dateGroup.transactions" :key="transaction.transactionId"
                 class="transaction-item" @click="viewTransaction(transaction)">
-                <v-list-item-title>{{ transaction.title }}</v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ transaction.category }}
-                </v-list-item-subtitle>
+                <div style="flex: 1;">
+                  <v-list-item-title>{{ transaction.title }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    <div v-if="transaction.type !== 'transfer'">
+                      {{ getPayersOrReceiversText(transaction) }}
+                    </div>
+                  </v-list-item-subtitle>
+                </div>
                 <template v-slot:append>
                   <div class="text-right">
                     <div class="font-weight-bold" :class="getAmountColor(transaction.type)">
@@ -1145,6 +1151,32 @@ const getTransactionColor = (type) => {
 // 取得金額顏色
 const getAmountColor = (type) => {
   return type === 'expense' ? 'text-red' : type === 'income' ? 'text-green' : 'text-blue';
+};
+
+// 取得付款人或收款人文字
+const getPayersOrReceiversText = (transaction) => {
+  if (transaction.type === 'expense' && transaction.payments && transaction.payments.length > 0) {
+    // 支出：顯示付款人
+    const payerNames = transaction.payments.map(p => {
+      const member = group.value?.members?.find(m => m.id === p.memberId);
+      return member?.displayName || '';
+    }).filter(name => name !== '');
+
+    if (payerNames.length > 0) {
+      return payerNames.join(', ') + ' 先付';
+    }
+  } else if (transaction.type === 'income' && transaction.payments && transaction.payments.length > 0) {
+    // 收入：顯示收款人
+    const receiverNames = transaction.payments.map(p => {
+      const member = group.value?.members?.find(m => m.id === p.memberId);
+      return member?.displayName || '';
+    }).filter(name => name !== '');
+
+    if (receiverNames.length > 0) {
+      return receiverNames.join(', ') + ' 先收';
+    }
+  }
+  return '';
 };
 
 // 取得類別名稱
@@ -1749,10 +1781,18 @@ onMounted(async () => {
 .transaction-item {
   border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
+  align-items: center !important;
 }
 
 .transaction-item:hover {
   background-color: #f5f5f5;
+}
+
+/* 確保交易項目內容區域可以正確對齊 */
+.transaction-item>div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .date-group-header {

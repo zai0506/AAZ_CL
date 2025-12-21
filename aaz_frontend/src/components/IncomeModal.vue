@@ -157,16 +157,6 @@
                   </template>
                 </v-list-item>
               </v-list>
-              <v-btn
-                v-if="selectedReceivers.length > 0 && !isViewMode"
-                @click="autoDistributeReceived"
-                size="small"
-                variant="text"
-                color="primary"
-                class="mt-2"
-              >
-                平均分配已收金額
-              </v-btn>
             </v-card-text>
           </v-card>
 
@@ -211,6 +201,7 @@
                       density="compact"
                       hide-details
                       style="width: 100px"
+                      :placeholder="equalSplitAmount"
                       :readonly="isViewMode"
                     ></v-text-field>
                     <v-chip
@@ -437,15 +428,6 @@ const equalSplitAmount = computed(() => {
 // 抬頭框顏色：收入類型的顏色
 const headerColor = computed(() => '#4874299b');
 
-// 自動分配已收金額
-const autoDistributeReceived = () => {
-  if (!formData.value.amount || selectedReceivers.value.length === 0) return;
-  const perPerson = parseFloat(formData.value.amount) / selectedReceivers.value.length;
-  selectedReceivers.value.forEach((id) => {
-    receiveAmounts.value[id] = perPerson.toFixed(2);
-  });
-};
-
 // 載入匯率（依序：群組紀錄 > 預設匯率 > 無）
 const loadExchangeRate = async (from, to) => {
   // 參數驗證：確保 from 和 to 都是有效的字符串
@@ -535,6 +517,26 @@ watch(
     }
   }
 );
+
+// 監聽收款人變化，自動平均分配金額
+watch(selectedReceivers, (newReceivers) => {
+  if (newReceivers.length > 0 && formData.value.amount) {
+    const perPerson = parseFloat(formData.value.amount) / newReceivers.length;
+    newReceivers.forEach((id) => {
+      receiveAmounts.value[id] = perPerson.toFixed(2);
+    });
+  }
+}, { deep: true });
+
+// 監聽分攤類型變化，切換到自訂金額時自動平分
+watch(splitType, (newType) => {
+  if (newType === 'custom' && selectedSplitters.value.length > 0 && formData.value.amount) {
+    const perPerson = parseFloat(formData.value.amount) / selectedSplitters.value.length;
+    selectedSplitters.value.forEach((id) => {
+      splitAmounts.value[id] = perPerson.toFixed(2);
+    });
+  }
+});
 
 
 
@@ -725,9 +727,10 @@ const resetForm = () => {
   };
   selectedReceivers.value = [];
   receiveAmounts.value = {};
-  selectedSplitters.value = [];
+  // 預設勾選所有成員到分攤者
+  selectedSplitters.value = props.members ? props.members.map(m => m.id) : [];
   splitAmounts.value = {};
-  splitType.value = 'equal';
+  splitType.value = 'equal'; // 預設為平均分攤
   errorMessage.value = '';
 };
 
