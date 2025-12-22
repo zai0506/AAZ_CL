@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <BackgroundSlideshow />
     <router-view v-if="appReady" />
     <div v-else class="loading-container">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -16,6 +17,7 @@ import { useUserStore } from '@/stores/user';
 import { useProfileDialogStore } from '@/stores/profileDialog';
 import axios from '@/api/axios';
 import ProfileDialog from '@/components/ProfileDialog.vue';
+import BackgroundSlideshow from '@/components/BackgroundSlideshow.vue';
 
 const userStore = useUserStore();
 const profileDialogStore = useProfileDialogStore();

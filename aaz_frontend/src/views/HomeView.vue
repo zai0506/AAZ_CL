@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <div class="background-layer page-background"></div>
     <!-- 左側導覽欄 -->
     <div class="sidebar">
       <!-- Logo -->

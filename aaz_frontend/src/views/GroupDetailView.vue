@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <div class="background-layer page-background"></div>
 
     <!-- 左側導覽欄 -->
     <div class="sidebar">
@@ -75,7 +74,7 @@
     </div>
 
     <!-- 右側內容區 -->
-    <v-main class="main-content page-background">
+    <v-main class="main-content">
       <!-- 白色內容區塊 -->
       <div class="content-wrapper-with-tabs">
         <v-container fluid class="pa-6">
