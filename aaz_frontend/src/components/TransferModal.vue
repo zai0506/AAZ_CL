@@ -1,7 +1,8 @@
 <template>
   <v-dialog v-model="dialog" max-width="600px" persistent>
     <v-card class="modal-card">
-      <v-card-title class="sticky-header d-flex align-center justify-space-between text-white" :style="{ backgroundColor: headerColor }">
+      <v-card-title class="sticky-header d-flex align-center justify-space-between text-white"
+        :style="{ backgroundColor: headerColor }">
         <span class="text-h6">{{ title }}</span>
         <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeDialog"></v-btn>
       </v-card-title>
@@ -9,30 +10,13 @@
       <v-card-text class="scrollable-content pt-6">
         <v-form ref="form" v-model="valid">
           <!-- 日期 -->
-          <v-text-field
-            v-model="formData.transferDate"
-            label="日期"
-            type="date"
-            prepend-icon="mdi-calendar"
-            :rules="[rules.required]"
-            :readonly="isViewMode"
-            required
-            density="comfortable"
-          ></v-text-field>
+          <v-text-field v-model="formData.transferDate" label="日期" type="date" prepend-icon="mdi-calendar"
+            :rules="[rules.required]" :readonly="isViewMode" required density="comfortable"></v-text-field>
 
           <!-- 誰轉帳 -->
-          <v-select
-            v-model="formData.fromMemberId"
-            :items="memberOptions"
-            item-title="displayName"
-            item-value="id"
-            label="誰轉帳"
-            prepend-icon="mdi-account-arrow-right"
-            :rules="[rules.required]"
-            :readonly="isViewMode"
-            required
-            density="comfortable"
-          >
+          <v-select v-model="formData.fromMemberId" :items="memberOptions" item-title="displayName" item-value="id"
+            label="誰轉帳" prepend-icon="mdi-account-arrow-right" :rules="[rules.required]" :readonly="isViewMode" required
+            density="comfortable">
             <template v-slot:item="{ props, item }">
               <v-list-item v-bind="props" :title="item.raw.displayName">
                 <template v-slot:prepend>
@@ -43,18 +27,9 @@
           </v-select>
 
           <!-- 轉帳給誰 -->
-          <v-select
-            v-model="formData.toMemberId"
-            :items="receiverOptions"
-            item-title="displayName"
-            item-value="id"
-            label="轉帳給誰"
-            prepend-icon="mdi-account-arrow-left"
-            :rules="[rules.required, rules.notSamePerson]"
-            :readonly="isViewMode"
-            required
-            density="comfortable"
-          >
+          <v-select v-model="formData.toMemberId" :items="receiverOptions" item-title="displayName" item-value="id"
+            label="轉帳給誰" prepend-icon="mdi-account-arrow-left" :rules="[rules.required, rules.notSamePerson]"
+            :readonly="isViewMode" required density="comfortable">
             <template v-slot:item="{ props, item }">
               <v-list-item v-bind="props" :title="item.raw.displayName">
                 <template v-slot:prepend>
@@ -65,107 +40,55 @@
           </v-select>
 
           <!-- 提示：不能轉給自己 -->
-          <v-alert
-            v-if="formData.fromMemberId && formData.fromMemberId === formData.toMemberId"
-            type="warning"
-            density="compact"
-            class="mb-4"
-          >
+          <v-alert v-if="formData.fromMemberId && formData.fromMemberId === formData.toMemberId" type="warning"
+            density="compact" class="mb-4">
             轉帳人和收款人不能是同一個人
           </v-alert>
 
           <!-- 貨幣和金額 -->
           <v-row>
             <v-col cols="4">
-              <v-select
-                v-model="formData.currency"
-                :items="currencies"
-                label="貨幣"
-                :rules="[rules.required]"
-                @update:modelValue="handleCurrencyChange"
-                :readonly="isViewMode"
-                required
-                density="comfortable"
-                prepend-icon="mdi-currency-usd"
-              ></v-select>
+              <v-select v-model="formData.currency" :items="currencies" label="貨幣" :rules="[rules.required]"
+                @update:modelValue="handleCurrencyChange" :readonly="isViewMode" required density="comfortable"
+                prepend-icon="mdi-currency-usd"></v-select>
             </v-col>
             <v-col cols="8">
-              <v-text-field
-                v-model="formData.amount"
-                label="金額"
-                type="number"
-                prepend-icon="mdi-currency-usd"
-                :rules="[rules.required, rules.positive]"
-                :readonly="isViewMode"
-                required
-                density="comfortable"
-              ></v-text-field>
+              <v-text-field v-model="formData.amount" label="金額" type="number" prepend-icon="mdi-currency-usd"
+                :rules="[rules.required, rules.positive]" :readonly="isViewMode" required
+                density="comfortable"></v-text-field>
             </v-col>
           </v-row>
 
           <!-- 匯率和換算後金額 -->
           <v-row v-if="showExchangeRate">
             <v-col cols="4">
-              <v-text-field
-                v-model="formData.exchangeRate"
-                label="匯率"
-                type="number"
-                step="0.0001"
-                :hint="
-                  rateSource === 'group'
-                    ? '群組紀錄'
-                    : rateSource === 'default'
-                    ? '預設匯率'
-                    : `1 ${formData.currency} / ${baseCurrency}`
-                "
-                :rules="[rules.required, rules.positive]"
-                :loading="loadingRate"
-                :readonly="isViewMode"
-                required
-                density="comfortable"
-                prepend-icon="mdi-circle-small"
-                class="invisible-icon"
-                @input="rateSource = 'manual'"
-              >
+              <v-text-field v-model="formData.exchangeRate" label="匯率" type="number" step="0.0001" :hint="rateSource === 'group'
+                ? '群組紀錄'
+                : rateSource === 'default'
+                  ? '預設匯率'
+                  : `1 ${formData.currency} / ${baseCurrency}`
+                " :rules="[rules.required, rules.positive]" :loading="loadingRate" :readonly="isViewMode" required
+                density="comfortable" prepend-icon="mdi-circle-small" class="invisible-icon"
+                @input="rateSource = 'manual'">
                 <template v-slot:append-inner>
-                  <v-btn
-                    icon="mdi-refresh"
-                    size="x-small"
-                    variant="text"
-                    @click="refreshRate"
-                    :disabled="loadingRate || isViewMode"
-                  ></v-btn>
+                  <v-btn icon="mdi-refresh" size="x-small" variant="text" @click="refreshRate"
+                    :disabled="loadingRate || isViewMode"></v-btn>
                 </template>
               </v-text-field>
             </v-col>
             <v-col cols="8">
-              <v-text-field
-                :model-value="convertedAmount"
-                label="換算後金額"
-                prepend-icon="mdi-currency-usd"
-                readonly
-                density="comfortable"
-              ></v-text-field>
+              <v-text-field :model-value="convertedAmount" label="換算後金額" prepend-icon="mdi-currency-usd" readonly
+                density="comfortable"></v-text-field>
             </v-col>
           </v-row>
 
           <!-- 備註 -->
-          <v-textarea
-            v-model="formData.notes"
-            label="備註"
-            prepend-icon="mdi-note-text"
-            rows="2"
-            auto-grow
-            :readonly="isViewMode"
-            density="comfortable"
-          ></v-textarea>
+          <v-textarea v-model="formData.notes" label="備註" prepend-icon="mdi-note-text" rows="2" auto-grow
+            :readonly="isViewMode" density="comfortable"></v-textarea>
 
           <!-- 轉帳示意圖 -->
-          <v-card
-            v-if="formData.fromMemberId && formData.toMemberId && formData.amount"
-            variant="outlined"
-            class="mt-4 pa-4"
-          >
+          <v-card v-if="formData.fromMemberId && formData.toMemberId && formData.amount" variant="outlined"
+            class="mt-4 pa-4">
             <div class="d-flex align-center justify-center">
               <v-chip color="red" class="mr-4">
                 <v-icon left>mdi-account</v-icon>
@@ -173,8 +96,8 @@
               </v-chip>
 
               <div class="text-center">
-                <v-icon size="large" color="blue">mdi-arrow-right-bold</v-icon>
-                <div class="text-h6 text-blue">{{ formData.currency }} {{ formData.amount }}</div>
+                <v-icon size="large" color="#FFB800">mdi-arrow-right-bold</v-icon>
+                <div class="text-h6 text-blue" style="color: #FFB800 !important;">{{ formData.currency }} {{ formData.amount }}</div>
               </div>
 
               <v-chip color="green" class="ml-4">
@@ -212,7 +135,7 @@
         </template>
         <template v-else>
           <v-btn color="grey" variant="text" @click="closeDialog">取消</v-btn>
-          <v-btn color="blue" variant="elevated" @click="submitTransfer" :loading="loading">
+          <v-btn color="#FFB800" class="text-white" variant="elevated" @click="submitTransfer" :loading="loading">
             新增轉帳
           </v-btn>
         </template>
@@ -334,7 +257,7 @@ const getDisplayName = (memberId) => {
 };
 
 // 抬頭框顏色：轉帳類型的顏色
-const headerColor = computed(() => '#6ed6d5d0');
+const headerColor = computed(() => '#FFB800');
 
 // 載入匯率（依序：群組紀錄 > 預設匯率 > 無）
 const loadExchangeRate = async (from, to) => {
@@ -559,7 +482,7 @@ const resetForm = () => {
 watch(
   () => props.transaction,
   (newVal) => {
-    if (newVal) {
+    if (newVal && newVal.transactionId) {
       mode.value = 'view';
       initForm(newVal);
     } else {
@@ -572,10 +495,20 @@ watch(
 // 監聽 dialog 開啟，初始化表單
 watch(dialog, (val) => {
   if (val) {
-    if (props.transaction) {
+    if (props.transaction && props.transaction.transactionId) {
       // 查看模式：重新初始化表單數據
       mode.value = 'view';
       initForm(props.transaction);
+    } else if (props.transaction) {
+      // 新增模式(預填)：重置並填入來自結算的資料
+      mode.value = 'add';
+      resetForm();
+      formData.value.fromMemberId = props.transaction.fromMemberId ? parseInt(props.transaction.fromMemberId, 10) : null;
+      formData.value.toMemberId = props.transaction.toMemberId ? parseInt(props.transaction.toMemberId, 10) : null;
+      formData.value.amount = props.transaction.amount;
+      formData.value.currency = props.transaction.currency;
+      formData.value.transferDate = props.transaction.transactionDate;
+      formData.value.notes = props.transaction.title;
     } else {
       // 新增模式：重置表單
       mode.value = 'add';
@@ -601,12 +534,14 @@ watch(dialog, (val) => {
 
 .scrollable-content {
   overflow-y: auto;
-  max-height: calc(90vh - 64px - 52px); /* 90vh - header - footer */
+  max-height: calc(90vh - 64px - 52px);
+  /* 90vh - header - footer */
 }
 
 .text-blue {
-  color: #2196f3;
+  color: #FFB800;
 }
+
 .invisible-icon :deep(.v-input__prepend) {
   opacity: 0;
 }

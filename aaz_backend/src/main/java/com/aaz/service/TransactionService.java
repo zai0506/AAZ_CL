@@ -62,7 +62,8 @@ public class TransactionService {
 
                 // 2. 如果沒填匯率 且 貨幣不是基準貨幣，嘗試取得群組預設
                 if (exchangeRate == null && !request.getCurrency().equals(tripGroup.getBaseCurrency())) {
-                        exchangeRate = exchangeRateService.getRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency());
+                        exchangeRate = exchangeRateService.getRate(tripId, request.getCurrency(),
+                                        tripGroup.getBaseCurrency());
                 }
 
                 // 3. 如果是基準貨幣，設為 1.0
@@ -82,7 +83,8 @@ public class TransactionService {
 
                 // 5. 如果有匯率且不是基準貨幣，更新群組預設（讓下次自動帶入）
                 if (exchangeRate != null && !request.getCurrency().equals(tripGroup.getBaseCurrency())) {
-                        exchangeRateService.saveRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency(), exchangeRate);
+                        exchangeRateService.saveRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency(),
+                                        exchangeRate);
                 }
 
                 expense = expenseRepository.save(expense);
@@ -155,7 +157,8 @@ public class TransactionService {
 
                 // 2. 如果沒填匯率 且 貨幣不是基準貨幣，嘗試取得群組預設
                 if (exchangeRate == null && !request.getCurrency().equals(tripGroup.getBaseCurrency())) {
-                        exchangeRate = exchangeRateService.getRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency());
+                        exchangeRate = exchangeRateService.getRate(tripId, request.getCurrency(),
+                                        tripGroup.getBaseCurrency());
                 }
 
                 // 3. 如果是基準貨幣，設為 1.0
@@ -175,7 +178,8 @@ public class TransactionService {
 
                 // 5. 如果有匯率且不是基準貨幣，更新群組預設（讓下次自動帶入）
                 if (exchangeRate != null && !request.getCurrency().equals(tripGroup.getBaseCurrency())) {
-                        exchangeRateService.saveRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency(), exchangeRate);
+                        exchangeRateService.saveRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency(),
+                                        exchangeRate);
                 }
 
                 income = incomeRepository.save(income);
@@ -240,7 +244,8 @@ public class TransactionService {
 
                 // 2. 如果沒填匯率 且 貨幣不是基準貨幣，嘗試取得群組預設
                 if (exchangeRate == null && !request.getCurrency().equals(tripGroup.getBaseCurrency())) {
-                        exchangeRate = exchangeRateService.getRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency());
+                        exchangeRate = exchangeRateService.getRate(tripId, request.getCurrency(),
+                                        tripGroup.getBaseCurrency());
                 }
 
                 // 3. 如果是基準貨幣，設為 1.0
@@ -260,7 +265,8 @@ public class TransactionService {
 
                 // 5. 如果有匯率且不是基準貨幣，更新群組預設（讓下次自動帶入）
                 if (exchangeRate != null && !request.getCurrency().equals(tripGroup.getBaseCurrency())) {
-                        exchangeRateService.saveRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency(), exchangeRate);
+                        exchangeRateService.saveRate(tripId, request.getCurrency(), tripGroup.getBaseCurrency(),
+                                        exchangeRate);
                 }
 
                 transfer = transferRepository.save(transfer);
@@ -617,8 +623,8 @@ public class TransactionService {
                 TransactionResponse response = new TransactionResponse();
                 response.setTransactionId("T" + transfer.getId());
                 response.setType("transfer");
-                response.setTitle("轉帳: " + transfer.getFromMember().getDisplayName() +
-                                " → " + transfer.getToMember().getDisplayName());
+                response.setTitle(transfer.getFromMember().getDisplayName() +
+                                "  轉帳給  " + transfer.getToMember().getDisplayName());
                 response.setCategory("轉帳");
                 response.setAmount(transfer.getAmount());
                 response.setCurrency(transfer.getCurrency());

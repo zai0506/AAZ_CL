@@ -421,9 +421,20 @@
                               <strong>{{ debt.toMemberName }}</strong>
                             </v-list-item-title>
                             <template v-slot:append>
-                              <v-chip color="primary">
-                                {{ formatAmount(debt.amount, group?.baseCurrency) }}
-                              </v-chip>
+                              <div class="d-flex align-center">
+                                <v-chip color="primary">
+                                  {{ formatAmount(debt.amount, group?.baseCurrency) }}
+                                </v-chip>
+                                <v-btn
+                                  variant="tonal"
+                                  color="yellow-darken-2"
+                                  size="small"
+                                  class="ml-4"
+                                  @click="openTransferFromSettlement(debt)"
+                                >
+                                  匯款去
+                                </v-btn>
+                              </div>
                             </template>
                           </v-list-item>
                         </v-list>
@@ -787,6 +798,31 @@ const viewTransaction = (transaction) => {
   if (transaction.type === 'transfer') showTransferModal.value = true;
 };
 
+// 從結算建議開啟轉帳 Modal
+const openTransferFromSettlement = (debt) => {
+  if (!group.value?.members) return;
+
+  const fromMember = group.value.members.find(m => m.displayName === debt.fromMemberName);
+  const toMember = group.value.members.find(m => m.displayName === debt.toMemberName);
+
+  if (!fromMember || !toMember) {
+    console.error("無法從結算建議中找到成員:", debt);
+    alert('無法找到對應的轉帳成員。');
+    return;
+  }
+
+  selectedTransaction.value = {
+    type: 'transfer',
+    fromMemberId: fromMember.id,
+    toMemberId: toMember.id,
+    amount: debt.amount,
+    currency: group.value.baseCurrency,
+    transactionDate: new Date().toISOString().split('T')[0], // 預設為今天
+    title: '結清款項', // 預設標題
+  };
+  showTransferModal.value = true;
+};
+
 // 設定交易排序方式
 const sortTransactions = (sortType) => {
   transactionSort.value = sortType;
@@ -1143,7 +1179,7 @@ const getTransactionColor = (type) => {
   const colors = {
     expense: '#E67E66',
     income: '#4874299b',
-    transfer: '#6ed6d5d0',
+    transfer: '#FFB800',
   };
   return colors[type] || 'grey';
 };
@@ -1819,7 +1855,7 @@ onMounted(async () => {
 }
 
 :deep(.text-blue) {
-  color: #6ed6d5d0 !important;
+  color: #FFB800 !important;
 }
 
 /* GroupDetailView 專用：內容容器 */
@@ -1954,7 +1990,7 @@ onMounted(async () => {
 
 .add-transfer-item:hover {
 
-  background-color: #6ed6d5d0 !important;
+  background-color: #FFB800 !important;
 
   color: white !important;
 
