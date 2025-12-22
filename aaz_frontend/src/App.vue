@@ -1,7 +1,11 @@
 <template>
   <v-app>
     <BackgroundSlideshow />
-    <router-view v-if="appReady" />
+    <router-view v-if="appReady" v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
     <div v-else class="loading-container">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
     </div>

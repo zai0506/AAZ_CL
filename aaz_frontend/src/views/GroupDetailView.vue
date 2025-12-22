@@ -250,8 +250,8 @@
                     </template>
                     <template v-else>
                       <v-btn variant="text" @click="cancelGroupInfoEdit">取消</v-btn>
-                      <v-btn color="primary" variant="elevated" @click="saveGroupInfoChanges"
-                        :disabled="!formValid || !!dateErrorMessage">儲存</v-btn>
+                      <v-btn :color="'rgb(85, 214, 194)'" class="text-white" variant="elevated"
+                        @click="saveGroupInfoChanges" :disabled="!formValid || !!dateErrorMessage">儲存</v-btn>
                     </template>
                   </v-card-title>
                   <v-card-text>
@@ -424,13 +424,8 @@
                                 <v-chip color="primary">
                                   {{ formatAmount(debt.amount, group?.baseCurrency) }}
                                 </v-chip>
-                                <v-btn
-                                  variant="tonal"
-                                  color="yellow-darken-2"
-                                  size="small"
-                                  class="ml-4"
-                                  @click="openTransferFromSettlement(debt)"
-                                >
+                                <v-btn variant="tonal" color="yellow-darken-2" size="small" class="ml-4"
+                                  @click="openTransferFromSettlement(debt)">
                                   匯款去
                                 </v-btn>
                               </div>
