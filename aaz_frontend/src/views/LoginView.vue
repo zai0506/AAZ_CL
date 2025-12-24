@@ -54,7 +54,7 @@
               </v-alert>
 
               <!-- 提交按鈕 -->
-              <v-btn type="submit" color="primary" size="large" block :loading="loading" :disabled="!valid">
+              <v-btn type="submit" color="#5470C6 " size="large" block :loading="loading" :disabled="!valid">
                 {{ isLogin ? '登入' : '註冊' }}
               </v-btn>
             </v-form>
@@ -220,7 +220,7 @@ const handleSubmit = async () => {
 }
 
 .toggle-link {
-  color: #4caf50;
+  color: #5470C6;
   text-decoration: none;
   cursor: pointer;
   font-weight: 500;

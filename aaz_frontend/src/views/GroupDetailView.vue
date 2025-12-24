@@ -51,8 +51,8 @@
         <template v-slot:activator="{ props }">
           <v-list-item class="nav-item" v-bind="props" value="user-menu">
             <template v-slot:prepend>
-              <v-avatar color="white" size="40">
-                <span class="text-primary text-h6">{{ userInitial }}</span>
+              <v-avatar color="rgb(85, 214, 194)" size="40">
+                <v-icon color="white" size="28">mdi-robot-dead</v-icon>
               </v-avatar>
             </template>
             <v-list-item-title class="font-weight-bold">{{ userStore.nickname }}</v-list-item-title>
@@ -177,7 +177,7 @@
                       <!-- 篩選按鈕 -->
                       <v-menu location="bottom end">
                         <template v-slot:activator="{ props }">
-                          <v-btn icon="mdi-filter-variant" variant="text" color="white" v-bind="props"></v-btn>
+                          <v-btn icon="mdi-filter-variant" variant="text" color="gray-darken-1" v-bind="props"></v-btn>
                         </template>
                         <v-list class="filter-menu">
                           <v-list-item @click="sortTransactions('date-desc')"
@@ -243,16 +243,17 @@
             <v-window-item value="info">
               <div class="narrow-content info-content">
                 <v-card v-if="group" class="dashed-border-card info-card elevation-3">
-                  <v-card-title class="d-flex align-center pb-4 pt-5">
+                  <v-card-title class="info-page-header">
+                    <v-icon class="mr-2" color="#FFD700">mdi-airplane-takeoff</v-icon>
                     <span class="text-h5 font-weight-bold">行程資訊</span>
                     <v-spacer></v-spacer>
                     <template v-if="!isGroupInfoEditing">
-                      <v-btn icon="mdi-pencil" variant="text" color="rgb(85, 214, 194)"
+                      <v-btn icon="mdi-pencil" variant="text" color="#FFD700"
                         @click="startGroupInfoEdit"></v-btn>
                     </template>
                     <template v-else>
-                      <v-btn variant="text" @click="cancelGroupInfoEdit">取消</v-btn>
-                      <v-btn :color="'rgb(85, 214, 194)'" class="text-white" variant="elevated"
+                      <v-btn variant="text" color="#FFD700" @click="cancelGroupInfoEdit">取消</v-btn>
+                      <v-btn color="#FFD700" class="text-black" variant="elevated"
                         @click="saveGroupInfoChanges" :disabled="!formValid || !!dateErrorMessage">儲存</v-btn>
                     </template>
                   </v-card-title>
@@ -266,7 +267,7 @@
                         <v-col cols="12">
                           <div class="info-section">
                             <div class="info-header">
-                              <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-map-marker-outline</v-icon>
+                              <v-icon class="mr-2">mdi-map-marker-outline</v-icon>
                               <h3 class="text-h6 font-weight-medium mb-0">行程名稱</h3>
                             </div>
                             <div class="info-value">
@@ -281,7 +282,7 @@
                         <v-col cols="12">
                           <div class="info-section">
                             <div class="info-header">
-                              <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-calendar-range</v-icon>
+                              <v-icon class="mr-2">mdi-calendar-range</v-icon>
                               <h3 class="text-h6 font-weight-medium mb-0">旅遊日期</h3>
                               <span v-if="dateErrorMessage" class="text-red text-caption ml-2">{{
                                 dateErrorMessage
@@ -306,7 +307,7 @@
                         <v-col cols="12">
                           <div class="info-section">
                             <div class="info-header">
-                              <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-currency-usd</v-icon>
+                              <v-icon class="mr-2">mdi-currency-usd</v-icon>
                               <h3 class="text-h6 font-weight-medium mb-0">主要貨幣</h3>
                             </div>
                             <div class="info-value">
@@ -324,7 +325,7 @@
                           <div class="info-section">
                             <div class="d-flex align-center justify-space-between mb-3">
                               <div class="info-header">
-                                <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-account-group</v-icon>
+                                <v-icon class="mr-2">mdi-account-group</v-icon>
                                 <h3 class="text-h6 font-weight-medium mb-0">成員列表</h3>
                               </div>
                               <!-- 編輯模式時，新增成員按鈕 -->
@@ -340,11 +341,13 @@
                                 <v-card v-for="member in sortedMembers" :key="member.id" class="member-card"
                                   variant="outlined">
                                   <div class="d-flex align-center pa-3">
-                                    <v-avatar :color="member.isCreator ? 'rgb(85, 214, 194)' : 'grey-lighten-1'"
-                                      size="40" class="mr-3">
-                                      <v-icon color="white">{{ member.isCreator ? 'mdi-crown' : 'mdi-account'
-                                      }}</v-icon>
-                                    </v-avatar>
+                                    <div class="member-avatar-wrapper">
+                                      <v-avatar :color="member.isCreator ? 'rgb(85, 214, 194)' : 'grey-lighten-1'"
+                                        size="40" class="mr-3">
+                                        <v-icon color="white">{{ getMemberIcon(member.id) }}</v-icon>
+                                      </v-avatar>
+                                      <v-icon v-if="member.isCreator" class="crown-badge" color="#FFD700">mdi-crown</v-icon>
+                                    </div>
                                     <div class="flex-grow-1">
                                       <div class="text-subtitle-1 font-weight-medium">{{ member.displayName }}</div>
                                       <div v-if="member.isCreator" class="text-caption"
@@ -407,7 +410,7 @@
                         <v-col cols="12">
                           <div class="info-section">
                             <div class="info-header">
-                              <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-message-text-outline</v-icon>
+                              <v-icon class="mr-2">mdi-message-text-outline</v-icon>
                               <h3 class="text-h6 font-weight-medium mb-0">公告欄</h3>
                             </div>
                             <div class="info-value">
@@ -452,40 +455,66 @@
                     </div>
 
                     <!-- 有餘額時顯示卡片 -->
-                    <v-card v-else-if="balanceReport && nonZeroBalances.length > 0" class="dashed-border-card">
+                    <v-card v-else-if="balanceReport && nonZeroBalances.length > 0"
+                      class="dashed-border-card settlement-card">
                       <!-- 餘額長條圖 -->
-                      <v-card-title>成員餘額</v-card-title>
-                      <v-card-text>
-                        <div v-for="balance in nonZeroBalances" :key="balance.memberId" class="mb-4">
-                          <div class="d-flex justify-space-between mb-1">
-                            <span>{{ balance.memberName }}</span>
-                            <span :class="balance.balance >= 0 ? 'text-green' : 'text-red'">
+                      <v-card-title class="settlement-header balance-header">
+                        <v-icon class="mr-2" color="white">mdi-chart-bar</v-icon>
+                        成員餘額
+                      </v-card-title>
+                      <v-card-text class="pt-4">
+                        <div v-for="balance in nonZeroBalances" :key="balance.memberId" class="mb-5 balance-item">
+                          <div class="d-flex align-center justify-space-between mb-2">
+                            <div class="d-flex align-center">
+                              <v-avatar :color="balance.balance >= 0 ? '#91CC75' : '#EE6666'" size="32" class="mr-3">
+                                <v-icon color="white" size="20">{{ getMemberIcon(balance.memberId) }}</v-icon>
+                              </v-avatar>
+                              <span class="text-subtitle-1 font-weight-medium">{{ balance.memberName }}</span>
+                            </div>
+                            <v-chip :color="balance.balance >= 0 ? '#91CC75' : '#EE6666'" variant="flat"
+                              class="text-white font-weight-bold">
                               {{ formatAmount(Math.abs(balance.balance), group?.baseCurrency) }}
-                            </span>
+                            </v-chip>
                           </div>
                           <v-progress-linear :model-value="Math.abs(balance.balance)" :max="maxBalance"
-                            :color="balance.balance >= 0 ? 'green' : 'red'" height="20"></v-progress-linear>
+                            :color="balance.balance >= 0 ? '#91CC75' : '#EE6666'" height="12"
+                            rounded></v-progress-linear>
                         </div>
                       </v-card-text>
 
                       <v-divider></v-divider>
 
                       <!-- 結算建議 -->
-                      <v-card-title>結算方案</v-card-title>
-                      <v-card-text>
-                        <v-list v-if="balanceReport.debts && balanceReport.debts.length > 0">
-                          <v-list-item v-for="(debt, index) in balanceReport.debts" :key="index">
-                            <v-list-item-title>
-                              <v-icon color="#FF0000">mdi-arrow-right-bold</v-icon>
-                              <strong>{{ debt.fromMemberName }}</strong> 尚欠
-                              <strong>{{ debt.toMemberName }}</strong>
+                      <v-card-title class="settlement-header solution-header">
+                        <v-icon class="mr-2" color="white">mdi-calculator</v-icon>
+                        結算方案
+                      </v-card-title>
+                      <v-card-text class="pt-4">
+                        <v-list v-if="balanceReport.debts && balanceReport.debts.length > 0" class="pa-0">
+                          <v-list-item v-for="(debt, index) in balanceReport.debts" :key="index"
+                            class="settlement-debt-item mb-3" rounded>
+                            <template v-slot:prepend>
+                              <v-avatar color="#EE6666" size="36" class="mr-3">
+                                <v-icon color="white" size="20">{{getMemberIcon(group?.members?.find(m => m.displayName
+                                  === debt.fromMemberName)?.id)}}</v-icon>
+                              </v-avatar>
+                            </template>
+                            <v-list-item-title class="d-flex align-center">
+                              <span class="font-weight-bold">{{ debt.fromMemberName }}</span>
+                              <v-icon color="#FAC858" class="mx-2">mdi-arrow-right-bold</v-icon>
+                              <v-avatar color="#91CC75" size="28" class="mr-2">
+                                <v-icon color="white" size="16">{{getMemberIcon(group?.members?.find(m => m.displayName
+                                  ===
+                                  debt.toMemberName)?.id)}}</v-icon>
+                              </v-avatar>
+                              <span class="font-weight-bold">{{ debt.toMemberName }}</span>
                             </v-list-item-title>
                             <template v-slot:append>
                               <div class="d-flex align-center">
-                                <v-chip color="primary">
+                                <v-chip color="#5470C6" variant="flat" class="text-white font-weight-bold mr-3">
                                   {{ formatAmount(debt.amount, group?.baseCurrency) }}
                                 </v-chip>
-                                <v-btn variant="tonal" color="yellow-darken-2" size="small" class="ml-4"
+                                <v-btn variant="tonal" color="#FFA000" size="small"
                                   @click="openTransferFromSettlement(debt)">
                                   匯款去
                                 </v-btn>
@@ -493,7 +522,10 @@
                             </template>
                           </v-list-item>
                         </v-list>
-                        <p v-else class="text-center grey--text py-4">目前沒有需要結算的項目</p>
+                        <div v-else class="text-center py-8">
+                          <v-icon size="64" color="grey-lighten-2">mdi-check-circle-outline</v-icon>
+                          <p class="text-body-1 text-grey-darken-1 mt-2">目前沒有需要結算的項目</p>
+                        </div>
                       </v-card-text>
                     </v-card>
                   </v-col>
@@ -648,10 +680,9 @@
     <!-- 類別明細對話框 -->
     <v-dialog v-model="showCategoryDetailDialog" max-width="600px">
       <v-card>
-        <v-card-title class="d-flex align-center bg-primary text-white">
-          <span>{{ getCategoryName(selectedCategory) }} - 明細</span>
+        <v-card-title class="d-flex align-center text-white" :style="{ backgroundColor: categoryDetailHeaderColor }">
+          <span>{{ getCategoryName(selectedCategory) }} 明細</span>
           <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeCategoryDetail"></v-btn>
         </v-card-title>
 
         <v-card-text class="pa-0">
@@ -695,7 +726,10 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <div class="px-4 text-h6 font-weight-bold" :class="categoryDetailTotalColorClass">
+            <span class="text-grey-darken-2">總計: </span> {{ formatAmount(categoryDetailTotalAmount, group?.baseCurrency)
+            }}
+          </div> <v-spacer></v-spacer>
           <v-btn color="grey" variant="text" @click="closeCategoryDetail">關閉</v-btn>
         </v-card-actions>
       </v-card>
@@ -826,6 +860,66 @@ const deletingGroup = ref(false);
 const menuOpen = ref(false);
 const userInitial = computed(() => {
   return userStore.nickname ? userStore.nickname.charAt(0).toUpperCase() : 'U';
+});
+
+// 成員 ICON 列表（如需延長，請在此陣列末尾繼續添加 Material Design Icons）
+const memberIcons = [
+  'mdi-robot-dead',
+  'mdi-ghost',
+  'mdi-alien',
+  'mdi-emoticon-poop',
+  'mdi-cat',
+  'mdi-dog',
+  'mdi-panda',
+  'mdi-elephant',
+  'mdi-koala',
+  'mdi-penguin',
+  'mdi-duck',
+  'mdi-owl',
+  'mdi-pig-variant',
+  'mdi-rabbit-variant',
+  'mdi-fish',
+  'mdi-rodent'
+  // 如需新增更多 icon，請在此處添加，例如：
+  // 'mdi-bee',
+  // 'mdi-butterfly',
+  // 'mdi-turtle',
+];
+
+// 根據成員 ID 獲取對應的 ICON（按成員 ID 排序後依序分配）
+const getMemberIcon = (memberId) => {
+  if (!memberId || !group.value?.members) return 'mdi-account';
+
+  // 將所有成員按 ID 排序
+  const sortedMembers = [...group.value.members].sort((a, b) => a.id - b.id);
+
+  // 找到該成員在排序後的位置
+  const memberIndex = sortedMembers.findIndex(m => m.id === memberId);
+
+  if (memberIndex === -1) return 'mdi-account';
+
+  // 根據位置分配 icon（如果成員數超過 icon 數量，會循環使用）
+  const iconIndex = memberIndex % memberIcons.length;
+  return memberIcons[iconIndex];
+};
+
+// 獲取當前使用者的 ICON
+const currentUserIcon = computed(() => {
+  if (!group.value?.members || !userStore.id) return 'mdi-account';
+
+  const userId = parseInt(userStore.id);
+
+  const currentUserMember = group.value.members.find(
+    (m) => {
+      // 相容兩種命名方式：userId（駝峰）和 user_id（蛇形）
+      const memberUserId = m.userId || m.user_id;
+      return memberUserId === userId;
+    }
+  );
+
+  if (!currentUserMember) return 'mdi-account';
+
+  return getMemberIcon(currentUserMember.id);
 });
 
 // ========== 群組資訊編輯狀態 ==========
@@ -1381,6 +1475,24 @@ const categoryTransactions = computed(() => {
 // Hover 狀態
 const hoveredCategory = ref(null);
 
+// 新增：類別明細對話框的標題顏色
+const categoryDetailHeaderColor = computed(() => {
+  if (!selectedCategory.value) return '#626262'; // 預設灰色
+  return getCategoryColor(selectedCategory.value);
+});
+
+// 新增：計算類別明細的總金額
+const categoryDetailTotalAmount = computed(() => {
+  if (!categoryTransactions.value) return 0;
+  // 使用 convertedAmount 作為計算基準，如果沒有則用原始 amount
+  return categoryTransactions.value.reduce((sum, t) => sum + (t.convertedAmount || t.amount), 0);
+});
+
+// 新增：類別明細總金額的顏色
+const categoryDetailTotalColorClass = computed(() => {
+  return getAmountColor(selectedCategoryType.value);
+});
+
 // ========== 統計期間篩選函數 ==========
 
 // 格式化統計期間顯示
@@ -1556,7 +1668,7 @@ const handleLogout = () => {
 // 打開個人檔案
 const handleProfileClick = () => {
   menuOpen.value = false;
-  profileDialogStore.openDialog();
+  profileDialogStore.openDialog('mdi-robot-dead');
 };
 
 // ========== 群組資訊編輯邏輯 (保留) ==========
@@ -1709,10 +1821,26 @@ const deleteGroup = async () => {
   }
 };
 
-// 過濾掉餘額為 0 的成員
+// 過濾掉餘額為 0 的成員，並進行排序
 const nonZeroBalances = computed(() => {
   if (!balanceReport.value?.balances) return [];
-  return balanceReport.value.balances.filter((b) => Math.abs(b.balance) > 0.01);
+  return balanceReport.value.balances
+    .filter((b) => Math.abs(b.balance) > 0.01)
+    .sort((a, b) => {
+      const aIsNegative = a.balance < 0;
+      const bIsNegative = b.balance < 0;
+
+      // 負數（欠款）排在前面
+      if (aIsNegative && !bIsNegative) {
+        return -1;
+      }
+      if (!aIsNegative && bIsNegative) {
+        return 1;
+      }
+
+      // 如果兩者符號相同，則按金額絕對值從大到小排序
+      return Math.abs(b.balance) - Math.abs(a.balance);
+    });
 });
 
 const maxBalance = computed(() => {
@@ -1829,7 +1957,7 @@ onMounted(async () => {
 
 /* 覆寫 Vuetify 預設樣式 */
 .v-list-subheader {
-  color: rgba(0, 0, 0, 0.6);
+  color: #5470C6;
   font-weight: bold;
   padding-left: 16px;
   font-size: 1.6em;
@@ -2167,6 +2295,38 @@ onMounted(async () => {
   overflow: hidden;
 }
 
+/* 行程資訊頁面標題 - 機票風格（黑底金字） */
+.info-page-header {
+  padding: 16px 24px !important;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+  color: #FFD700 !important;
+  font-weight: bold !important;
+  font-size: 1.2rem !important;
+  display: flex !important;
+  align-items: center !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 機票虛線效果 */
+.info-page-header::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(255, 215, 0, 0.3) 0px,
+    rgba(255, 215, 0, 0.3) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  pointer-events: none;
+}
+
 .info-section {
   padding: 20px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -2176,20 +2336,26 @@ onMounted(async () => {
   border-bottom: none;
 }
 
-/* 小標題樣式 - 旅遊輕快風格 */
+/* 小標題樣式 - 機票風格（黑底金字） */
 .info-header {
   display: inline-flex;
   align-items: center;
   padding: 8px 16px;
-  background: linear-gradient(135deg, rgba(85, 214, 194, 0.15) 0%, rgba(85, 214, 194, 0.05) 100%);
-  border-left: 4px solid rgb(85, 214, 194);
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  border-left: 4px solid #FFD700;
   border-radius: 0 12px 12px 0;
   margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(85, 214, 194, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  color: #FFD700;
 }
 
 .info-header .v-icon {
-  filter: drop-shadow(0 2px 4px rgba(85, 214, 194, 0.3));
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.5));
+  color: #FFD700 !important;
+}
+
+.info-header h3 {
+  color: #FFD700;
 }
 
 .info-value {
@@ -2226,6 +2392,23 @@ onMounted(async () => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
+/* 成員頭像容器（用於定位皇冠徽章） */
+.member-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* 皇冠徽章 - 右上角斜的小皇冠 */
+.crown-badge {
+  position: absolute;
+  top: -4px;
+  right: 8px;
+  font-size: 18px !important;
+  transform: rotate(25deg);
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.5));
+  z-index: 10;
+}
+
 /* 公告欄對話框樣式 */
 .announcement-box {
   margin-top: 8px;
@@ -2241,19 +2424,19 @@ onMounted(async () => {
   border: 2px solid rgba(85, 214, 194, 0.3);
 }
 
-/* 對話框小尾巴 - 右下角 */
+/* 對話框小尾巴 - 左上角 */
 .announcement-bubble::before {
   content: '';
   position: absolute;
-  right: 30px;
-  bottom: -10px;
+  left: 30px;
+  top: -10px;
   width: 20px;
   height: 20px;
   background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
-  border-right: 2px solid rgba(85, 214, 194, 0.3);
-  border-bottom: 2px solid rgba(85, 214, 194, 0.3);
+  border-left: 2px solid rgba(85, 214, 194, 0.3);
+  border-top: 2px solid rgba(85, 214, 194, 0.3);
   transform: rotate(45deg);
-  border-radius: 0 0 4px 0;
+  border-radius: 4px 0 0 0;
   z-index: -1;
 }
 
@@ -2261,8 +2444,8 @@ onMounted(async () => {
 .announcement-bubble::after {
   content: '';
   position: absolute;
-  right: 28px;
-  bottom: -2px;
+  left: 28px;
+  top: -2px;
   width: 24px;
   height: 4px;
   background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
@@ -2290,23 +2473,23 @@ onMounted(async () => {
 .announcement-bubble-edit::before {
   content: '';
   position: absolute;
-  right: 30px;
-  bottom: -10px;
+  left: 30px;
+  top: -10px;
   width: 20px;
   height: 20px;
   background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
-  border-right: 2px solid rgba(85, 214, 194, 0.3);
-  border-bottom: 2px solid rgba(85, 214, 194, 0.3);
+  border-left: 2px solid rgba(85, 214, 194, 0.3);
+  border-top: 2px solid rgba(85, 214, 194, 0.3);
   transform: rotate(45deg);
-  border-radius: 0 0 4px 0;
+  border-radius: 4px 0 0 0;
   z-index: -1;
 }
 
 .announcement-bubble-edit::after {
   content: '';
   position: absolute;
-  right: 28px;
-  bottom: -2px;
+  left: 28px;
+  top: -2px;
   width: 24px;
   height: 4px;
   background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
@@ -2411,5 +2594,58 @@ onMounted(async () => {
 /* 統計期間設定對話框標題 */
 .stats-dialog-header {
   background: #5470C6 !important;
+}
+
+/* ========== 結算頁面樣式 ========== */
+.settlement-card {
+  overflow: hidden !important;
+  border-radius: 16px !important;
+}
+
+/* 結算卡片標題 */
+.settlement-header {
+  padding: 16px 24px !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 1.2rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.balance-header {
+  background: linear-gradient(135deg, #5470C6 0%, #4460b0 100%) !important;
+  box-shadow: 0 4px 12px rgba(84, 112, 198, 0.3);
+}
+
+.solution-header {
+  background: linear-gradient(135deg, #91CC75 0%, #7bb661 100%) !important;
+  box-shadow: 0 4px 12px rgba(145, 204, 117, 0.3);
+}
+
+/* 餘額項目 */
+.balance-item {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(84, 112, 198, 0.03);
+  transition: all 0.2s ease;
+}
+
+.balance-item:hover {
+  background: rgba(84, 112, 198, 0.08);
+  transform: translateX(4px);
+}
+
+/* 結算方案項目 */
+.settlement-debt-item {
+  background: rgba(145, 204, 117, 0.05);
+  border: 2px solid rgba(145, 204, 117, 0.2);
+  transition: all 0.2s ease;
+}
+
+.settlement-debt-item:hover {
+  background: rgba(145, 204, 117, 0.1);
+  border-color: rgba(145, 204, 117, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(145, 204, 117, 0.2);
 }
 </style>

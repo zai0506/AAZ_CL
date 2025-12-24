@@ -5,6 +5,13 @@
         我的檔案
       </v-card-title>
       <v-card-text class="pt-6">
+        <!-- 使用者頭像 -->
+        <div class="text-center mb-6">
+          <v-avatar color="rgb(85, 214, 194)" size="80" class="profile-avatar">
+            <v-icon color="white" size="50">{{ profileDialogStore.userIcon }}</v-icon>
+          </v-avatar>
+        </div>
+
         <!-- 成功動畫 -->
         <div v-if="showSuccess" class="success-container">
           <div class="success-checkmark">
@@ -90,7 +97,7 @@
           <v-btn variant="text" @click="closeSuccess">關閉</v-btn>
         </template>
         <template v-else-if="!isEditing">
-          <v-btn color="primary" variant="elevated" @click="startEdit">修改個人資料</v-btn>
+          <v-btn color="rgb(85, 214, 194)" class="text-white" variant="elevated" @click="startEdit">修改個人資料</v-btn>
           <v-btn variant="text" @click="close">關閉</v-btn>
         </template>
         <template v-else>
@@ -262,6 +269,12 @@ watch(dialogVisible, (newValue) => {
 </script>
 
 <style scoped>
+/* 個人檔案頭像 */
+.profile-avatar {
+  box-shadow: 0 4px 12px rgba(85, 214, 194, 0.4);
+  border: 3px solid white;
+}
+
 .success-container {
   display: flex;
   flex-direction: column;

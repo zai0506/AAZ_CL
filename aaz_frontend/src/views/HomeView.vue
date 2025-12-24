@@ -43,8 +43,8 @@
         <template v-slot:activator="{ props }">
           <v-list-item class="nav-item" v-bind="props" value="user-menu">
             <template v-slot:prepend>
-              <v-avatar color="white" size="40">
-                <span class="text-primary text-h6">{{ userInitial }}</span>
+              <v-avatar color="rgb(85, 214, 194)" size="40">
+                <v-icon color="white" size="28">mdi-robot-dead</v-icon>
               </v-avatar>
             </template>
             <v-list-item-title class="font-weight-bold">{{ userStore.nickname }}</v-list-item-title>
@@ -56,7 +56,7 @@
 
         <v-list class="submenu-list">
           <v-list-item value="profile" prepend-icon="mdi-account-circle-outline"
-            @click="profileDialogStore.openDialog()">
+            @click="profileDialogStore.openDialog('mdi-robot-dead')">
             <v-list-item-title>個人檔案</v-list-item-title>
           </v-list-item>
           <v-list-item value="logout" @click="logout" prepend-icon="mdi-logout">
@@ -89,13 +89,13 @@
                     {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
                   </div>
                   <div class="d-flex align-center">
-                    <v-chip color="info" size="small">
-                      <v-icon start>mdi-account-group</v-icon>
-                      {{ group.members?.length || 0 }} 人
-                    </v-chip>
                     <v-chip color="success" size="small">
                       <v-icon start>mdi-currency-usd</v-icon>
                       {{ group.baseCurrency }}
+                    </v-chip>
+                    <v-chip color="info" size="small">
+                      <v-icon start>mdi-account-group</v-icon>
+                      {{ group.members?.length || 0 }} 人
                     </v-chip>
                   </div>
                 </v-card-text>
@@ -124,26 +124,43 @@
 
       <!-- 新增群組對話框 -->
       <v-dialog v-model="showCreateDialog" max-width="600">
-        <v-card>
-          <v-card-title class="text-white" style="background-color: rgb(85, 214, 194);"> 新增行程 </v-card-title>
-          <v-card-text class="pt-4">
+        <v-card class="dialog-card">
+          <v-card-title class="dialog-sticky-header text-white" style="background-color: #5470C6;"> 新增行程
+          </v-card-title>
+          <v-card-text class="dialog-scrollable-content pt-4">
             <v-form ref="newGroupForm" v-model="newGroupFormValid">
-              <v-text-field v-model="newGroup.name" label="行程名稱" prepend-icon="mdi-bag-suitcase"
-                :rules="[(v) => !!v || '請輸入行程名稱']" required></v-text-field>
+              <v-text-field v-model="newGroup.name" prepend-icon="mdi-bag-suitcase" :rules="[(v) => !!v || '此欄位為必填']"
+                required>
+                <template v-slot:label>
+                  行程名稱 <span class="text-red">*</span>
+                </template>
+              </v-text-field>
 
               <div class="d-flex align-center mt-4">
                 <span v-if="newGroupDateError" class="text-red text-caption ml-2">{{
                   newGroupDateError
-                  }}</span>
+                }}</span>
               </div>
-              <v-text-field v-model="newGroup.startDate" label="開始日期" type="date" prepend-icon="mdi-calendar-start"
-                :error="!!newGroupDateError" required></v-text-field>
+              <v-text-field v-model="newGroup.startDate" type="date" prepend-icon="mdi-calendar-start"
+                :error="!!newGroupDateError" :rules="[(v) => !!v || '此欄位為必填']" required>
+                <template v-slot:label>
+                  開始日期 <span class="text-red">*</span>
+                </template>
+              </v-text-field>
 
-              <v-text-field v-model="newGroup.endDate" label="結束日期" type="date" prepend-icon="mdi-calendar-end"
-                :error="!!newGroupDateError" required></v-text-field>
+              <v-text-field v-model="newGroup.endDate" type="date" prepend-icon="mdi-calendar-end"
+                :error="!!newGroupDateError" :rules="[(v) => !!v || '此欄位為必填']" required>
+                <template v-slot:label>
+                  結束日期 <span class="text-red">*</span>
+                </template>
+              </v-text-field>
 
-              <v-select v-model="newGroup.baseCurrency" label="主要使用貨幣" prepend-icon="mdi-currency-usd"
-                :items="currencies" required></v-select>
+              <v-select v-model="newGroup.baseCurrency" prepend-icon="mdi-currency-usd" :items="currencies"
+                :rules="[(v) => !!v || '此欄位為必填']" required>
+                <template v-slot:label>
+                  主要使用貨幣 <span class="text-red">*</span>
+                </template>
+              </v-select>
 
               <!-- 自訂貨幣輸入框（當選擇"其他"時顯示） -->
               <v-text-field v-if="newGroup.baseCurrency === '其他'" v-model="newGroup.customCurrency" label="請輸入貨幣代碼"
@@ -174,12 +191,17 @@
 
               <v-textarea v-model="newGroup.announcement" label="公告欄" prepend-icon="mdi-bullhorn" rows="3"
                 class="mt-4"></v-textarea>
+
+              <!-- 錯誤訊息提示 -->
+              <v-alert v-if="createGroupErrorMessage" type="error" density="compact" class="mt-4">
+                {{ createGroupErrorMessage }}
+              </v-alert>
             </v-form>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn @click="showCreateDialog = false">取消</v-btn>
-            <v-btn color="primary" @click="showConfirmCreateDialog"
+            <v-btn color="#55d6c2" class="text-white" variant="elevated" @click="showConfirmCreateDialog"
               :disabled="!newGroupFormValid || !!newGroupDateError">建立</v-btn>
           </v-card-actions>
         </v-card>
@@ -195,7 +217,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="text" @click="showConfirmDialog = false">取消</v-btn>
-            <v-btn color="primary" variant="elevated" @click="confirmCreateGroup">
+            <v-btn color="#55d6c2" class="text-white" variant="elevated" @click="confirmCreateGroup">
               確定
             </v-btn>
           </v-card-actions>
@@ -301,11 +323,14 @@ const addNewMemberField = async () => {
   }
 };
 
-// 監聽對話框關閉，重置成員列表
+const createGroupErrorMessage = ref(''); // 用於顯示建立群組的錯誤訊息
+
+// 監聽對話框關閉，重置成員列表和錯誤訊息
 watch(showCreateDialog, (newVal) => {
   if (!newVal) {
-    // 當對話框關閉時，重置成員列表
+    // 當對話框關閉時，重置成員列表和錯誤訊息
     newMembers.value = [];
+    createGroupErrorMessage.value = '';
   }
 });
 
@@ -327,14 +352,20 @@ async function loadGroups() {
 
 // 顯示確認對話框
 async function showConfirmCreateDialog() {
+  createGroupErrorMessage.value = ''; // 先清空舊的錯誤訊息
+
   // 驗證表單
   if (newGroupForm.value) {
     const { valid } = await newGroupForm.value.validate();
-    if (!valid) return;
+    if (!valid) {
+      createGroupErrorMessage.value = '請填寫所有必填欄位';
+      return;
+    }
   }
 
   // 檢查日期驗證
   if (newGroupDateError.value) {
+    createGroupErrorMessage.value = '起始日不得晚於結束日';
     return;
   }
 
@@ -382,7 +413,8 @@ async function createGroup() {
     newMembers.value = []; // 重置成員列表
   } catch (error) {
     console.error('建立群組失敗:', error);
-    alert('建立失敗：' + error.message);
+    // 在這裡也可以設定後端回傳的錯誤訊息
+    createGroupErrorMessage.value = error.response?.data?.message || '建立失敗，請稍後再試';
   }
 }
 
@@ -503,7 +535,7 @@ function logout() {
 
 /* 覆寫 Vuetify 預設樣式，讓 v-list-subheader 和 v-list-item 背景透明 */
 .v-list-subheader {
-  color: rgba(0, 0, 0, 0.6);
+  color: #5470C6;
   font-weight: bold;
   padding-left: 16px;
   font-size: 1.6em;
@@ -543,27 +575,27 @@ function logout() {
   color: white !important;
 }
 
-/* 新增群組項目的預設顏色 - 使用 Vuetify primary 顏色 */
+/* 新增群組項目的預設顏色 */
 .nav-item.nav-item-add .v-icon {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: #5470C6 !important;
 }
 
 .nav-item.nav-item-add .v-list-item-title {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: #5470C6 !important;
   font-weight: 700 !important;
 }
 
 .nav-item.nav-item-add {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: #5470C6 !important;
 }
 
 /* 確保更深層的元素也變色和加粗 */
 .nav-item-add :deep(.v-list-item__prepend .v-icon) {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: #5470C6 !important;
 }
 
 .nav-item-add :deep(.v-list-item__content) {
-  color: rgb(var(--v-theme-primary)) !important;
+  color: #5470C6 !important;
   font-weight: 700 !important;
 }
 
@@ -594,6 +626,25 @@ function logout() {
 .submenu-list .v-list-item:hover .v-list-item-title,
 .submenu-list .v-list-item:hover .v-icon {
   color: white !important;
+}
+
+/* ========== Dialog Styles ========== */
+.dialog-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  /* 限制對話框最大高度 */
+}
+
+.dialog-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dialog-scrollable-content {
+  overflow-y: auto;
+  /* 當內容超出時，只讓這部分滾動 */
 }
 
 /* ========== 右側內容區樣式 ========== */

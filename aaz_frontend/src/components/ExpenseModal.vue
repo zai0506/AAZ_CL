@@ -40,10 +40,10 @@
           <v-row v-if="showExchangeRate">
             <v-col cols="4">
               <v-text-field v-model="formData.exchangeRate" label="匯率" type="number" step="0.0001" :hint="rateSource === 'group'
-                  ? '群組紀錄'
-                  : rateSource === 'default'
-                    ? '預設匯率'
-                    : `1 ${formData.currency} / ${baseCurrency}`
+                ? '群組紀錄'
+                : rateSource === 'default'
+                  ? '預設匯率'
+                  : `1 ${formData.currency} / ${baseCurrency}`
                 " :rules="[rules.required, rules.positive]" :loading="loadingRate" :readonly="isViewMode" required
                 density="comfortable" prepend-icon="mdi-circle-small" class="invisible-icon"
                 @input="rateSource = 'manual'">
@@ -63,7 +63,7 @@
           <v-card variant="outlined" class="mb-4 mt-4">
             <v-card-title class="text-subtitle-1 bg-grey-lighten-4">
               <v-icon left size="small">mdi-account-multiple</v-icon>
-              誰先付錢
+              誰先付的
               <v-spacer></v-spacer>
               <v-chip size="small" color="primary">
                 已付：{{ totalPaid }} / {{ formData.amount || 0 }}

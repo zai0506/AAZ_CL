@@ -7,5 +7,24 @@ export const images = [
   '/background/6.jpg',
   '/background/7.jpg',
   '/background/8.jpg',
-  '/background/9.jpg'
+  '/background/9.jpg',
+  '/background/10.jpg',
+  '/background/11.jpg',
+  '/background/12.jpg',
+  '/background/13.jpg',
+  '/background/14.jpg',
+  '/background/15.jpg',
+  '/background/16.jpg',
+  '/background/17.jpg',
+  '/background/18.jpg',
+  '/background/19.jpg',
+  '/background/20.jpg',
+  '/background/21.jpg',
+  '/background/22.jpg',
+  '/background/23.jpg',
+  '/background/24.jpg',
+  '/background/25.jpg',
+  '/background/26.jpg',
+  '/background/27.jpg'
+
 ];
