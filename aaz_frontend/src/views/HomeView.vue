@@ -76,27 +76,60 @@
             <v-col v-for="group in groups" :key="group.id" cols="12" md="6" lg="4">
               <v-card hover @click="goToGroup(group.id)" class="group-card" elevation="3"
                 :class="{ 'is-hovered': hoveredGroupId === group.id }">
-                <v-img :src="`https://picsum.photos/seed/${group.id}/400/200`" height="200" cover
-                  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)">
-                  <v-card-title class="text-white text-h5 font-weight-bold">
-                    {{ group.name }}
-                  </v-card-title>
+                <!-- 群組圖片 -->
+                <v-img :src="`https://picsum.photos/id/${[
+                  '1016', // 山脈與都市 (適合日本/瑞士)
+                  '1039', // 森林小徑 (適合健行)
+                  '1043', // 歐洲街景
+                  '1050', // 現代建築
+                  '1067', // 都市夜景
+                  '1080', // 草原大地 (適合澳洲)
+                  '10',   // 海邊風景
+                  '230',  // 懷舊街道
+                  '249',  // 橋樑與都市
+                  '274'   // 歐洲風格建築
+                ][Math.abs(parseInt(group.id || 0)) % 10]
+                  }/800/400`" height="180" cover>
+                  <div class="group-overlay-content">
+                    <!-- 群組名稱 (輕巧活潑樣式) -->
+                    <div class="group-name-header-light">
+                      <h3 class="mb-0">{{ group.name }}</h3>
+                    </div>
+                  </div>
                 </v-img>
 
-                <v-card-text>
-                  <div class="mb-2">
+                <v-card-text class="pa-4">
+
+                  <!-- 日期 -->
+                  <div class="mb-3">
                     <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
-                    {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
+                    <span class="text-body-2">{{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}</span>
                   </div>
-                  <div class="d-flex align-center">
-                    <v-chip color="success" size="small">
-                      <v-icon start>mdi-currency-usd</v-icon>
+
+                  <!-- 底部資訊 -->
+                  <div class="d-flex align-center justify-space-between">
+                    <!-- 貨幣 (黑金色調) -->
+                    <v-chip size="small" variant="flat" class="currency-chip-gold">
+                      <v-icon start size="small">mdi-currency-usd</v-icon>
                       {{ group.baseCurrency }}
                     </v-chip>
-                    <v-chip color="info" size="small">
-                      <v-icon start>mdi-account-group</v-icon>
-                      {{ group.members?.length || 0 }} 人
-                    </v-chip>
+
+                    <!-- 成員圖示 -->
+                    <div class="d-flex align-center">
+                      <span class="text-body-2 mr-2">{{ group.members?.length || 0 }} 人</span>
+                      <div class="member-icons-container">
+                        <v-avatar v-for="(member, index) in group.members?.slice(0, 5)" :key="member.id"
+                          :color="member.isCreator ? 'rgb(85, 214, 194)' : 'grey-lighten-1'" size="28"
+                          :style="{ marginLeft: index > 0 ? '-8px' : '0', zIndex: 5 - index }"
+                          class="member-icon-avatar">
+                          <v-icon color="white" size="16">{{ getMemberIcon(member, group) }}</v-icon>
+                        </v-avatar>
+                        <v-avatar v-if="(group.members?.length || 0) > 5" color="grey-darken-1" size="28"
+                          style="margin-left: -8px; z-index: 0" class="member-icon-avatar">
+                          <span class="text-caption text-white">+{{ (group.members?.length || 0) - 5 }}</span>
+                        </v-avatar>
+                      </div>
+                    </div>
                   </div>
                 </v-card-text>
               </v-card>
@@ -201,7 +234,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn @click="showCreateDialog = false">取消</v-btn>
-            <v-btn color="#55d6c2" class="text-white" variant="elevated" @click="showConfirmCreateDialog"
+            <v-btn color="#5470C6" class="text-white" variant="elevated" @click="showConfirmCreateDialog"
               :disabled="!newGroupFormValid || !!newGroupDateError">建立</v-btn>
           </v-card-actions>
         </v-card>
@@ -217,7 +250,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="text" @click="showConfirmDialog = false">取消</v-btn>
-            <v-btn color="#55d6c2" class="text-white" variant="elevated" @click="confirmCreateGroup">
+            <v-btn color="#5470C6" class="text-white" variant="elevated" @click="confirmCreateGroup">
               確定
             </v-btn>
           </v-card-actions>
@@ -294,6 +327,43 @@ const newGroupDateError = computed(() => {
 const userInitial = computed(() => {
   return userStore.nickname ? userStore.nickname.charAt(0).toUpperCase() : 'U';
 });
+
+// 成員 ICON 列表（與 GroupDetailView 保持一致）
+const memberIcons = [
+  'mdi-robot-dead',
+  'mdi-ghost',
+  'mdi-alien',
+  'mdi-emoticon-poop',
+  'mdi-cat',
+  'mdi-dog',
+  'mdi-panda',
+  'mdi-elephant',
+  'mdi-koala',
+  'mdi-penguin',
+  'mdi-duck',
+  'mdi-owl',
+  'mdi-pig-variant',
+  'mdi-rabbit-variant',
+  'mdi-fish',
+  'mdi-rodent'
+];
+
+// 根據成員 ID 獲取對應的 ICON（按成員 ID 排序後依序分配）
+const getMemberIcon = (member, group) => {
+  if (!member || !group?.members) return 'mdi-account';
+
+  // 將所有成員按 ID 排序
+  const sortedMembers = [...group.members].sort((a, b) => a.id - b.id);
+
+  // 找到該成員在排序後的位置
+  const memberIndex = sortedMembers.findIndex(m => m.id === member.id);
+
+  if (memberIndex === -1) return 'mdi-account';
+
+  // 根據位置分配 icon（如果成員數超過 icon 數量，會循環使用）
+  const iconIndex = memberIndex % memberIcons.length;
+  return memberIcons[iconIndex];
+};
 
 // 判斷「新增成員」按鈕是否應禁用
 const isAddMemberDisabled = computed(() => {
@@ -673,14 +743,123 @@ function logout() {
 
 /* ========== 群組卡片樣式 ========== */
 .group-card {
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  border: 3px dashed #FFD700 !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
 }
 
 .group-card:hover,
 .group-card.is-hovered {
-  /* 新增 is-hovered 樣式 */
   transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 圖片上的內容容器 (定位群組名) */
+.group-overlay-content {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  max-height: 90px;
+  z-index: 1;
+}
+
+/* 群組名稱標題樣式 (純文字) */
+.group-name-header-light {
+  display: block;
+  padding: 4px 8px;
+  max-width: 100%;
+}
+
+.group-name-header-light h3 {
+  color: #ffffff;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.8);
+  font-weight: 900;
+  font-size: 2rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-height: 90px;
+  overflow: hidden;
+}
+
+/* 公告欄對話框樣式 (輕巧活潑風格) */
+.announcement-bubble-light {
+  background: rgba(255, 248, 220, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 184, 0, 0.6) !important;
+  color: #6b5200 !important;
+  padding: 14px 16px;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 85%;
+  max-width: 280px;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.announcement-bubble-light::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: -10px;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 248, 220, 0.95) !important;
+  border-left: 2px solid rgba(255, 184, 0, 0.6) !important;
+  border-top: 2px solid rgba(255, 184, 0, 0.6) !important;
+  transform: rotate(45deg);
+  border-radius: 3px 0 0 0;
+  z-index: 2;
+}
+
+.announcement-bubble-light::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: -2px;
+  width: 22px;
+  height: 4px;
+  background: rgba(255, 248, 220, 0.95);
+  z-index: 1;
+}
+
+.announcement-bubble-light p {
+  color: #6b5200 !important;
+  line-height: 1.6;
+  position: relative;
+  z-index: 2;
+}
+
+/* 貨幣 chip 黑金色調 */
+.currency-chip-gold {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+  color: #FFD700 !important;
+  border: 1px solid #FFD700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.currency-chip-gold .v-icon {
+  color: #FFD700 !important;
+}
+
+/* 成員圖示容器 */
+.member-icons-container {
+  display: flex;
+  align-items: center;
+}
+
+.member-icon-avatar {
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* 手機版響應式 */

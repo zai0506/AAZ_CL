@@ -98,7 +98,6 @@
 
                 <v-img :src="`https://picsum.photos/seed/${group?.id}/400/200`" height="120" cover
                   style="width: 100%; border-radius: 2px;"></v-img>
-
                 <div style="margin-top: 15px; font-family: 'cursive', 'Noto Sans TC'; color: #333; text-align: center;">
                   <div
                     style="font-weight: bold; border-bottom: 1px solid #56AB2F; display: inline-block; margin-bottom: 5px;">
