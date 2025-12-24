@@ -241,12 +241,14 @@
 
             <!-- 行程資訊頁面 -->
             <v-window-item value="info">
-              <div class="narrow-content">
-                <v-card v-if="group" class="dashed-border-card">
-                  <v-card-title class="d-flex align-center">
+              <div class="narrow-content info-content">
+                <v-card v-if="group" class="dashed-border-card info-card elevation-3">
+                  <v-card-title class="d-flex align-center pb-4 pt-5">
+                    <span class="text-h5 font-weight-bold">行程資訊</span>
                     <v-spacer></v-spacer>
                     <template v-if="!isGroupInfoEditing">
-                      <v-btn icon="mdi-pencil" variant="text" @click="startGroupInfoEdit"></v-btn>
+                      <v-btn icon="mdi-pencil" variant="text" color="rgb(85, 214, 194)"
+                        @click="startGroupInfoEdit"></v-btn>
                     </template>
                     <template v-else>
                       <v-btn variant="text" @click="cancelGroupInfoEdit">取消</v-btn>
@@ -254,121 +256,180 @@
                         @click="saveGroupInfoChanges" :disabled="!formValid || !!dateErrorMessage">儲存</v-btn>
                     </template>
                   </v-card-title>
-                  <v-card-text>
+
+                  <v-divider></v-divider>
+
+                  <v-card-text class="pt-6">
                     <v-form ref="groupInfoForm" v-model="formValid">
                       <v-row>
+                        <!-- 行程名稱 -->
                         <v-col cols="12">
-                          <h3 class="text-h6 mb-2">行程名稱</h3>
-                          <p v-if="!isGroupInfoEditing">{{ group.name }}</p>
-                          <v-text-field v-else v-model="editingGroup.name" placeholder="請輸入行程名稱"
-                            hide-details></v-text-field>
-                        </v-col>
-
-                        <v-col cols="12">
-                          <div class="d-flex align-center mb-2">
-                            <h3 class="text-h6">旅遊日期</h3>
-                            <span v-if="dateErrorMessage" class="text-red text-caption ml-2">{{
-                              dateErrorMessage
-                              }}</span>
-                          </div>
-                          <p v-if="!isGroupInfoEditing">
-                            {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
-                          </p>
-                          <div v-else class="d-flex align-center">
-                            <v-text-field v-model="editingGroup.startDate" type="date" density="compact" hide-details
-                              :error="!!dateErrorMessage"></v-text-field>
-                            <span class="mx-2">-</span>
-                            <v-text-field v-model="editingGroup.endDate" type="date" density="compact" hide-details
-                              :error="!!dateErrorMessage"></v-text-field>
+                          <div class="info-section">
+                            <div class="info-header">
+                              <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-map-marker-outline</v-icon>
+                              <h3 class="text-h6 font-weight-medium mb-0">行程名稱</h3>
+                            </div>
+                            <div class="info-value">
+                              <p v-if="!isGroupInfoEditing" class="text-body-1">{{ group.name }}</p>
+                              <v-text-field v-else v-model="editingGroup.name" placeholder="請輸入行程名稱" variant="outlined"
+                                density="comfortable" hide-details></v-text-field>
+                            </div>
                           </div>
                         </v-col>
 
+                        <!-- 旅遊日期 -->
                         <v-col cols="12">
-                          <h3 class="text-h6 mb-2">主要貨幣</h3>
-                          <p v-if="!isGroupInfoEditing">{{ group.baseCurrency }}</p>
-                          <v-select v-else v-model="editingGroup.baseCurrency" :items="currencies" density="compact"
-                            hide-details readonly></v-select>
-                        </v-col>
-
-                        <v-col cols="12">
-                          <div class="d-flex align-center justify-space-between mb-2">
-                            <h3 class="text-h6">成員列表</h3>
-                            <!-- 編輯模式時，新增成員按鈕放在右邊 -->
-                            <v-btn v-if="isGroupInfoEditing" prepend-icon="mdi-account-plus" color="secondary"
-                              variant="tonal" size="small" @click="addNewMemberField" :disabled="isAddMemberDisabled">
-                              新增成員
-                            </v-btn>
+                          <div class="info-section">
+                            <div class="info-header">
+                              <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-calendar-range</v-icon>
+                              <h3 class="text-h6 font-weight-medium mb-0">旅遊日期</h3>
+                              <span v-if="dateErrorMessage" class="text-red text-caption ml-2">{{
+                                dateErrorMessage
+                                }}</span>
+                            </div>
+                            <div class="info-value">
+                              <p v-if="!isGroupInfoEditing" class="text-body-1">
+                                {{ formatDate(group.startDate) }} - {{ formatDate(group.endDate) }}
+                              </p>
+                              <div v-else class="d-flex align-center gap-2">
+                                <v-text-field v-model="editingGroup.startDate" type="date" variant="outlined"
+                                  density="comfortable" hide-details :error="!!dateErrorMessage"></v-text-field>
+                                <span class="mx-2">-</span>
+                                <v-text-field v-model="editingGroup.endDate" type="date" variant="outlined"
+                                  density="comfortable" hide-details :error="!!dateErrorMessage"></v-text-field>
+                              </div>
+                            </div>
                           </div>
-
-                          <!-- 非編輯模式：垂直列表顯示 -->
-                          <v-list v-if="!isGroupInfoEditing" density="compact">
-                            <v-list-item v-for="member in sortedMembers" :key="member.id"
-                              :prepend-icon="member.isCreator ? 'mdi-crown' : 'mdi-account'">
-                              <v-list-item-title>{{ member.displayName }}</v-list-item-title>
-                              <template v-slot:append v-if="member.isCreator">
-                                <v-chip color="primary" size="small">建立者</v-chip>
-                              </template>
-                            </v-list-item>
-                          </v-list>
-
-                          <!-- 編輯模式：可編輯的垂直列表 -->
-                          <v-list v-else density="compact">
-                            <v-list-item v-for="member in sortedMembers" :key="member.id"
-                              :prepend-icon="member.isCreator ? 'mdi-crown' : 'mdi-account'">
-                              <!-- Creator 不可編輯 -->
-                              <v-list-item-title v-if="member.isCreator">
-                                {{ member.displayName }}
-                              </v-list-item-title>
-
-                              <!-- 正在編輯的成員：顯示輸入框 -->
-                              <v-text-field v-else-if="editingMembers[member.id]?.isEditing"
-                                v-model="editingMembers[member.id].newName" @blur="finishEditMember(member.id)"
-                                @keyup.enter="finishEditMember(member.id)" density="compact" hide-details
-                                autofocus></v-text-field>
-
-                              <!-- 未編輯或編輯完成的成員：可點擊 -->
-                              <v-list-item-title v-else class="member-name-editable" @click="startEditMember(member)">
-                                {{ editingMembers[member.id]?.newName || member.displayName }}
-                              </v-list-item-title>
-
-                              <template v-slot:append>
-                                <!-- Creator 標籤 -->
-                                <v-chip v-if="member.isCreator" color="primary" size="small">建立者</v-chip>
-                                <!-- 已編輯標記 -->
-                                <v-icon v-else-if="
-                                  editingMembers[member.id] && !editingMembers[member.id].isEditing
-                                " color="success">mdi-check-circle</v-icon>
-                                <!-- 可編輯提示 -->
-                                <v-icon v-else-if="!editingMembers[member.id]?.isEditing" size="small"
-                                  color="grey-lighten-1">mdi-pencil</v-icon>
-                              </template>
-                            </v-list-item>
-
-                            <!-- 動態新增的成員輸入框 -->
-                            <v-list-item v-for="(member, index) in newMembers" :key="member.tempId"
-                              prepend-icon="mdi-account-plus">
-                              <v-text-field v-model="member.name" placeholder="輸入成員名稱" density="compact" hide-details
-                                @blur="handleNewMemberBlur(member)" :ref="(el) => {
-                                  if (index === newMembers.length - 1) latestMemberInput = el;
-                                }
-                                  "></v-text-field>
-                            </v-list-item>
-                          </v-list>
                         </v-col>
 
+                        <!-- 主要貨幣 -->
                         <v-col cols="12">
-                          <h3 class="text-h6 mb-2">公告欄</h3>
-                          <p v-if="!isGroupInfoEditing">{{ group.announcement || '無' }}</p>
-                          <v-textarea v-else v-model="editingGroup.announcement" placeholder="請輸入公告內容" rows="3"
-                            density="compact" hide-details></v-textarea>
+                          <div class="info-section">
+                            <div class="info-header">
+                              <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-currency-usd</v-icon>
+                              <h3 class="text-h6 font-weight-medium mb-0">主要貨幣</h3>
+                            </div>
+                            <div class="info-value">
+                              <v-chip v-if="!isGroupInfoEditing" color="rgb(85, 214, 194)" variant="tonal" size="large">
+                                {{ group.baseCurrency }}
+                              </v-chip>
+                              <v-select v-else v-model="editingGroup.baseCurrency" :items="currencies"
+                                variant="outlined" density="comfortable" hide-details readonly></v-select>
+                            </div>
+                          </div>
+                        </v-col>
+
+                        <!-- 成員列表 -->
+                        <v-col cols="12">
+                          <div class="info-section">
+                            <div class="d-flex align-center justify-space-between mb-3">
+                              <div class="info-header">
+                                <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-account-group</v-icon>
+                                <h3 class="text-h6 font-weight-medium mb-0">成員列表</h3>
+                              </div>
+                              <!-- 編輯模式時，新增成員按鈕 -->
+                              <v-btn v-if="isGroupInfoEditing" prepend-icon="mdi-account-plus" color="secondary"
+                                variant="tonal" size="small" @click="addNewMemberField" :disabled="isAddMemberDisabled">
+                                新增成員
+                              </v-btn>
+                            </div>
+
+                            <div class="info-value">
+                              <!-- 非編輯模式：美化的成員卡片 -->
+                              <div v-if="!isGroupInfoEditing" class="members-grid">
+                                <v-card v-for="member in sortedMembers" :key="member.id" class="member-card"
+                                  variant="outlined">
+                                  <div class="d-flex align-center pa-3">
+                                    <v-avatar :color="member.isCreator ? 'rgb(85, 214, 194)' : 'grey-lighten-1'"
+                                      size="40" class="mr-3">
+                                      <v-icon color="white">{{ member.isCreator ? 'mdi-crown' : 'mdi-account'
+                                      }}</v-icon>
+                                    </v-avatar>
+                                    <div class="flex-grow-1">
+                                      <div class="text-subtitle-1 font-weight-medium">{{ member.displayName }}</div>
+                                      <div v-if="member.isCreator" class="text-caption"
+                                        style="color: rgb(85, 214, 194);">
+                                        建立者</div>
+                                    </div>
+                                  </div>
+                                </v-card>
+                              </div>
+
+                              <!-- 編輯模式：可編輯的列表 -->
+                              <v-list v-else density="comfortable" class="pa-0">
+                                <v-list-item v-for="member in sortedMembers" :key="member.id"
+                                  :prepend-icon="member.isCreator ? 'mdi-crown' : 'mdi-account'" class="mb-2" rounded>
+                                  <!-- Creator 不可編輯 -->
+                                  <v-list-item-title v-if="member.isCreator">
+                                    {{ member.displayName }}
+                                  </v-list-item-title>
+
+                                  <!-- 正在編輯的成員：顯示輸入框 -->
+                                  <v-text-field v-else-if="editingMembers[member.id]?.isEditing"
+                                    v-model="editingMembers[member.id].newName" @blur="finishEditMember(member.id)"
+                                    @keyup.enter="finishEditMember(member.id)" variant="outlined" density="comfortable"
+                                    hide-details autofocus></v-text-field>
+
+                                  <!-- 未編輯或編輯完成的成員：顯示名稱 -->
+                                  <v-list-item-title v-else>
+                                    {{ editingMembers[member.id]?.newName || member.displayName }}
+                                  </v-list-item-title>
+
+                                  <template v-slot:append>
+                                    <!-- Creator 標籤 -->
+                                    <v-chip v-if="member.isCreator" color="rgb(85, 214, 194)" size="small">建立者</v-chip>
+                                    <!-- 已編輯標記 -->
+                                    <v-icon v-else-if="
+                                      editingMembers[member.id] && !editingMembers[member.id].isEditing
+                                    " color="success">mdi-check-circle</v-icon>
+                                    <!-- 可編輯提示 - 點擊鉛筆進入編輯 -->
+                                    <v-btn v-else-if="!editingMembers[member.id]?.isEditing" icon variant="text"
+                                      size="small" @click="startEditMember(member)">
+                                      <v-icon size="small" color="grey-darken-1">mdi-pencil</v-icon>
+                                    </v-btn>
+                                  </template>
+                                </v-list-item>
+
+                                <!-- 動態新增的成員輸入框 -->
+                                <v-list-item v-for="(member, index) in newMembers" :key="member.tempId"
+                                  prepend-icon="mdi-account-plus" class="mb-2" rounded>
+                                  <v-text-field v-model="member.name" placeholder="輸入成員名稱" variant="outlined"
+                                    density="comfortable" hide-details @blur="handleNewMemberBlur(member)" :ref="(el) => {
+                                      if (index === newMembers.length - 1) latestMemberInput = el;
+                                    }"></v-text-field>
+                                </v-list-item>
+                              </v-list>
+                            </div>
+                          </div>
+                        </v-col>
+
+                        <!-- 公告欄 -->
+                        <v-col cols="12">
+                          <div class="info-section">
+                            <div class="info-header">
+                              <v-icon color="rgb(85, 214, 194)" class="mr-2">mdi-message-text-outline</v-icon>
+                              <h3 class="text-h6 font-weight-medium mb-0">公告欄</h3>
+                            </div>
+                            <div class="info-value">
+                              <div class="announcement-box">
+                                <div v-if="!isGroupInfoEditing" class="announcement-bubble">
+                                  <p class="text-body-1 mb-0">{{ group.announcement || '無公告訊息' }}</p>
+                                </div>
+                                <div v-else class="announcement-bubble-edit">
+                                  <textarea v-model="editingGroup.announcement" placeholder="請輸入公告內容..." rows="4"
+                                    class="announcement-textarea"></textarea>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </v-col>
                       </v-row>
                     </v-form>
 
                     <!-- 刪除行程按鈕 -->
-                    <div v-if="!isGroupInfoEditing" class="d-flex justify-center mt-6">
+                    <div v-if="!isGroupInfoEditing" class="d-flex justify-center mt-8">
                       <v-btn color="red" variant="elevated" prepend-icon="mdi-delete"
-                        @click="showDeleteGroupConfirm = true" style="width: 90%;">
+                        @click="showDeleteGroupConfirm = true" size="large" style="width: 90%;">
                         刪除行程
                       </v-btn>
                     </div>
@@ -452,25 +513,38 @@
                 <!-- 統計期間顯示 -->
                 <v-row class="mb-4">
                   <v-col cols="12">
-                    <div class="d-flex align-center">
-                      <span class="text-subtitle-1">
-                        統計期間：{{ formatStatsDateRange() }}
-                      </span>
-                      <v-btn color="primary" variant="text" size="small" class="ml-4" @click="openStatsDateDialog">
-                        設定期間
-                      </v-btn>
+                    <div class="stats-period-box">
+                      <div class="d-flex align-center">
+                        <v-icon color="#5470C6" size="28" class="mr-3">mdi-calendar-clock</v-icon>
+                        <div>
+                          <div class="text-caption text-grey-darken-2">統計期間</div>
+                          <div class="text-h6 font-weight-bold stats-period-text">
+                            {{ formatStatsDateRange() }}
+                          </div>
+                        </div>
+                        <v-btn color="#5470C6" variant="tonal" prepend-icon="mdi-pencil" size="small" class="ml-4"
+                          @click="openStatsDateDialog">
+                          設定期間
+                        </v-btn>
+                      </div>
                     </div>
                   </v-col>
                 </v-row>
 
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-card class="dashed-border-card">
-                      <v-card-title>支出統計</v-card-title>
+                    <v-card class="dashed-border-card stats-card">
+                      <v-card-title class="stats-card-header expense-header">
+                        <v-icon class="mr-2" color="white">mdi-cart-outline</v-icon>
+                        支出統計
+                      </v-card-title>
                       <v-card-text>
-                        <p class="text-h5 mb-4">
-                          總計: {{ formatAmount(expenseStats.total || 0, group?.baseCurrency) }}
-                        </p>
+                        <div class="stats-total-box expense-total">
+                          <div class="text-caption text-grey-darken-1 mb-1">總計金額</div>
+                          <div class="text-h4 font-weight-bold">
+                            {{ formatAmount(expenseStats.total || 0, group?.baseCurrency) }}
+                          </div>
+                        </div>
 
                         <!-- 圓餅圖 -->
                         <div v-if="expensePieData" class="mb-6 d-flex justify-center">
@@ -497,12 +571,18 @@
                   </v-col>
 
                   <v-col cols="12" md="6">
-                    <v-card class="dashed-border-card">
-                      <v-card-title>收入統計</v-card-title>
+                    <v-card class="dashed-border-card stats-card">
+                      <v-card-title class="stats-card-header income-header">
+                        <v-icon class="mr-2" color="white">mdi-cash-plus</v-icon>
+                        收入統計
+                      </v-card-title>
                       <v-card-text>
-                        <p class="text-h5 mb-4">
-                          總計: {{ formatAmount(incomeStats.total || 0, group?.baseCurrency) }}
-                        </p>
+                        <div class="stats-total-box income-total">
+                          <div class="text-caption text-grey-darken-1 mb-1">總計金額</div>
+                          <div class="text-h4 font-weight-bold">
+                            {{ formatAmount(incomeStats.total || 0, group?.baseCurrency) }}
+                          </div>
+                        </div>
 
                         <!-- 圓餅圖 -->
                         <div v-if="incomePieData" class="mb-6 d-flex justify-center">
@@ -624,7 +704,7 @@
     <!-- 統計期間設定對話框 -->
     <v-dialog v-model="showStatsDateDialog" max-width="500px">
       <v-card>
-        <v-card-title class="d-flex align-center bg-primary text-white">
+        <v-card-title class="d-flex align-center stats-dialog-header text-white">
           <span>設定統計期間</span>
           <v-spacer></v-spacer>
           <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeStatsDateDialog"></v-btn>
@@ -651,7 +731,7 @@
           <v-btn variant="text" @click="clearStatsDateFilter">清除篩選</v-btn>
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="closeStatsDateDialog">取消</v-btn>
-          <v-btn color="primary" variant="elevated" @click="applyStatsDateFilter">
+          <v-btn color="#5470C6" class="text-white" variant="elevated" @click="applyStatsDateFilter">
             套用
           </v-btn>
         </v-card-actions>
@@ -1147,7 +1227,7 @@ const getCategoryIcon = (transactionOrCategory) => {
     '交通': 'mdi-plane-train',
     '景點活動': 'mdi-ski',
     '禮品': 'mdi-gift-open-outline',
-    '零碎支出': 'mdi-cat',
+    '零碎支出': 'mdi-party-popper',
     // 收入類別
     '退稅退費': 'mdi-cash-refund',
     '保險理賠': 'mdi-shield-check-outline',
@@ -1880,15 +1960,6 @@ onMounted(async () => {
   max-width: 60% !important;
 }
 
-.member-name-editable {
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.member-name-editable:hover {
-  color: rgb(var(--v-theme-primary));
-}
-
 /* 統計頁面長條圖 hover 效果 */
 .category-bar {
   transition: all 0.3s ease;
@@ -2083,5 +2154,262 @@ onMounted(async () => {
     opacity: 0;
     transform: rotate(-15deg) scale(0.3) translateY(-50px);
   }
+}
+
+/* ========== 行程資訊頁面樣式 ========== */
+.info-content {
+  padding-top: 20px !important;
+  margin-top: 0 !important;
+}
+
+.info-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.info-section {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.info-section:last-child {
+  border-bottom: none;
+}
+
+/* 小標題樣式 - 旅遊輕快風格 */
+.info-header {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(85, 214, 194, 0.15) 0%, rgba(85, 214, 194, 0.05) 100%);
+  border-left: 4px solid rgb(85, 214, 194);
+  border-radius: 0 12px 12px 0;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(85, 214, 194, 0.1);
+}
+
+.info-header .v-icon {
+  filter: drop-shadow(0 2px 4px rgba(85, 214, 194, 0.3));
+}
+
+.info-value {
+  padding-left: 12px;
+  margin-top: 4px;
+}
+
+.info-value p {
+  color: #424242;
+  line-height: 1.8;
+}
+
+/* 成員網格佈局 */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.member-card {
+  transition: all 0.2s ease;
+  border-radius: 8px !important;
+  border-color: rgba(85, 214, 194, 0.3) !important;
+}
+
+.member-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(85, 214, 194, 0.2) !important;
+  border-color: rgb(85, 214, 194) !important;
+}
+
+/* 成員頭像區域 */
+.member-card .v-avatar {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* 公告欄對話框樣式 */
+.announcement-box {
+  margin-top: 8px;
+}
+
+.announcement-bubble {
+  position: relative;
+  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
+  border-radius: 18px;
+  padding: 20px 24px;
+  box-shadow: 0 6px 20px rgba(85, 214, 194, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(85, 214, 194, 0.3);
+}
+
+/* 對話框小尾巴 - 右下角 */
+.announcement-bubble::before {
+  content: '';
+  position: absolute;
+  right: 30px;
+  bottom: -10px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
+  border-right: 2px solid rgba(85, 214, 194, 0.3);
+  border-bottom: 2px solid rgba(85, 214, 194, 0.3);
+  transform: rotate(45deg);
+  border-radius: 0 0 4px 0;
+  z-index: -1;
+}
+
+/* 清除連接處的橫線 */
+.announcement-bubble::after {
+  content: '';
+  position: absolute;
+  right: 28px;
+  bottom: -2px;
+  width: 24px;
+  height: 4px;
+  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
+  z-index: 1;
+}
+
+.announcement-bubble p {
+  color: #444;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+}
+
+/* 編輯模式的對話框樣式 */
+.announcement-bubble-edit {
+  position: relative;
+  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
+  border-radius: 18px;
+  padding: 20px 24px;
+  box-shadow: 0 6px 20px rgba(85, 214, 194, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(85, 214, 194, 0.3);
+}
+
+.announcement-bubble-edit::before {
+  content: '';
+  position: absolute;
+  right: 30px;
+  bottom: -10px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
+  border-right: 2px solid rgba(85, 214, 194, 0.3);
+  border-bottom: 2px solid rgba(85, 214, 194, 0.3);
+  transform: rotate(45deg);
+  border-radius: 0 0 4px 0;
+  z-index: -1;
+}
+
+.announcement-bubble-edit::after {
+  content: '';
+  position: absolute;
+  right: 28px;
+  bottom: -2px;
+  width: 24px;
+  height: 4px;
+  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
+  z-index: 1;
+}
+
+.announcement-textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+}
+
+.announcement-textarea::placeholder {
+  color: #999;
+  opacity: 0.7;
+}
+
+/* ========== 統計頁面樣式 ========== */
+/* 統計期間框 - 清爽風格 */
+.stats-period-box {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid rgba(84, 112, 198, 0.4);
+  border-radius: 12px;
+  padding: 18px 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.stats-period-box:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.stats-period-text {
+  color: #5470C6;
+}
+
+/* 統計卡片 */
+.stats-card {
+  overflow: hidden !important;
+  border-radius: 16px !important;
+}
+
+/* 統計卡片標題 */
+.stats-card-header {
+  padding: 16px 24px !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 1.2rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.expense-header {
+  background: linear-gradient(135deg, #E67E66 0%, #d66b56 100%) !important;
+  box-shadow: 0 4px 12px rgba(230, 126, 102, 0.3);
+}
+
+.income-header {
+  background: linear-gradient(135deg, #4874299b 0%, #3a5c1f9b 100%) !important;
+  box-shadow: 0 4px 12px rgba(72, 116, 41, 0.3);
+}
+
+/* 總計金額框 */
+.stats-total-box {
+  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, rgba(85, 214, 194, 0.02) 100%);
+  border-left: 4px solid;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.expense-total {
+  border-left-color: #E67E66;
+  background: linear-gradient(135deg, rgba(230, 126, 102, 0.08) 0%, rgba(230, 126, 102, 0.02) 100%);
+}
+
+.expense-total .text-h4 {
+  color: #E67E66;
+}
+
+.income-total {
+  border-left-color: #487429;
+  background: linear-gradient(135deg, rgba(72, 116, 41, 0.08) 0%, rgba(72, 116, 41, 0.02) 100%);
+}
+
+.income-total .text-h4 {
+  color: #487429;
+}
+
+/* 統計期間設定對話框標題 */
+.stats-dialog-header {
+  background: #5470C6 !important;
 }
 </style>

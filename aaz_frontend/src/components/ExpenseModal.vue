@@ -1,7 +1,8 @@
 <template>
   <v-dialog v-model="dialog" max-width="600px" persistent>
     <v-card class="modal-card">
-      <v-card-title class="sticky-header d-flex align-center justify-space-between text-white" :style="{ backgroundColor: headerColor }">
+      <v-card-title class="sticky-header d-flex align-center justify-space-between text-white"
+        :style="{ backgroundColor: headerColor }">
         <span class="text-h6">{{ title }}</span>
         <v-btn icon="mdi-close" variant="text" size="small" color="white" @click="closeDialog"></v-btn>
       </v-card-title>
@@ -9,115 +10,52 @@
       <v-card-text class="scrollable-content pt-6">
         <v-form ref="form" v-model="valid">
           <!-- 日期 -->
-          <v-text-field
-            v-model="formData.expenseDate"
-            label="日期"
-            type="date"
-            prepend-icon="mdi-calendar"
-            :rules="[rules.required]"
-            :readonly="isViewMode"
-            required
-            density="comfortable"
-          ></v-text-field>
+          <v-text-field v-model="formData.expenseDate" label="日期" type="date" prepend-icon="mdi-calendar"
+            :rules="[rules.required]" :readonly="isViewMode" required density="comfortable"></v-text-field>
 
           <!-- 類別 -->
-          <v-select
-            v-model="formData.category"
-            :items="categorySelectItems"
-            label="類別"
-            prepend-icon="mdi-tag"
-            :rules="[rules.required]"
-            :readonly="isViewMode"
-            required
-            density="comfortable"
-          ></v-select>
+          <v-select v-model="formData.category" :items="categorySelectItems" label="類別" prepend-icon="mdi-tag"
+            :rules="[rules.required]" :readonly="isViewMode" required density="comfortable"></v-select>
 
           <!-- 品項 -->
-          <v-text-field
-            v-model="formData.title"
-            label="品項"
-            prepend-icon="mdi-list-box-outline"
-            :rules="[rules.required]"
-            :placeholder="currentPlaceholder"
-            :readonly="isViewMode"
-            required
-            density="comfortable"
-          ></v-text-field>
+          <v-text-field v-model="formData.title" label="品項" prepend-icon="mdi-list-box-outline"
+            :rules="[rules.required]" :placeholder="currentPlaceholder" :readonly="isViewMode" required
+            density="comfortable"></v-text-field>
 
           <!-- 貨幣和金額 -->
           <v-row>
             <v-col cols="4">
-              <v-select
-                v-model="formData.currency"
-                :items="currencies"
-                label="貨幣"
-                :rules="[rules.required]"
-                @update:modelValue="handleCurrencyChange"
-                :readonly="isViewMode"
-                required
-                density="comfortable"
-                prepend-icon="mdi-currency-usd"
-              ></v-select>
+              <v-select v-model="formData.currency" :items="currencies" label="貨幣" :rules="[rules.required]"
+                @update:modelValue="handleCurrencyChange" :readonly="isViewMode" required density="comfortable"
+                prepend-icon="mdi-currency-usd"></v-select>
             </v-col>
             <v-col cols="8">
-              <v-text-field
-                v-model="formData.amount"
-                label="金額"
-                type="number"
-                prepend-icon="mdi-circle-small"
-                class="invisible-icon"
-                :rules="[rules.required, rules.positive]"
-                :readonly="isViewMode"
-                required
-                density="comfortable"
-              ></v-text-field>
+              <v-text-field v-model="formData.amount" label="金額" type="number" prepend-icon="mdi-circle-small"
+                class="invisible-icon" :rules="[rules.required, rules.positive]" :readonly="isViewMode" required
+                density="comfortable"></v-text-field>
             </v-col>
           </v-row>
 
           <!-- 匯率和換算後金額 -->
           <v-row v-if="showExchangeRate">
             <v-col cols="4">
-              <v-text-field
-                v-model="formData.exchangeRate"
-                label="匯率"
-                type="number"
-                step="0.0001"
-                :hint="
-                  rateSource === 'group'
-                    ? '群組紀錄'
-                    : rateSource === 'default'
+              <v-text-field v-model="formData.exchangeRate" label="匯率" type="number" step="0.0001" :hint="rateSource === 'group'
+                  ? '群組紀錄'
+                  : rateSource === 'default'
                     ? '預設匯率'
                     : `1 ${formData.currency} / ${baseCurrency}`
-                "
-                :rules="[rules.required, rules.positive]"
-                :loading="loadingRate"
-                :readonly="isViewMode"
-                required
-                density="comfortable"
-                prepend-icon="mdi-circle-small"
-                class="invisible-icon"
-                @input="rateSource = 'manual'"
-              >
+                " :rules="[rules.required, rules.positive]" :loading="loadingRate" :readonly="isViewMode" required
+                density="comfortable" prepend-icon="mdi-circle-small" class="invisible-icon"
+                @input="rateSource = 'manual'">
                 <template v-slot:append-inner>
-                  <v-btn
-                    icon="mdi-refresh"
-                    size="x-small"
-                    variant="text"
-                    @click="refreshRate"
-                    :disabled="loadingRate || isViewMode"
-                  ></v-btn>
+                  <v-btn icon="mdi-refresh" size="x-small" variant="text" @click="refreshRate"
+                    :disabled="loadingRate || isViewMode"></v-btn>
                 </template>
               </v-text-field>
             </v-col>
             <v-col cols="8">
-              <v-text-field
-                :model-value="convertedAmount"
-                label="換算後金額"
-                prepend-icon="mdi-circle-small"
-                class="invisible-icon"
-                readonly
-                density="comfortable"
-              ></v-text-field>
+              <v-text-field :model-value="convertedAmount" label="換算後金額" prepend-icon="mdi-circle-small"
+                class="invisible-icon" readonly density="comfortable"></v-text-field>
             </v-col>
           </v-row>
 
@@ -135,25 +73,14 @@
               <v-list density="compact">
                 <v-list-item v-for="member in members" :key="member.id">
                   <template v-slot:prepend>
-                    <v-checkbox
-                      v-model="selectedPayers"
-                      :value="member.id"
-                      hide-details
-                      density="compact"
-                      :disabled="isViewMode"
-                    ></v-checkbox>
+                    <v-checkbox v-model="selectedPayers" :value="member.id" hide-details density="compact"
+                      :disabled="isViewMode"></v-checkbox>
                   </template>
                   <v-list-item-title>{{ member.displayName }}</v-list-item-title>
                   <template v-slot:append>
-                    <v-text-field
-                      v-if="selectedPayers.includes(member.id)"
-                      v-model="paymentAmounts[member.id]"
-                      type="number"
-                      density="compact"
-                      hide-details
-                      style="width: 100px"
-                      :readonly="isViewMode"
-                    ></v-text-field>
+                    <v-text-field v-if="selectedPayers.includes(member.id)" v-model="paymentAmounts[member.id]"
+                      type="number" density="compact" hide-details style="width: 100px"
+                      :readonly="isViewMode"></v-text-field>
                   </template>
                 </v-list-item>
               </v-list>
@@ -171,12 +98,7 @@
               </v-chip>
             </v-card-title>
             <v-card-text>
-              <v-radio-group
-                v-model="splitType"
-                hide-details
-                class="mb-2"
-                :disabled="isViewMode"
-              >
+              <v-radio-group v-model="splitType" hide-details class="mb-2" :disabled="isViewMode">
                 <v-radio label="平均分攤" value="equal"></v-radio>
                 <v-radio label="自訂金額" value="custom"></v-radio>
               </v-radio-group>
@@ -184,30 +106,15 @@
               <v-list density="compact">
                 <v-list-item v-for="member in members" :key="member.id">
                   <template v-slot:prepend>
-                    <v-checkbox
-                      v-model="selectedSplitters"
-                      :value="member.id"
-                      hide-details
-                      density="compact"
-                      :disabled="isViewMode"
-                    ></v-checkbox>
+                    <v-checkbox v-model="selectedSplitters" :value="member.id" hide-details density="compact"
+                      :disabled="isViewMode"></v-checkbox>
                   </template>
                   <v-list-item-title>{{ member.displayName }}</v-list-item-title>
                   <template v-slot:append>
-                    <v-text-field
-                      v-if="selectedSplitters.includes(member.id) && splitType === 'custom'"
-                      v-model="splitAmounts[member.id]"
-                      type="number"
-                      density="compact"
-                      hide-details
-                      style="width: 100px"
-                      :placeholder="equalSplitAmount"
-                      :readonly="isViewMode"
-                    ></v-text-field>
-                    <v-chip
-                      v-else-if="selectedSplitters.includes(member.id) && splitType === 'equal'"
-                      size="small"
-                    >
+                    <v-text-field v-if="selectedSplitters.includes(member.id) && splitType === 'custom'"
+                      v-model="splitAmounts[member.id]" type="number" density="compact" hide-details
+                      style="width: 100px" :placeholder="equalSplitAmount" :readonly="isViewMode"></v-text-field>
+                    <v-chip v-else-if="selectedSplitters.includes(member.id) && splitType === 'equal'" size="small">
                       {{ equalSplitAmount }}
                     </v-chip>
                   </template>
@@ -217,15 +124,8 @@
           </v-card>
 
           <!-- 備註 -->
-          <v-textarea
-            v-model="formData.notes"
-            label="備註"
-            prepend-icon="mdi-note-text"
-            rows="2"
-            auto-grow
-            :readonly="isViewMode"
-            density="comfortable"
-          ></v-textarea>
+          <v-textarea v-model="formData.notes" label="備註" prepend-icon="mdi-note-text" rows="2" auto-grow
+            :readonly="isViewMode" density="comfortable"></v-textarea>
         </v-form>
 
         <!-- 錯誤訊息 -->
@@ -323,7 +223,7 @@ const showDeleteConfirm = ref(false);
 const rateSource = ref(''); // 'default' | 'group' | 'manual'
 const loadingRate = ref(false);
 
-const categories = ['美食', '服飾', '住宿', '藥妝日用', '交通', '景點活動','禮品', '零碎支出'];
+const categories = ['美食', '服飾', '住宿', '藥妝日用', '交通', '景點活動', '禮品', '零碎支出'];
 
 const expensePlaceholders = {
   '美食': '餐廳、街邊小吃',
@@ -345,7 +245,7 @@ const expenseCategoryIcons = {
   '交通': 'mdi-plane-train',
   '景點活動': 'mdi-ski',
   '禮品': 'mdi-gift-open-outline',
-  '零碎支出': 'mdi-cat',
+  '零碎支出': 'mdi-party-popper',
 };
 
 // 計算屬性：將 categories 轉換為 v-select 需要的帶圖示項目
@@ -790,7 +690,8 @@ watch(dialog, (val) => {
 
 .scrollable-content {
   overflow-y: auto;
-  max-height: calc(90vh - 64px - 52px); /* 90vh - header - footer */
+  max-height: calc(90vh - 64px - 52px);
+  /* 90vh - header - footer */
 }
 
 .invisible-icon :deep(.v-input__prepend) {
