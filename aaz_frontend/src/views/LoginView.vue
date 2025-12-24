@@ -1,7 +1,33 @@
 <template>
-  <v-container fluid class="fill-height">
-    <v-row justify="center" align="center">
-      <v-col cols="12" sm="8" md="6" lg="4">
+  <div class="login-page-wrapper">
+    <!-- 明信片拼圖背景 -->
+    <div class="postcard-background">
+      <div
+        v-for="(tile, index) in backgroundTiles"
+        :key="tile.id"
+        class="postcard-tile"
+        :style="{
+          backgroundImage: `url(/background/${tile.imageId}.jpg)`,
+          transform: `rotate(${tile.rotation}deg)`,
+          top: tile.position.top,
+          left: tile.position.left,
+          zIndex: tile.zIndex
+        }"
+      >
+        <!-- 新圖片淡入層 -->
+        <div
+          class="postcard-overlay"
+          :style="{
+            backgroundImage: tile.nextImageId ? `url(/background/${tile.nextImageId}.jpg)` : 'none',
+            opacity: tile.nextImageId ? 1 : 0
+          }"
+        ></div>
+      </div>
+    </div>
+
+    <v-container fluid class="fill-height login-content">
+      <v-row justify="center" align="center">
+        <v-col cols="12" sm="8" md="6" lg="4">
         <!-- 系統名稱區塊 -->
         <!-- <v-card class="elevation-8 mb-4 text-center pa-4 system-name">
 
@@ -54,7 +80,7 @@
               </v-alert>
 
               <!-- 提交按鈕 -->
-              <v-btn type="submit" color="#5470C6 " size="large" block :loading="loading" :disabled="!valid">
+              <v-btn type="submit" color="#5470C6" size="large" block :loading="loading" :disabled="!valid">
                 {{ isLogin ? '登入' : '註冊' }}
               </v-btn>
             </v-form>
@@ -76,15 +102,87 @@
       </v-col>
     </v-row>
   </v-container>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
 const userStore = useUserStore();
+
+// 明信片拼圖背景設定
+// 如果之後在 public/background 加照片，只要更新這個數字即可
+// 照片檔名需要是連續數字：1.jpg, 2.jpg, 3.jpg ... N.jpg
+const totalImages = 27; // public/background 裡有 1.jpg 到 27.jpg
+const backgroundTiles = ref([]);
+let refreshInterval = null;
+
+// 隨機生成圖片ID（1-N）
+const getRandomImageId = () => Math.floor(Math.random() * totalImages) + 1;
+
+// 初始化背景拼圖
+const initBackgroundTiles = () => {
+  // 7 張照片，固定位置（更均勻分佈，減少上方留白）
+  const fixedPositions = [
+    { top: '-5%', left: '3%', rotation: -12, zIndex: 10 },
+    { top: '2%', left: '62%', rotation: 18, zIndex: 15 },
+    { top: '20%', left: '18%', rotation: -8, zIndex: 20 },
+    { top: '15%', left: '78%', rotation: 12, zIndex: 5 },
+    { top: '42%', left: '8%', rotation: 15, zIndex: 12 },
+    { top: '38%', left: '55%', rotation: -18, zIndex: 8 },
+    { top: '48%', left: '82%', rotation: 8, zIndex: 18 }
+  ];
+
+  backgroundTiles.value = fixedPositions.map((pos, index) => ({
+    id: index,
+    imageId: getRandomImageId(),
+    nextImageId: null, // 用於淡入的新圖片
+    rotation: pos.rotation,
+    position: { top: pos.top, left: pos.left },
+    zIndex: pos.zIndex
+  }));
+};
+
+// 隨機更換幾個格子的圖片（新照片淡入覆蓋舊照片）
+const refreshRandomTiles = () => {
+  const numTilesToRefresh = Math.floor(Math.random() * 2) + 1; // 每次更換1-2個格子
+  const tilesToRefresh = [];
+
+  while (tilesToRefresh.length < numTilesToRefresh) {
+    const randomIndex = Math.floor(Math.random() * backgroundTiles.value.length);
+    if (!tilesToRefresh.includes(randomIndex)) {
+      tilesToRefresh.push(randomIndex);
+    }
+  }
+
+  tilesToRefresh.forEach(index => {
+    const tile = backgroundTiles.value[index];
+    // 設置新圖片到 overlay 層，會自動淡入
+    tile.nextImageId = getRandomImageId();
+
+    // 800ms 後（淡入完成），將新圖設為主圖，清除 overlay
+    setTimeout(() => {
+      tile.imageId = tile.nextImageId;
+      tile.nextImageId = null;
+    }, 800);
+  });
+};
+
+onMounted(() => {
+  initBackgroundTiles();
+  console.log('Background tiles initialized:', backgroundTiles.value);
+  // 每4秒隨機更換一些格子
+  refreshInterval = setInterval(refreshRandomTiles, 4000);
+});
+
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
+});
 
 // 狀態管理
 const isLogin = ref(true);
@@ -190,6 +288,83 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
+/* 登入頁面包裝器 */
+.login-page-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 明信片拼圖背景 */
+.postcard-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: linear-gradient(135deg, #f5f5f0 0%, #e8e8dc 100%);
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.7;
+}
+
+.postcard-tile {
+  position: absolute;
+  width: 600px;
+  height: 450px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f8f8f8;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 16px solid white;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* 新圖片淡入層 */
+.postcard-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f8f8f8;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+}
+
+.postcard-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  pointer-events: none;
+}
+
+/* 登入內容容器 */
+.login-content {
+  position: relative;
+  z-index: 200;
+  background: transparent !important;
+}
+
 .login-container {
   background-color: rgba(255, 255, 255, 0.85);
   min-height: 100vh;

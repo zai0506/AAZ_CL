@@ -17,9 +17,11 @@
       <div class="nav-header">
         <v-list class="pa-0" bg-color="transparent">
           <div class="d-flex align-center">
-            <v-btn icon="mdi-arrow-left-thick" variant="text" size="large" class="text-medium-emphasis"
+            <v-btn icon="mdi-arrow-left-thick" variant="text" size="large" color="#333333"
               @click="router.push('/home')"></v-btn>
-            <v-list-subheader class="pa-0">{{ group?.name || '載入中...' }}</v-list-subheader>
+            <div class="pa-0 group-name-header v-list-subheader" style="flex: 1; min-width: 0; color: #333333;"
+              :style="{ fontSize: (group?.name?.length > 8 ? '1.2em' : '1.6em') }">{{ group?.name || '載入中...'
+              }}</div>
           </div>
           <v-divider class="my-3"></v-divider>
         </v-list>
@@ -78,7 +80,7 @@
       <!-- 白色內容區塊 -->
       <div class="content-wrapper-with-tabs">
         <v-container fluid class="pa-6">
-          <v-window v-model="currentTab">
+          <v-window v-model="currentTab" class="sticky-enabled-window">
             <!-- Paperclip 控制按鈕 (永遠顯示) -->
             <v-tooltip location="bottom">
               <template v-slot:activator="{ props }">
@@ -96,7 +98,18 @@
                 <!-- 小飛機 icon -->
                 <v-icon class="airplane-icon" size="20" color="#555555">mdi-airplane</v-icon>
 
-                <v-img :src="`https://picsum.photos/seed/${group?.id}/400/200`" height="120" cover
+                <v-img :src="`https://picsum.photos/id/${[
+                  '1016', // 山脈與都市 (適合日本/瑞士)
+                  '1039', // 森林小徑 (適合健行)
+                  '1043', // 歐洲街景
+                  '1050', // 現代建築
+                  '1067', // 都市夜景
+                  '1080', // 草原大地 (適合澳洲)
+                  '10',   // 海邊風景
+                  '230',  // 懷舊街道
+                  '249',  // 橋樑與都市
+                  '274'   // 歐洲風格建築
+                ][Math.abs(parseInt(group?.id || 0)) % 10]}/400/200`" height="120" cover
                   style="width: 100%; border-radius: 2px;"></v-img>
                 <div style="margin-top: 15px; font-family: 'cursive', 'Noto Sans TC'; color: #333; text-align: center;">
                   <div
@@ -111,19 +124,61 @@
               <div class="narrow-content">
                 <v-row>
                   <v-col cols="12">
-                    <!-- 搜尋輸入框 -->
-                    <div class="d-flex align-start gap-2 mb-4">
-                      <div class="flex-grow-1">
-                        <v-text-field v-model="searchKeyword" placeholder="搜尋交易內容（日期、品項、金額、貨幣、類別、成員、備註等）"
-                          prepend-inner-icon="mdi-magnify" variant="outlined" density="compact" clearable
-                          @click:clear="searchKeyword = ''" hide-details class="search-input"></v-text-field>
-                      </div>
-                      <div style="width: 48px;"></div>
-                    </div>
-
                     <!-- 交易列表 -->
-                    <div v-if="filteredTransactions.length > 0" class="d-flex align-start gap-2">
-                      <v-card class="flex-grow-1 dashed-border-card">
+                    <div v-if="filteredTransactions.length > 0">
+                      <!-- 浮貼搜尋和篩選工具欄 -->
+                      <div class="floating-search-toolbar">
+                        <v-text-field v-model="searchKeyword" placeholder="搜尋交易內容..." prepend-inner-icon="mdi-magnify"
+                          variant="outlined" density="compact" clearable @click:clear="searchKeyword = ''" hide-details
+                          class="search-input-floating"></v-text-field>
+
+                        <!-- 篩選按鈕 -->
+                        <v-menu location="bottom end">
+                          <template v-slot:activator="{ props }">
+                            <v-btn icon="mdi-filter-variant" variant="text" color="gray-darken-1"
+                              v-bind="props"></v-btn>
+                          </template>
+                          <v-list class="filter-menu">
+                            <v-list-item @click="sortTransactions('date-desc')"
+                              :class="{ 'active-filter': transactionSort === 'date-desc' }">
+                              <template v-slot:prepend>
+                                <v-icon>mdi-sort-calendar-descending</v-icon>
+                              </template>
+                              <v-list-item-title>日期新到舊</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="sortTransactions('date-asc')"
+                              :class="{ 'active-filter': transactionSort === 'date-asc' }">
+                              <template v-slot:prepend>
+                                <v-icon>mdi-sort-calendar-ascending</v-icon>
+                              </template>
+                              <v-list-item-title>日期舊到新</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="sortTransactions('amount-desc')"
+                              :class="{ 'active-filter': transactionSort === 'amount-desc' }">
+                              <template v-slot:prepend>
+                                <v-icon>mdi-sort-numeric-descending</v-icon>
+                              </template>
+                              <v-list-item-title>金額大到小</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="sortTransactions('amount-asc')"
+                              :class="{ 'active-filter': transactionSort === 'amount-asc' }">
+                              <template v-slot:prepend>
+                                <v-icon>mdi-sort-numeric-ascending</v-icon>
+                              </template>
+                              <v-list-item-title>金額小到大</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item @click="sortTransactions('currency')"
+                              :class="{ 'active-filter': transactionSort === 'currency' }">
+                              <template v-slot:prepend>
+                                <v-icon>mdi-currency-usd</v-icon>
+                              </template>
+                              <v-list-item-title>按幣別排序</v-list-item-title>
+                            </v-list-item>
+                          </v-list>
+                        </v-menu>
+                      </div>
+
+                      <v-card class="dashed-border-card mt-5">
                         <v-list>
                           <template v-for="(dateGroup, index) in groupedTransactions" :key="index">
                             <!-- 日期分組標題 -->
@@ -173,49 +228,7 @@
                         </v-list>
                       </v-card>
 
-                      <!-- 篩選按鈕 -->
-                      <v-menu location="bottom end">
-                        <template v-slot:activator="{ props }">
-                          <v-btn icon="mdi-filter-variant" variant="text" color="gray-darken-1" v-bind="props"></v-btn>
-                        </template>
-                        <v-list class="filter-menu">
-                          <v-list-item @click="sortTransactions('date-desc')"
-                            :class="{ 'active-filter': transactionSort === 'date-desc' }">
-                            <template v-slot:prepend>
-                              <v-icon>mdi-sort-calendar-descending</v-icon>
-                            </template>
-                            <v-list-item-title>日期新到舊</v-list-item-title>
-                          </v-list-item>
-                          <v-list-item @click="sortTransactions('date-asc')"
-                            :class="{ 'active-filter': transactionSort === 'date-asc' }">
-                            <template v-slot:prepend>
-                              <v-icon>mdi-sort-calendar-ascending</v-icon>
-                            </template>
-                            <v-list-item-title>日期舊到新</v-list-item-title>
-                          </v-list-item>
-                          <v-list-item @click="sortTransactions('amount-desc')"
-                            :class="{ 'active-filter': transactionSort === 'amount-desc' }">
-                            <template v-slot:prepend>
-                              <v-icon>mdi-sort-numeric-descending</v-icon>
-                            </template>
-                            <v-list-item-title>金額高到低</v-list-item-title>
-                          </v-list-item>
-                          <v-list-item @click="sortTransactions('amount-asc')"
-                            :class="{ 'active-filter': transactionSort === 'amount-asc' }">
-                            <template v-slot:prepend>
-                              <v-icon>mdi-sort-numeric-ascending</v-icon>
-                            </template>
-                            <v-list-item-title>金額低到高</v-list-item-title>
-                          </v-list-item>
-                          <v-list-item @click="sortTransactions('currency')"
-                            :class="{ 'active-filter': transactionSort === 'currency' }">
-                            <template v-slot:prepend>
-                              <v-icon>mdi-currency-usd</v-icon>
-                            </template>
-                            <v-list-item-title>按幣別排序</v-list-item-title>
-                          </v-list-item>
-                        </v-list>
-                      </v-menu>
+
                     </div>
 
                     <!-- 空狀態 -->
@@ -650,9 +663,9 @@
     <v-menu location="top center">
       <template v-slot:activator="{ props }">
         <v-btn v-if="currentTab === 'transactions'" size="x-large" icon
-          style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 999; background-color: rgb(85, 214, 194);"
+          style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 999; background-color: #000000; border: 2px solid #D4AF37;"
           elevation="8" v-bind="props">
-          <v-icon color="white">mdi-plus</v-icon>
+          <v-icon color="#D4AF37">mdi-plus</v-icon>
         </v-btn>
       </template>
       <v-list class="add-transaction-menu">
@@ -1955,6 +1968,14 @@ onMounted(async () => {
 }
 
 /* 覆寫 Vuetify 預設樣式 */
+.sticky-enabled-window {
+  overflow: visible !important;
+}
+
+.sticky-enabled-window :deep(.v-window__container) {
+  overflow: visible !important;
+}
+
 .v-list-subheader {
   color: #5470C6;
   font-weight: bold;
@@ -1962,6 +1983,21 @@ onMounted(async () => {
   font-size: 1.6em;
   padding-top: 8px;
   padding-bottom: 8px;
+  line-height: 1.2;
+}
+
+.group-name-header {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+  color: #FFD700 !important;
+  border-left: 4px solid #FFD700 !important;
+  border-radius: 0 12px 12px 0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  padding: 12px 16px !important;
+  margin-bottom: 8px !important;
+
+  white-space: normal !important;
+  height: auto !important;
+  word-break: break-word;
   line-height: 1.2;
 }
 
@@ -2034,14 +2070,14 @@ onMounted(async () => {
 
 /* 明細頁日期標籤 - 恢復長條整行樣式 */
 .date-group-header {
-  background-color: #000000 !important;
-  /* 背景純黑 */
-  color: #FFD700 !important;
-  /* 文字金色 */
-  border-bottom: 2px solid #FFD700 !important;
-  /* 金色底線，增加長條感 */
-  border-left: 5px solid #FFD700 !important;
-  /* 左側粗金線，增加設計感 */
+  background-color: #FAFAFA !important;
+  /* 背景極淺灰 */
+  color: #333333 !important;
+  /* 文字深灰 */
+  border-bottom: none !important;
+  /* 移除底線 */
+  border-left: 3px solid #FFD700 !important;
+  /* 左側 3px 金線 */
 
   /* 關鍵樣式調整 */
   display: block !important;
@@ -2054,8 +2090,8 @@ onMounted(async () => {
   /* 增加內距 */
   font-weight: bold !important;
   font-size: 0.95rem !important;
-  border-radius: 0 !important;
-  /* 移除圓角，使其變回長條 */
+  border-radius: 4px !important;
+  /* 圓角 4px */
   box-shadow: none !important;
   /* 移除陰影 */
   opacity: 1 !important;
@@ -2215,7 +2251,51 @@ onMounted(async () => {
 
 }
 
-/* 搜尋框樣式 */
+/* 浮貼搜尋工具欄 */
+.floating-search-toolbar {
+  position: sticky;
+  top: 1px;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(10px);
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: 1px solid #FFD700 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* 搜尋框樣式（浮貼版） */
+.search-input-floating {
+  flex: 1;
+}
+
+.search-input-floating :deep(.v-field) {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  color: #333333 !important;
+}
+
+.search-input-floating :deep(input) {
+  color: #333333 !important;
+}
+
+.search-input-floating :deep(.v-icon) {
+  color: #666666 !important;
+}
+
+.search-input-floating :deep(.v-field--focused) {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 篩選按鈕樣式 */
+.floating-search-toolbar .v-btn {
+  color: #666666 !important;
+}
+
+/* 原本的搜尋框樣式（如果還有其他地方用到）*/
 .search-input :deep(.v-field) {
   background-color: rgba(250, 250, 250, 0.4) !important;
 }

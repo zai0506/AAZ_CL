@@ -605,17 +605,19 @@ function logout() {
 
 /* 覆寫 Vuetify 預設樣式，讓 v-list-subheader 和 v-list-item 背景透明 */
 .v-list-subheader {
-  color: #5470C6;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+  color: #FFD700 !important;
+  border-left: 4px solid #FFD700 !important;
+  border-radius: 0 12px 12px 0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  padding: 8px 16px !important;
+  margin-bottom: 8px !important;
+  margin-left: 16px !important;
+  display: inline-block !important;
+  width: auto !important;
   font-weight: bold;
-  padding-left: 16px;
   font-size: 1.6em;
-  /* 我的行程字體再放大 */
-  padding-top: 8px;
-  /* 增加頂部內邊距 */
-  padding-bottom: 8px;
-  /* 增加底部內邊距 */
   line-height: 1.2;
-  /* 調整行高以確保垂直居中 */
 }
 
 .v-list-item {

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <BackgroundSlideshow />
+    <BackgroundSlideshow v-if="!isLoginPage" />
     <router-view v-if="appReady" v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" />
@@ -16,16 +16,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useProfileDialogStore } from '@/stores/profileDialog';
 import axios from '@/api/axios';
 import ProfileDialog from '@/components/ProfileDialog.vue';
 import BackgroundSlideshow from '@/components/BackgroundSlideshow.vue';
 
+const route = useRoute();
 const userStore = useUserStore();
 const profileDialogStore = useProfileDialogStore();
 const appReady = ref(false);
+
+// 判斷是否在登入頁面
+const isLoginPage = computed(() => route.path === '/login');
 
 onMounted(async () => {
   // 如果 localStorage 有 token，先驗證是否有效
