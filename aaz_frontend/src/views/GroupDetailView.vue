@@ -248,13 +248,12 @@
                     <span class="text-h5 font-weight-bold">行程資訊</span>
                     <v-spacer></v-spacer>
                     <template v-if="!isGroupInfoEditing">
-                      <v-btn icon="mdi-pencil" variant="text" color="#FFD700"
-                        @click="startGroupInfoEdit"></v-btn>
+                      <v-btn icon="mdi-pencil" variant="text" color="#FFD700" @click="startGroupInfoEdit"></v-btn>
                     </template>
                     <template v-else>
                       <v-btn variant="text" color="#FFD700" @click="cancelGroupInfoEdit">取消</v-btn>
-                      <v-btn color="#FFD700" class="text-black" variant="elevated"
-                        @click="saveGroupInfoChanges" :disabled="!formValid || !!dateErrorMessage">儲存</v-btn>
+                      <v-btn color="#FFD700" class="text-black" variant="elevated" @click="saveGroupInfoChanges"
+                        :disabled="!formValid || !!dateErrorMessage">儲存</v-btn>
                     </template>
                   </v-card-title>
 
@@ -346,7 +345,8 @@
                                         size="40" class="mr-3">
                                         <v-icon color="white">{{ getMemberIcon(member.id) }}</v-icon>
                                       </v-avatar>
-                                      <v-icon v-if="member.isCreator" class="crown-badge" color="#FFD700">mdi-crown</v-icon>
+                                      <v-icon v-if="member.isCreator" class="crown-badge"
+                                        color="#FFD700">mdi-crown</v-icon>
                                     </div>
                                     <div class="flex-grow-1">
                                       <div class="text-subtitle-1 font-weight-medium">{{ member.displayName }}</div>
@@ -1946,13 +1946,13 @@ onMounted(async () => {
 
 /* 選中狀態的樣式 */
 .active-nav-item {
-  background-color: rgb(85, 214, 194) !important;
-  color: white !important;
+  background-color: #000000 !important;
+  color: #FFD700 !important;
 }
 
 .active-nav-item .v-icon,
 .active-nav-item .v-list-item-title {
-  color: white !important;
+  color: #FFD700 !important;
 }
 
 /* 覆寫 Vuetify 預設樣式 */
@@ -1972,13 +1972,13 @@ onMounted(async () => {
 }
 
 .nav-item:hover {
-  background-color: rgb(85, 214, 194) !important;
-  color: white !important;
+  background-color: #000000 !important;
+  color: #FFD700 !important;
 }
 
 .nav-item:hover .v-icon,
 .nav-item:hover .v-list-item-title {
-  color: white !important;
+  color: #FFD700 !important;
 }
 
 .nav-item[value='user-menu'] {
@@ -2033,15 +2033,34 @@ onMounted(async () => {
   justify-content: center;
 }
 
+/* 明細頁日期標籤 - 恢復長條整行樣式 */
 .date-group-header {
-  background-color: #f5f5f5;
-  font-weight: bold;
-  color: #666;
-  padding: 12px 16px;
-  font-size: 0.875rem;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
-  margin-top: 0 !important;
+  background-color: #000000 !important;
+  /* 背景純黑 */
+  color: #FFD700 !important;
+  /* 文字金色 */
+  border-bottom: 2px solid #FFD700 !important;
+  /* 金色底線，增加長條感 */
+  border-left: 5px solid #FFD700 !important;
+  /* 左側粗金線，增加設計感 */
+
+  /* 關鍵樣式調整 */
+  display: block !important;
+  /* 確保佔滿整行 */
+  width: 100% !important;
+  /* 強制寬度 100% */
+  margin: 10px 0 !important;
+  /* 上下留白，左右貼齊 */
+  padding: 8px 16px !important;
+  /* 增加內距 */
+  font-weight: bold !important;
+  font-size: 0.95rem !important;
+  border-radius: 0 !important;
+  /* 移除圓角，使其變回長條 */
+  box-shadow: none !important;
+  /* 移除陰影 */
+  opacity: 1 !important;
+  /* 確保文字清晰 */
 }
 
 .date-group-header:first-child {
@@ -2317,13 +2336,11 @@ onMounted(async () => {
   left: 0;
   right: 0;
   height: 2px;
-  background-image: repeating-linear-gradient(
-    to right,
-    rgba(255, 215, 0, 0.3) 0px,
-    rgba(255, 215, 0, 0.3) 8px,
-    transparent 8px,
-    transparent 16px
-  );
+  background-image: repeating-linear-gradient(to right,
+      rgba(255, 215, 0, 0.3) 0px,
+      rgba(255, 215, 0, 0.3) 8px,
+      transparent 8px,
+      transparent 16px);
   pointer-events: none;
 }
 
@@ -2415,29 +2432,43 @@ onMounted(async () => {
 }
 
 .announcement-bubble {
-  position: relative;
+  /* position: relative;
   background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
   border-radius: 18px;
   padding: 20px 24px;
   box-shadow: 0 6px 20px rgba(85, 214, 194, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  border: 2px solid rgba(85, 214, 194, 0.3);
+  border: 2px solid rgba(85, 214, 194, 0.3); */
+  /* --- 修改開始 --- */
+  background-color: #000000 !important;
+  /* 背景改為純黑 */
+  border: 2px solid #FFD700 !important;
+  /* 外框改為金色 */
+  color: #FFD700 !important;
+  /* 內部文字改為金色 */
+  /* --- 修改結束 --- */
+  padding: 16px;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 對話框小尾巴 - 左上角 */
 .announcement-bubble::before {
   content: '';
   position: absolute;
   left: 30px;
-  top: -10px;
+  top: -11px;
+  /* 向上微調 1px，確保完全覆蓋主框的邊界線 */
   width: 20px;
   height: 20px;
-  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
-  border-left: 2px solid rgba(85, 214, 194, 0.3);
-  border-top: 2px solid rgba(85, 214, 194, 0.3);
+  background: #000000 !important;
+  /* 強制純黑 */
+  border-left: 2px solid #FFD700 !important;
+  border-top: 2px solid #FFD700 !important;
   transform: rotate(45deg);
   border-radius: 4px 0 0 0;
-  z-index: -1;
+  /* 關鍵：將 z-index 設為正數，讓它疊在主框的 border 之上 */
+  z-index: 2;
 }
 
 /* 清除連接處的橫線 */
@@ -2453,7 +2484,7 @@ onMounted(async () => {
 }
 
 .announcement-bubble p {
-  color: #444;
+  color: #FFD700 !important;
   line-height: 1.7;
   position: relative;
   z-index: 2;
@@ -2461,13 +2492,18 @@ onMounted(async () => {
 
 /* 編輯模式的對話框樣式 */
 .announcement-bubble-edit {
+  /* --- 修改開始 --- */
+  background-color: #000000 !important;
+  /* 背景改為純黑 */
+  border: 2px solid #FFD700 !important;
+  /* 外框改為金色 */
+  color: #FFD700 !important;
+  /* 內部文字改為金色 */
+  /* --- 修改結束 --- */
+  padding: 16px;
+  border-radius: 12px;
   position: relative;
-  background: linear-gradient(135deg, rgba(85, 214, 194, 0.08) 0%, #FFF 100%);
-  border-radius: 18px;
-  padding: 20px 24px;
-  box-shadow: 0 6px 20px rgba(85, 214, 194, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  border: 2px solid rgba(85, 214, 194, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .announcement-bubble-edit::before {
@@ -2504,7 +2540,7 @@ onMounted(async () => {
   resize: none;
   font-family: inherit;
   font-size: 1rem;
-  color: #444;
+  color: #FFD700;
   line-height: 1.7;
   position: relative;
   z-index: 2;
@@ -2647,5 +2683,10 @@ onMounted(async () => {
   border-color: rgba(145, 204, 117, 0.4);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(145, 204, 117, 0.2);
+}
+
+.nav-header .v-btn:hover {
+  background-color: #000000 !important;
+  color: #FFD700 !important;
 }
 </style>

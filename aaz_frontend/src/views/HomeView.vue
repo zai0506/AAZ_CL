@@ -139,7 +139,7 @@
               <div class="d-flex align-center mt-4">
                 <span v-if="newGroupDateError" class="text-red text-caption ml-2">{{
                   newGroupDateError
-                }}</span>
+                  }}</span>
               </div>
               <v-text-field v-model="newGroup.startDate" type="date" prepend-icon="mdi-calendar-start"
                 :error="!!newGroupDateError" :rules="[(v) => !!v || '此欄位為必填']" required>
@@ -555,16 +555,16 @@ function logout() {
 }
 
 .nav-item:hover {
-  background-color: rgb(85, 214, 194) !important;
+  background-color: #000000 !important;
   /* HOVER時框內顏色 */
-  color: white !important;
+  color: #FFD700 !important;
   /* HOVER時字體變白色 */
 }
 
 /* 確保 hover 時內部的 icon 和 title 也變色 */
 .nav-item:hover .v-icon,
 .nav-item:hover .v-list-item-title {
-  color: white !important;
+  color: #FFD700 !important;
 }
 
 /* hover 時確保新增群組項目也變白 */
@@ -572,7 +572,7 @@ function logout() {
 .nav-item-add:hover .v-list-item-title,
 .nav-item-add:hover :deep(.v-list-item__prepend .v-icon),
 .nav-item-add:hover :deep(.v-list-item__content) {
-  color: white !important;
+  color: #FFD700 !important;
 }
 
 /* 新增群組項目的預設顏色 */
