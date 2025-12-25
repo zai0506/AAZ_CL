@@ -2,106 +2,98 @@
   <div class="login-page-wrapper">
     <!-- 明信片拼圖背景 -->
     <div class="postcard-background">
-      <div
-        v-for="(tile, index) in backgroundTiles"
-        :key="tile.id"
-        class="postcard-tile"
-        :style="{
-          backgroundImage: `url(/background/${tile.imageId}.jpg)`,
-          transform: `rotate(${tile.rotation}deg)`,
-          top: tile.position.top,
-          left: tile.position.left,
-          zIndex: tile.zIndex
-        }"
-      >
+      <div v-for="(tile, index) in backgroundTiles" :key="tile.id" class="postcard-tile" :style="{
+        backgroundImage: `url(/background/${tile.imageId}.jpg)`,
+        transform: `rotate(${tile.rotation}deg)`,
+        top: tile.position.top,
+        left: tile.position.left,
+        zIndex: tile.zIndex
+      }">
         <!-- 新圖片淡入層 -->
-        <div
-          class="postcard-overlay"
-          :style="{
-            backgroundImage: tile.nextImageId ? `url(/background/${tile.nextImageId}.jpg)` : 'none',
-            opacity: tile.nextImageId ? 1 : 0
-          }"
-        ></div>
+        <div class="postcard-overlay" :style="{
+          backgroundImage: tile.nextImageId ? `url(/background/${tile.nextImageId}.jpg)` : 'none',
+          opacity: tile.nextImageId ? 1 : 0
+        }"></div>
       </div>
     </div>
 
     <v-container fluid class="fill-height login-content">
       <v-row justify="center" align="center">
         <v-col cols="12" sm="8" md="6" lg="4">
-        <!-- 系統名稱區塊 -->
-        <!-- <v-card class="elevation-8 mb-4 text-center pa-4 system-name">
+          <!-- 系統名稱區塊 -->
+          <!-- <v-card class="elevation-8 mb-4 text-center pa-4 system-name">
 
         </v-card> -->
 
-        <!-- 登入表單 -->
-        <v-card class="elevation-8 pa-6" :class="{ 'animating-container': showSuccessAnimation }"
-          style="background-color: rgba(255, 255, 255, 0.85); transition: all 0.5s ease;">
-          <h1 class="logo-title d-flex align-center justify-center mb-6">
-            欸
-            <img src="/AAZ_icon.png" alt="A" class="logo-icon"
-              :class="{ 'animate-logo': showSuccessAnimation, 'logo-enlarged': showSuccessAnimation }" />
-            誌
-          </h1>
+          <!-- 登入表單 -->
+          <v-card class="elevation-8 pa-6" :class="{ 'animating-container': showSuccessAnimation }"
+            style="background-color: rgba(255, 255, 255, 0.85); transition: all 0.5s ease;">
+            <h1 class="logo-title d-flex align-center justify-center mb-6">
+              欸
+              <img src="/AAZ_icon.png" alt="A" class="logo-icon"
+                :class="{ 'animate-logo': showSuccessAnimation, 'logo-enlarged': showSuccessAnimation }" />
+              誌
+            </h1>
 
-          <template v-if="!showSuccessAnimation">
-            <v-form ref="formRef" v-model="valid" @submit.prevent="handleSubmit">
-              <!-- Email 欄位 -->
-              <v-text-field v-model="email" label="Email" type="email" prepend-inner-icon="mdi-email"
-                :rules="emailRules" required variant="outlined" class="mb-2"></v-text-field>
+            <template v-if="!showSuccessAnimation">
+              <v-form ref="formRef" v-model="valid" @submit.prevent="handleSubmit">
+                <!-- Email 欄位 -->
+                <v-text-field v-model="email" label="Email" type="email" prepend-inner-icon="mdi-email"
+                  :rules="emailRules" required variant="outlined" class="mb-2"></v-text-field>
 
-              <!-- 暱稱欄位（僅註冊時顯示） -->
-              <v-text-field v-if="!isLogin" v-model="nickname" label="暱稱" prepend-inner-icon="mdi-account"
-                :rules="nicknameRules" required variant="outlined" class="mb-2"></v-text-field>
+                <!-- 暱稱欄位（僅註冊時顯示） -->
+                <v-text-field v-if="!isLogin" v-model="nickname" label="暱稱" prepend-inner-icon="mdi-account"
+                  :rules="nicknameRules" required variant="outlined" class="mb-2"></v-text-field>
 
-              <!-- 密碼欄位 -->
-              <v-text-field v-model="password" :label="isLogin ? '密碼' : '設定密碼'"
-                :type="showPassword ? 'text' : 'password'" prepend-inner-icon="mdi-lock"
-                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                @click:append-inner="showPassword = !showPassword" :rules="passwordRules" required variant="outlined"
-                class="mb-2"></v-text-field>
+                <!-- 密碼欄位 -->
+                <v-text-field v-model="password" :label="isLogin ? '密碼' : '設定密碼'"
+                  :type="showPassword ? 'text' : 'password'" prepend-inner-icon="mdi-lock"
+                  :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append-inner="showPassword = !showPassword" :rules="passwordRules" required variant="outlined"
+                  class="mb-2"></v-text-field>
 
-              <!-- 確認密碼欄位（僅註冊時顯示） -->
-              <v-text-field v-if="!isLogin" v-model="confirmPassword" label="確認密碼"
-                :type="showConfirmPassword ? 'text' : 'password'" prepend-inner-icon="mdi-lock-check"
-                :append-inner-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                @click:append-inner="showConfirmPassword = !showConfirmPassword" :rules="confirmPasswordRules" required
-                variant="outlined" class="mb-4"></v-text-field>
+                <!-- 確認密碼欄位（僅註冊時顯示） -->
+                <v-text-field v-if="!isLogin" v-model="confirmPassword" label="確認密碼"
+                  :type="showConfirmPassword ? 'text' : 'password'" prepend-inner-icon="mdi-lock-check"
+                  :append-inner-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                  @click:append-inner="showConfirmPassword = !showConfirmPassword" :rules="confirmPasswordRules"
+                  required variant="outlined" class="mb-4"></v-text-field>
 
-              <!-- 錯誤訊息 -->
-              <v-alert v-if="errorMessage" type="error" variant="tonal" class="mb-4" closable
-                @click:close="errorMessage = ''">
-                {{ errorMessage }}
-              </v-alert>
+                <!-- 錯誤訊息 -->
+                <v-alert v-if="errorMessage" type="error" variant="tonal" class="mb-4" closable
+                  @click:close="errorMessage = ''">
+                  {{ errorMessage }}
+                </v-alert>
 
-              <!-- 成功訊息 -->
-              <v-alert v-if="successMessage" type="success" variant="tonal" class="mb-4" closable
-                @click:close="successMessage = ''">
-                {{ successMessage }}
-              </v-alert>
+                <!-- 成功訊息 -->
+                <v-alert v-if="successMessage" type="success" variant="tonal" class="mb-4" closable
+                  @click:close="successMessage = ''">
+                  {{ successMessage }}
+                </v-alert>
 
-              <!-- 提交按鈕 -->
-              <v-btn type="submit" color="#5470C6" size="large" block :loading="loading" :disabled="!valid">
-                {{ isLogin ? '登入' : '註冊' }}
-              </v-btn>
-            </v-form>
+                <!-- 提交按鈕 -->
+                <v-btn type="submit" color="#5470C6" size="large" block :loading="loading" :disabled="!valid">
+                  {{ isLogin ? '登入' : '註冊' }}
+                </v-btn>
+              </v-form>
 
-            <!-- 切換登入/註冊連結 -->
-            <div class="text-center mt-4">
-              <template v-if="isLogin">
-                <span class="text-body-2">還沒有帳號？</span>
-                <a @click="toggleMode" class="toggle-link text-body-2">註冊</a>
-                <span class="text-body-2">一個吧</span>
-              </template>
-              <template v-else>
-                <span class="text-body-2">已經有帳號了？</span>
-                <a @click="toggleMode" class="toggle-link text-body-2">登入</a>
-              </template>
-            </div>
-          </template>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+              <!-- 切換登入/註冊連結 -->
+              <div class="text-center mt-4">
+                <template v-if="isLogin">
+                  <span class="text-body-2">還沒有帳號？</span>
+                  <a @click="toggleMode" class="toggle-link text-body-2">註冊</a>
+                  <span class="text-body-2">一個吧</span>
+                </template>
+                <template v-else>
+                  <span class="text-body-2">已經有帳號了？</span>
+                  <a @click="toggleMode" class="toggle-link text-body-2">登入</a>
+                </template>
+              </div>
+            </template>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -175,7 +167,7 @@ onMounted(() => {
   initBackgroundTiles();
   console.log('Background tiles initialized:', backgroundTiles.value);
   // 每4秒隨機更換一些格子
-  refreshInterval = setInterval(refreshRandomTiles, 4000);
+  refreshInterval = setInterval(refreshRandomTiles, 3000);
 });
 
 onUnmounted(() => {
@@ -304,7 +296,8 @@ const handleSubmit = async () => {
   width: 100%;
   height: 100%;
   z-index: 1;
-  background: linear-gradient(135deg, #f5f5f0 0%, #e8e8dc 100%);
+  background-image: url('/woodpic.jpg');
+  background-size: cover;
   pointer-events: none;
   overflow: hidden;
   opacity: 0.7;
@@ -349,12 +342,10 @@ const handleSubmit = async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.05) 100%);
   pointer-events: none;
 }
 
